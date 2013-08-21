@@ -3,6 +3,7 @@ package org.kuali.kfs.module.ld.document.validation.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kuali.kfs.module.ld.LaborConstants;
 import org.kuali.kfs.module.ld.LaborKeyConstants;
@@ -30,7 +31,7 @@ public class LaborExpenseTransferAccountTypesValidation extends GenericValidatio
      * Validates before the document routes 
      * @see org.kuali.kfs.validation.Validation#validate(java.lang.Object[])
      */
-    @SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	public boolean validate(AttributedDocumentEvent event) {
         boolean isValid = true;
            
@@ -40,14 +41,16 @@ public class LaborExpenseTransferAccountTypesValidation extends GenericValidatio
 
 			LaborExpenseTransferDocumentBase expenseTransferDocument = (LaborExpenseTransferDocumentBase) documentForValidation;
 
-			List sourceLines = expenseTransferDocument.getSourceAccountingLines();
-			List targetLines = expenseTransferDocument.getTargetAccountingLines();
+			List<AccountingLine> sourceLines = (List<AccountingLine>)expenseTransferDocument.getSourceAccountingLines();
+			List<AccountingLine> targetLines = (List<AccountingLine>)expenseTransferDocument.getTargetAccountingLines();
 			List<String> invalidAccountTypes = parameterService.getParameterValues(LaborConstants.LABOR_MODULE_CODE,
 							ParameterConstants.DOCUMENT_COMPONENT,LdParameterConstants.INVALID_TRANSFER_ACCOUNT_TYPES);
 
-			if (isInvalidTransferBetweenAccountTypes(sourceLines, targetLines, invalidAccountTypes)) {
-				GlobalVariables.getMessageMap().putError(KFSPropertyConstants.SOURCE_ACCOUNTING_LINES, LaborKeyConstants.INVALID_ACCOUNTTRANSFER_ERROR);
-				isValid = false;
+			if (CollectionUtils.isNotEmpty(sourceLines) && CollectionUtils.isNotEmpty(targetLines)) {
+		    	if (isInvalidTransferBetweenAccountTypes(sourceLines, targetLines, invalidAccountTypes)) {
+				    GlobalVariables.getMessageMap().putError(KFSPropertyConstants.SOURCE_ACCOUNTING_LINES, LaborKeyConstants.INVALID_ACCOUNTTRANSFER_ERROR);
+				    isValid = false;
+			    }
 			}
         }
 
@@ -61,28 +64,41 @@ public class LaborExpenseTransferAccountTypesValidation extends GenericValidatio
      * @param targetLines
      * @return
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public boolean isInvalidTransferBetweenAccountTypes(List sourceLines, List targetLines, List<String> invalidAccountTypes) {
+	private boolean isInvalidTransferBetweenAccountTypes(List<AccountingLine> sourceLines, List<AccountingLine> targetLines, List<String> invalidAccountTypes) {
 
         List<String> sourceAccountTypes = new ArrayList<String>();
 
-        for (AccountingLine line : (List<AccountingLine>)sourceLines) {
+        boolean isInvalid = false;
+        for (AccountingLine line : sourceLines) {
             if (invalidAccountTypes.contains(line.getAccount().getAccountTypeCode()) && !sourceAccountTypes.contains(line.getAccount().getAccountTypeCode())) {
                 sourceAccountTypes.add(line.getAccount().getAccountTypeCode());
             }
         }
 
-        List<String> targetAccountTypes = new ArrayList<String>();
         for (AccountingLine line : (List<AccountingLine>)targetLines) {
-            if (invalidAccountTypes.contains(line.getAccount().getAccountTypeCode()) && !targetAccountTypes.contains(line.getAccount().getAccountTypeCode())) {
-            	targetAccountTypes.add(line.getAccount().getAccountTypeCode());
+            if (invalidAccountTypes.contains(line.getAccount().getAccountTypeCode()) && isSourceAccountTypeDifferent(sourceAccountTypes, line.getAccount().getAccountTypeCode())) {
+            	isInvalid = true;
+            	break;
             }
         }
 
-        return !(sourceAccountTypes.size() == 0  || targetAccountTypes.size() == 0 ||
-        		   (sourceAccountTypes.size() == 1 && targetAccountTypes.size() == 1 && StringUtils.equals(sourceAccountTypes.get(0), targetAccountTypes.get(0))));
+        return isInvalid;
     }
        
+	/*
+	 * check if there is different account types found in source account types list
+	 */
+	private boolean isSourceAccountTypeDifferent (List<String> sourceAccountTypes, String targetAccountTypes) {
+		boolean isDifferent = false;
+		for (String sourceAccountType : sourceAccountTypes) {
+			if (!StringUtils.equals(sourceAccountType, targetAccountTypes)) {
+				isDifferent = true;
+				break;
+			}
+		}
+		return isDifferent;
+	}
+	
     /**
      * Gets the documentForValidation attribute. 
      * @return Returns the documentForValidation.
