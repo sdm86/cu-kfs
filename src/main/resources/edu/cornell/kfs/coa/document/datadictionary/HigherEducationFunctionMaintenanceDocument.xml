@@ -18,7 +18,7 @@
   <bean id="HigherEducationFunctionMaintenanceDocument" parent="HigherEducationFunctionMaintenanceDocument-parentBean"/>
 
   <bean id="HigherEducationFunctionMaintenanceDocument-parentBean" abstract="true" parent="MaintenanceDocumentEntry">
-    <property name="businessObjectClass" value="org.kuali.kfs.coa.businessobject.HigherEducationFunction"/>
+    <property name="businessObjectClass" value="edu.cornell.kfs.coa.businessobject.HigherEducationFunction"/>
     <property name="maintainableClass" value="org.kuali.kfs.sys.document.FinancialSystemMaintainable"/>
     <property name="maintainableSections">
       <list>
@@ -60,6 +60,7 @@
       <list>
         <bean parent="MaintainableFieldDefinition" p:name="financialHigherEdFunctionCd" p:required="true"/>
         <bean parent="MaintainableFieldDefinition" p:name="financialHigherEdFunctionNm" p:required="true"/>
+        <bean parent="MaintainableFieldDefinition" p:name="financialHigherEdFunctionDescription" p:required="true"/>
         <bean parent="MaintainableFieldDefinition" p:name="finUnivBdgtOfficeFunctionCd" p:required="true"/>
         <bean parent="MaintainableFieldDefinition" p:name="finAicpaFunctionCode" p:required="true"/>
         <bean parent="MaintainableFieldDefinition" p:name="financialFederalFunctionCode" p:required="true"/>
