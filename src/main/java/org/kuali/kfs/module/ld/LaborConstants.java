@@ -301,4 +301,7 @@ public class LaborConstants {
         public static final String GENERATE_FRINGE_BENEFIT_PARAMETER = "GENERATE_FRINGE_BENEFIT";
         public static final String GENERATE_FRINGE_BENEFIT_ENCUMBRANCE_PARAMETER = "GENERATE_FRINGE_BENEFIT_ENCUMBRANCE";
     }
+    
+    public static final String LABOR_DISTRIBUTION_MANAGER = "Labor Distribution Manager (cu)";
+
 }
