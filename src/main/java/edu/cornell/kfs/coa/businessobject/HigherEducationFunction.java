@@ -17,9 +17,6 @@ package edu.cornell.kfs.coa.businessobject;
 
 import java.util.LinkedHashMap;
 
-import org.kuali.kfs.coa.businessobject.AICPAFunction;
-import org.kuali.kfs.coa.businessobject.FederalFunction;
-import org.kuali.kfs.coa.businessobject.UniversityBudgetOfficeFunction;
 import org.kuali.rice.kns.bo.Inactivateable;
 import org.kuali.rice.kns.bo.PersistableBusinessObjectBase;
 
@@ -28,13 +25,8 @@ import org.kuali.rice.kns.bo.PersistableBusinessObjectBase;
  */
 public class HigherEducationFunction extends PersistableBusinessObjectBase implements Inactivateable {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private String financialHigherEdFunctionCd;
+    private String financialHigherEdFunctionCd;
     private String financialHigherEdFunctionNm;
-    private String financialHigherEdFunctionDescription;
     private String finUnivBdgtOfficeFunctionCd;
     private String finAicpaFunctionCode;
     private String financialFederalFunctionCode;
@@ -87,20 +79,6 @@ public class HigherEducationFunction extends PersistableBusinessObjectBase imple
         this.financialHigherEdFunctionNm = financialHigherEdFunctionNm;
     }
 
-	/**
-	 * @return the financialHigherEdFunctionDescription
-	 */
-	public String getFinancialHigherEdFunctionDescription() {
-		return financialHigherEdFunctionDescription;
-	}
-	
-	/**
-	 * @param financialHigherEdFunctionDescription the financialHigherEdFunctionDescription to set
-	 */
-	public void setFinancialHigherEdFunctionDescription(String financialHigherEdFunctionDescription) {
-		this.financialHigherEdFunctionDescription = financialHigherEdFunctionDescription;
-	}
-  
     /**
      * Gets the finUnivBdgtOfficeFunctionCd attribute.
      * 
