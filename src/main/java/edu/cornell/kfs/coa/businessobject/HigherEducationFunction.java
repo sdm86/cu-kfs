@@ -90,7 +90,7 @@ public class HigherEducationFunction extends PersistableBusinessObjectBase imple
 	/**
 	 * @return the financialHigherEdFunctionDescription
 	 */
-	public String geFinancialHigherEdFunctionDescription() {
+	public String getFinancialHigherEdFunctionDescription() {
 		return financialHigherEdFunctionDescription;
 	}
 	
