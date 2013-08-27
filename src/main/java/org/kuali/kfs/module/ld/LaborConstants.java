@@ -302,6 +302,6 @@ public class LaborConstants {
         public static final String GENERATE_FRINGE_BENEFIT_ENCUMBRANCE_PARAMETER = "GENERATE_FRINGE_BENEFIT_ENCUMBRANCE";
     }
     
-    public static final String LABOR_DISTRIBUTION_MANAGER = "Labor Distribution Manager (cu)";
+    public static final String LD_ACCOUNT_TYPE_TRANSFER_EXCEPTION = "LD Account Type Transfer Exception";
 
 }
