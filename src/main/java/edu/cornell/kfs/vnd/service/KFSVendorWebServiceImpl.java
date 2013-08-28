@@ -30,7 +30,6 @@ import org.kuali.rice.kns.bo.Attachment;
 import org.kuali.rice.kns.bo.Note;
 import org.kuali.rice.kns.document.MaintenanceDocument;
 import org.kuali.rice.kns.exception.ValidationException;
-import org.kuali.rice.kns.maintenance.Maintainable;
 import org.kuali.rice.kns.service.AttachmentService;
 import org.kuali.rice.kns.service.DocumentService;
 import org.kuali.rice.kns.service.KualiConfigurationService;
@@ -64,12 +63,10 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 
 	private static final String VENDOR_NOT_FOUND ="Vendor Not Found";
     private static Logger LOG = Logger.getLogger(KFSVendorWebServiceImpl.class);
-    private NoteService noteService;
-    private VendorService vendorService;
-    
 	/**
 	 * 
 	 */
+	// TODO : need to add poTransmissionMethodCode in web service params. 'name' in contact is also required
 	public String addVendor(String vendorName, String vendorTypeCode, boolean isForeign, String taxNumber, String taxNumberType, String ownershipTypeCode, boolean isTaxable, boolean isEInvoice,
 			                 List<VendorAddressParam> addresses,List<VendorContactParam> contacts, List<VendorPhoneNumberParam> phoneNumbers, List<VendorSupplierDiversityParam> supplierDiversitys) throws Exception {
         UserSession actualUserSession = GlobalVariables.getUserSession();
@@ -92,12 +89,23 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
         	vDetail.setVendorName(vendorName);
         	vDetail.setActiveIndicator(true);
         	vDetail.setTaxableIndicator(isTaxable);
+
         	((VendorDetailExtension)vDetail.getExtension()).setEinvoiceVendorIndicator(isEInvoice);
+
+        	// how should address be handled.  If no addres type code matched, then create, otherwise change ?
+        	// how do we know that this is just to change the address type code.  should there is another filed, say 'oldAddressTypeCode' ?
         	vDetail.setVendorAddresses(getVendorAddresses(addresses, vDetail));
+
+        	// also, question for contact, are we assume, the contact type is always "VI" ?
+        	// should we handle like address ?
+        	// Contact type does not have "VT" which is originally set up
         	vDetail.setVendorContacts(getVendorContacts(contacts));
+
+        	
         	vDetail.setVendorPhoneNumbers(getVendorPhoneNumbers(phoneNumbers));
 
-            VendorHeader vHeader = vDetail.getVendorHeader();
+        	
+        	VendorHeader vHeader = vDetail.getVendorHeader();
         	
         	vHeader.setVendorTypeCode(vendorTypeCode);
         	vHeader.setVendorTaxNumber(taxNumber);
@@ -110,8 +118,8 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
         	vImpl.setBusinessObject(vDetail);
         	vendorDoc.setNewMaintainableObject(vImpl);
 
-        	addNoteToVendor(vImpl, vendorDoc.getDocumentNumber());
-          	docService.routeDocument(vendorDoc, "", null);
+        	docService.routeDocument(vendorDoc, "", null);
+        	
             return vendorDoc.getDocumentNumber();
         } catch (Exception e) {
         	return "Failed request : "+ e.getMessage() + KFSConstants.NEWLINE + getValidationErrors(e);
@@ -166,9 +174,6 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
     	return vAddrs;
 	}
 	
-	/*
-	 * populate vendor contact list from request contact parameter
-	 */
 	private List<VendorContact> getVendorContacts(List<VendorContactParam> contacts) {
     	ArrayList<VendorContact> vendorContacts = new ArrayList<VendorContact>();
     	if (CollectionUtils.isNotEmpty(contacts)) {
@@ -182,9 +187,6 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
     	return vendorContacts;
 	}
 	
-	/*
-	 * populate vendor phonenumber list from request phonenumber parameter
-	 */
 	private List<VendorPhoneNumber> getVendorPhoneNumbers(List<VendorPhoneNumberParam> phoneNumbers) {
     	List<VendorPhoneNumber> vendorPhoneNumbers = new ArrayList<VendorPhoneNumber>();
     	if (CollectionUtils.isNotEmpty(phoneNumbers)) {
@@ -199,9 +201,6 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
     	return vendorPhoneNumbers;
 	}
 	
-	/*
-	 * populate vendor supplierdiversity list from request supplierdiversity parameter
-	 */
 	private List<VendorSupplierDiversity> getVendorSupplierDiversitys(List<VendorSupplierDiversityParam> supplierDiversitys) {
     	List<VendorSupplierDiversity> vendorSupplierDiversitys = new ArrayList<VendorSupplierDiversity>();
     	if (CollectionUtils.isNotEmpty(supplierDiversitys)) {
@@ -240,6 +239,8 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
         	vDetail.setDefaultAddressCountryCode(address.getVendorCountryCode());
 			
 		}
+		// TODO : need to add poTransmissionMethodCode because it is
+		// required if PO type
 		vendorAddr.setPurchaseOrderTransmissionMethodCode(address.getPurchaseOrderTransmissionMethodCode());
 		vendorAddr.setVendorAddressEmailAddress(address.getVendorAddressEmailAddress());						
 		vendorAddr.setVendorFaxNumber(address.getVendorFaxNumber());
@@ -293,9 +294,9 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 			LOG.info("updateVendor " + vendorNumber);
 				VendorDetail vendor = retrieveVendor(vendorNumber, "VENDORID");
 				if (vendor != null) {
-					// Vendor does not exist
-				    VendorMaintainableImpl oldVendorImpl = (VendorMaintainableImpl) vendorDoc.getOldMaintainableObject();
-				    oldVendorImpl.setBusinessObject(vendor);
+					// Vendor does not eist
+				VendorMaintainableImpl oldVendorImpl = (VendorMaintainableImpl) vendorDoc.getOldMaintainableObject();
+				oldVendorImpl.setBusinessObject(vendor);
 
 				} else {
 					// Vendor does not eist
@@ -330,13 +331,12 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 			vHeader.setVendorForeignIndicator(isForeign);
 			vHeader.setVendorOwnershipCode(ownershipTypeCode);
 
-//			vDetail.setVendorHeader(vHeader);
+			vDetail.setVendorHeader(vHeader);
 			vImpl.setBusinessObject(vDetail);
 			vendorDoc.setNewMaintainableObject(vImpl);
 
-        	addNoteToVendor(vImpl, vendorDoc.getDocumentNumber());
-        	addNoteForEditToVendor(vImpl, vendor, vDetail);
 			docService.routeDocument(vendorDoc, "", null);
+
 			return vendorDoc.getDocumentNumber();
         } catch (Exception e) {
         	LOG.info("updateVendor STE " + e.getStackTrace()+e.toString());
@@ -364,6 +364,7 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 			     vDetail.getVendorAddresses().add(vendorAddr);
 			     vendor.getVendorAddresses().add(new VendorAddress()); // oldobj
 			}
+			// TODO : how about those existing addr, but not passed from request, should they be 'inactivated' ?
 		}        	
     	}
 	}
@@ -372,23 +373,23 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 	 * update vendor contacts from request contact data
 	 */
 	private void updateVendorContacts(List<VendorContactParam> contacts, VendorDetail vendor, VendorDetail vDetail) {
-		if (CollectionUtils.isNotEmpty(contacts)) {
-			for (VendorContactParam contact : contacts) {
-				LOG.info("updateVendor contact " + contact + "~" + contact.getVendorContactGeneratedIdentifier() + "~"
-						+ contact.getVendorContactName());
-				VendorContact vContact = new VendorContact();
-				if (contact.getVendorContactGeneratedIdentifier() != null) {
-					vContact = getExistingVendorContact(vDetail, contact.getVendorContactGeneratedIdentifier());
-				}
-				populateVendorContact(contact, vContact);
-				if (vContact.getVendorContactGeneratedIdentifier() == null) {
-					vDetail.getVendorContacts().add(vContact);
-					vendor.getVendorContacts().add(new VendorContact()); // oldobj
-
-				}
-
-			}
-		}
+    	if (CollectionUtils.isNotEmpty(contacts)) {
+    	for (VendorContactParam contact : contacts) {
+			LOG.info("updateVendor contact " + contact+ "~" +contact.getVendorContactGeneratedIdentifier()+ "~"+contact.getVendorContactName());
+        	VendorContact vContact = new VendorContact();
+        	if (contact.getVendorContactGeneratedIdentifier() != null) {
+        		vContact = getExistingVendorContact(vDetail, contact.getVendorContactGeneratedIdentifier());
+        	}
+			populateVendorContact(contact, vContact);
+        	if (vContact.getVendorContactGeneratedIdentifier() == null) {
+            	vDetail.getVendorContacts().add(vContact);
+			     vendor.getVendorContacts().add(new VendorContact()); // oldobj
+      		
+        	}
+        	// TODO : what to do with those existing contacts, but not passed from request
+   		
+    	}
+    	}
 	}
 
 	
@@ -396,23 +397,23 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 	 * update vendor Phone numbers from request Phone numbers data
 	 */
 	private void updateVendorPhoneNumbers(List<VendorPhoneNumberParam> phoneNumbers, VendorDetail vendor, VendorDetail vDetail) {
-		if (CollectionUtils.isNotEmpty(phoneNumbers)) {
-			for (VendorPhoneNumberParam phoneNumber : phoneNumbers) {
-				LOG.info("updateVendor phoneNumber " + phoneNumber + "~" + phoneNumber.getVendorPhoneGeneratedIdentifier() + "~"
-						+ phoneNumber.getVendorPhoneTypeCode());
-				VendorPhoneNumber vPhoneNumber = new VendorPhoneNumber();
-				if (phoneNumber.getVendorPhoneGeneratedIdentifier() != null) {
-					vPhoneNumber = getExistingVendorPhoneNumber(vDetail, phoneNumber.getVendorPhoneGeneratedIdentifier());
-				}
-				populateVendorPhoneNumber(phoneNumber, vPhoneNumber);
-				if (vPhoneNumber.getVendorPhoneGeneratedIdentifier() == null) {
-					vDetail.getVendorPhoneNumbers().add(vPhoneNumber);
-					vendor.getVendorPhoneNumbers().add(new VendorPhoneNumber()); // oldobj
-
-				}
-
-			}
-		}
+    	if (CollectionUtils.isNotEmpty(phoneNumbers)) {
+    	for (VendorPhoneNumberParam phoneNumber : phoneNumbers) {
+			LOG.info("updateVendor phoneNumber " + phoneNumber+ "~"+phoneNumber.getVendorPhoneGeneratedIdentifier()+ "~"+phoneNumber.getVendorPhoneTypeCode());
+    		VendorPhoneNumber vPhoneNumber = new VendorPhoneNumber();
+        	if (phoneNumber.getVendorPhoneGeneratedIdentifier() != null) {
+        		vPhoneNumber = getExistingVendorPhoneNumber(vDetail, phoneNumber.getVendorPhoneGeneratedIdentifier());
+        	}
+        	populateVendorPhoneNumber(phoneNumber, vPhoneNumber);
+        	if (vPhoneNumber.getVendorPhoneGeneratedIdentifier() == null) {
+            	vDetail.getVendorPhoneNumbers().add(vPhoneNumber);
+			     vendor.getVendorPhoneNumbers().add(new VendorPhoneNumber()); // oldobj
+      		
+        	}
+        	// TODO : what to do with those existing contacts, but not passed from request
+   		
+    	}
+    	}
 	}
 
 	/*
@@ -662,67 +663,4 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 		return VENDOR_NOT_FOUND;
 	}
 	
-    private void addNoteToVendor(Maintainable maintainable, String documentNumber) {
-        String noteText = StringUtils.equals(KFSConstants.MAINTENANCE_EDIT_ACTION, maintainable.getMaintenanceAction()) ?
-        		"Change vendor document ID " + documentNumber : "Add vendor document ID " + documentNumber;
-        addVendorNote(maintainable, noteText);;
-    }
-
-    private void addVendorNote(Maintainable maintainable, String noteText) {
-        Note newBONote = new Note();
-      newBONote.setNoteText(noteText);
-        try {
-            newBONote = getNoteService().createNote(newBONote, maintainable.getBusinessObject());
-
-         //   getNoteService().save(newBONote);
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Caught Exception While Trying To Add Note to Vendor", e);
-        }
-        maintainable.getBusinessObject().getBoNotes().add(newBONote);      
-
-    }
-    
-    private void addNoteForEditToVendor(Maintainable maintainable,VendorDetail oldVDtl, VendorDetail newVDtl) {
-    	
-    	StringBuffer sb = new StringBuffer();
-    	 
-    	if (!oldVDtl.getVendorHeader().isEqualForRouting(newVDtl.getVendorHeader())) {
-    		sb.append("Vendor Header edited, ");
-    	}
-    	if (!oldVDtl.isEqualForRouting(newVDtl)) {
-    		sb.append("Vendor detail edited, ");
-    	}
-     	if (!getVendorService().equalMemberLists(oldVDtl.getVendorAddresses(), newVDtl.getVendorAddresses())) {
-    		sb.append("Address tab edited , ");
-    	}
-    	if (!getVendorService().equalMemberLists(oldVDtl.getVendorContacts(), newVDtl.getVendorContacts())) {
-    		sb.append("Contact tab edited, ");
-    	}
-    	if (!getVendorService().equalMemberLists(oldVDtl.getVendorPhoneNumbers(), newVDtl.getVendorPhoneNumbers())) {
-    		sb.append("Phone Number tab edited, ");
-    	}
-    	if (!getVendorService().equalMemberLists(oldVDtl.getVendorHeader().getVendorSupplierDiversities(), newVDtl.getVendorHeader().getVendorSupplierDiversities())) {
-    		sb.append("Supplier Diversity tab edited, ");
-    	}
-	
-    	if (StringUtils.isNotBlank(sb.toString())) {
-            addVendorNote(maintainable, sb.toString().substring(0, sb.toString().lastIndexOf(",")));;    		
-    	}
-    }
-    
-	public NoteService getNoteService() {
-		if (noteService == null) {
-			noteService = SpringContext.getBean(NoteService.class);
-		}
-		return noteService;
-	}
-
-	public VendorService getVendorService() {
-		if (vendorService == null) {
-			vendorService = SpringContext.getBean(VendorService.class);
-		}
-		return vendorService;
-	}
-
 }
