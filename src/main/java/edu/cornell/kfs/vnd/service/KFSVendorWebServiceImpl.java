@@ -82,12 +82,9 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
         	DocumentService docService = SpringContext.getBean(DocumentService.class);
         	
             MaintenanceDocument vendorDoc = (MaintenanceDocument)docService.getNewDocument("PVEN");
-            String docDesc = "New vendor - PT -'" +vendorName + "'";
-            if (docDesc.length() > 40) {
-            	docDesc = docDesc.substring(0,40);
-            }
-			vendorDoc.getDocumentHeader().setDocumentDescription(docDesc);
-           
+            
+            vendorDoc.getDocumentHeader().setDocumentDescription("New vendor from Procurement tool");
+                        
         	VendorMaintainableImpl vImpl = (VendorMaintainableImpl)vendorDoc.getNewMaintainableObject();
 
         	VendorDetail vDetail = (VendorDetail)vImpl.getBusinessObject();
@@ -290,11 +287,8 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 			DocumentService docService = SpringContext.getBean(DocumentService.class);
 
 			MaintenanceDocument vendorDoc = (MaintenanceDocument) docService.getNewDocument("PVEN");
-            String docDesc = "Update vendor - PT -'" +vendorName + "'";
-            if (docDesc.length() > 40) {
-            	docDesc = docDesc.substring(0,40);
-            }
-			vendorDoc.getDocumentHeader().setDocumentDescription(docDesc);
+
+			vendorDoc.getDocumentHeader().setDocumentDescription("Update vendor from Procurement tool");
 
 			LOG.info("updateVendor " + vendorNumber);
 				VendorDetail vendor = retrieveVendor(vendorNumber, "VENDORID");
