@@ -21,6 +21,8 @@ import edu.cornell.kfs.sys.CUKFSConstants;
 public class LaborLedgerEnterpriseFeedServiceImpl implements LaborLedgerEnterpriseFeedService {
 
     private static final String TRANSACTION_SIGN = "+";
+    public static final int FDOC_NBR_START_INDEX = 37;
+    public static final int FDOC_NBR_END_INDEX = 51;
     private static final int TRANSACTION_SIGN_START_INDEX = 114;
     private static final int TRANSACTION_SIGN_END_INDEX = 115;
     private static final int CREDIT_DEBIT_CODE_START_INDEX = 135;
@@ -31,6 +33,8 @@ public class LaborLedgerEnterpriseFeedServiceImpl implements LaborLedgerEnterpri
     public static final String FS_REF_ORIGIN_CD = "P4";
     public static final int FS_REF_ORIGIN_CD_START_INDEX = 168;
     public static final int FS_REF_ORIGIN_CD_END_INDEX = 170;
+    public static final int FDOC_REF_NBR_START_INDEX = 170;
+    public static final int FDOC_REF_NBR_END_INDEX = 184;
     public static final String TRN_ENCUM_UPDT_CD = "R";
     public static final int TRN_ENCUM_UPDT_CD_START_INDEX = 194;
     public static final int TRN_ENCUM_UPDT_CD_END_INDEX = 195;
@@ -78,6 +82,10 @@ public class LaborLedgerEnterpriseFeedServiceImpl implements LaborLedgerEnterpri
                     resultLine = StringUtils.overlay(resultLine, FDOC_REF_TYP_CD, FDOC_REF_TYP_CD_START_INDEX, FDOC_REF_TYP_CD_END_INDEX);
                     resultLine = StringUtils.overlay(resultLine, FS_REF_ORIGIN_CD, FS_REF_ORIGIN_CD_START_INDEX, FS_REF_ORIGIN_CD_END_INDEX);
                     resultLine = StringUtils.overlay(resultLine, TRN_ENCUM_UPDT_CD, TRN_ENCUM_UPDT_CD_START_INDEX, TRN_ENCUM_UPDT_CD_END_INDEX);
+                    
+                    String fDocNbr = resultLine.substring(FDOC_NBR_START_INDEX, FDOC_NBR_END_INDEX);
+                    resultLine =  StringUtils.overlay(resultLine, fDocNbr, FDOC_REF_NBR_START_INDEX, FDOC_REF_NBR_END_INDEX);
+                    
 
                     disencEntriesPrintStream.println(resultLine);
 

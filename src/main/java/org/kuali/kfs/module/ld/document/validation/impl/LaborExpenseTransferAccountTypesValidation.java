@@ -129,7 +129,7 @@ public class LaborExpenseTransferAccountTypesValidation extends GenericValidatio
 
 	
 	/*
-	 * if source has not invalid transfer account types
+	 * if source has no invalid transfer account types
 	 */
 	private boolean sourceHasNoInvalidTransferAccountTypes(Set<String> invalidTransferSourceAccountTypes) {
 		return CollectionUtils.isEmpty(invalidTransferSourceAccountTypes);
@@ -143,7 +143,7 @@ public class LaborExpenseTransferAccountTypesValidation extends GenericValidatio
 	}
 	
 	/*
-	 * check if target invalid transfer account is included in the invalid source transfer account mapped set
+	 * check if target invalid transfer account type is included in the invalid source transfer account type mapped set
 	 */
 	private boolean isInvalidTransferTargetAccountTypeMatched(Set<String> invalidTransferSourceAccountTypes, Set<String> invalidTransferTargetAccountTypes) {
 
@@ -160,8 +160,8 @@ public class LaborExpenseTransferAccountTypesValidation extends GenericValidatio
 	}
 		
 	/*
-	 * Check if user has "KFS-SYS Contracts & Grants Processor", "KFS-LD Labor Distribution Manager (cu)" roles
-	 * if user has any of these roles, then user can bypass this rule validation.
+	 * Check if user has "LD account type transfer exception" permission
+	 * if user has this permission, then user can bypass this rule validation.
 	 * 
 	 */
 	private boolean hasExceptionPermission() {
