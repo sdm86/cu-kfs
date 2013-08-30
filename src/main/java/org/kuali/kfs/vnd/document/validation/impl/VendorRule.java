@@ -77,6 +77,7 @@ import edu.cornell.kfs.vnd.CUVendorPropertyConstants;
  * Business rules applicable to VendorDetail document.
  */
 public class VendorRule extends MaintenanceDocumentRuleBase {
+    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(VendorRule.class);
 
     private VendorDetail oldVendor;
     private VendorDetail newVendor;
@@ -879,7 +880,9 @@ public class VendorRule extends MaintenanceDocumentRuleBase {
     boolean checkAddressCountryEmptyStateZip(VendorAddress address) {
         //GlobalVariables.getMessageMap().clearErrorPath();
         //GlobalVariables.getMessageMap().addToErrorPath(KFSPropertyConstants.DOCUMENT + "." + KFSPropertyConstants.NEW_MAINTAINABLE_OBJECT + "." + VendorPropertyConstants.VENDOR_ADDRESS);        
-        boolean valid = SpringContext.getBean(PostalCodeValidationService.class).validateAddress(address.getVendorCountryCode(), address.getVendorStateCode(), address.getVendorZipCode(), VendorPropertyConstants.VENDOR_ADDRESS_STATE, VendorPropertyConstants.VENDOR_ADDRESS_ZIP);
+        // TODO : add logging to debug intermittent issue.  This can be removed before merging to 'master'.
+        LOG.info("Validate vendor zip "+ address.getVendorCountryCode() + "~ " + address.getVendorStateCode() + "~ " + address.getVendorZipCode());
+    	boolean valid = SpringContext.getBean(PostalCodeValidationService.class).validateAddress(address.getVendorCountryCode(), address.getVendorStateCode(), address.getVendorZipCode(), VendorPropertyConstants.VENDOR_ADDRESS_STATE, VendorPropertyConstants.VENDOR_ADDRESS_ZIP);
         //GlobalVariables.getMessageMap().clearErrorPath();
 		return valid;        
     }
