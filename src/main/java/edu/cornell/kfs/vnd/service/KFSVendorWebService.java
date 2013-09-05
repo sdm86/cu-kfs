@@ -2,10 +2,8 @@ package edu.cornell.kfs.vnd.service;
 
 import java.util.List;
 
-import javax.activation.DataHandler;
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.bind.annotation.XmlMimeType;
 
 import edu.cornell.kfs.vnd.service.params.VendorAddressParam;
 import edu.cornell.kfs.vnd.service.params.VendorContactParam;
@@ -66,18 +64,6 @@ public interface KFSVendorWebService {
   
   /**
    * 
-   * @param vendorId
-   * @param vendorIdType
-   * @return
-   * @throws Exception
-   */
-  public String retrieveKfsVendor(
-		  @WebParam(name = "vendorId")String vendorId,
-		  @WebParam(name = "vendorIdType")String vendorIdType
-		  ) throws Exception;
-
-  /**
-   * 
    * @param vendorName
    * @param lastFour
    * @return
@@ -87,36 +73,8 @@ public interface KFSVendorWebService {
 		  @WebParam(name = "vendorName")String vendorName, 
 		  @WebParam(name = "lastFour")String lastFour) throws Exception;
   
-  /**
-   * 
-   * @param vendorId
-   * @param vendorIdType
-   * @return
-   * @throws Exception
-   */
-  public boolean vendorExists(
-		  @WebParam(name = "vendorId")String vendorId,
-		  @WebParam(name = "vendorIdType")String vendorIdType
-		  ) throws Exception;
-  
-
-public String retrieveKfsVendorByEin(
+  public String retrieveKfsVendorByEin(
 		  @WebParam(name = "vendorEin")String vendorEin
-		  ) throws Exception;
-
-public String uploadAttachment(
-		  @WebParam(name = "vendorId")String vendorId,
-		  @WebParam(name = "fileData")String fileData,
-		  @WebParam(name = "fileName")String fileName,
-		  @WebParam(name = "noteText")String noteText
-		  ) throws Exception;
-
-public String uploadAtt(
-		  @WebParam(name = "vendorId")String vendorId,
-		  @WebParam(name = "fileData")
-		  @XmlMimeType("application/octet-stream")DataHandler fileData,
-		  @WebParam(name = "fileName")String fileName,
-		  @WebParam(name = "noteText")String noteText
 		  ) throws Exception;
 
 

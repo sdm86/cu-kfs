@@ -1,19 +1,13 @@
 package edu.cornell.kfs.vnd.service;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.activation.DataHandler;
 import javax.jws.WebService;
-import javax.xml.bind.annotation.XmlMimeType;
 import javax.xml.ws.soap.MTOM;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.Base64Utility;
 import org.apache.log4j.Logger;
 import org.kuali.kfs.sys.KFSConstants;
 import org.kuali.kfs.sys.context.SpringContext;
@@ -26,12 +20,10 @@ import org.kuali.kfs.vnd.businessobject.VendorSupplierDiversity;
 import org.kuali.kfs.vnd.document.VendorMaintainableImpl;
 import org.kuali.kfs.vnd.document.service.VendorService;
 import org.kuali.rice.kns.UserSession;
-import org.kuali.rice.kns.bo.Attachment;
 import org.kuali.rice.kns.bo.Note;
 import org.kuali.rice.kns.document.MaintenanceDocument;
 import org.kuali.rice.kns.exception.ValidationException;
 import org.kuali.rice.kns.maintenance.Maintainable;
-import org.kuali.rice.kns.service.AttachmentService;
 import org.kuali.rice.kns.service.DocumentService;
 import org.kuali.rice.kns.service.KualiConfigurationService;
 import org.kuali.rice.kns.service.NoteService;
@@ -117,7 +109,8 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
           	docService.routeDocument(vendorDoc, "", null);
             return vendorDoc.getDocumentNumber();
         } catch (Exception e) {
-        	return "Failed request : "+ e.getMessage() + KFSConstants.NEWLINE + getValidationErrors(e);
+            LOG.info("addVendor Failed request : "+ e.getMessage() + KFSConstants.NEWLINE + getValidationErrors(e));       
+         	return "Failed request : "+ e.getMessage() + KFSConstants.NEWLINE + getValidationErrors(e);
         } finally {
             GlobalVariables.setUserSession(actualUserSession);
             GlobalVariables.setMessageMap(globalErrorMap);
@@ -345,8 +338,8 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 			docService.routeDocument(vendorDoc, "", null);
 			return vendorDoc.getDocumentNumber();
         } catch (Exception e) {
-        	LOG.info("updateVendor STE " + e.getStackTrace()+e.toString());
-        	return "Failed request : "+ e.getMessage() + " " + e.toString();
+        	LOG.info("updateVendor STE " + e.getMessage() + KFSConstants.NEWLINE + getValidationErrors(e));
+        	return "Failed request : "+ e.getMessage() + KFSConstants.NEWLINE + getValidationErrors(e);
 		} finally {
 			GlobalVariables.setUserSession(actualUserSession);
 			GlobalVariables.setMessageMap(globalErrorMap);
@@ -442,32 +435,6 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
     	}
 	}
 
-	/**
-	 * Return caret (^) delineated string of Vendor values
-	 */
-	public String retrieveKfsVendor(String vendorId, String vendorIdType) throws Exception {
-		VendorDetail vendor = retrieveVendor(vendorId, vendorIdType);
-				
-		// TODO : this is not quite right because vendor may not be found
-		//return vendor.getVendorNumber();
-		if(StringUtils.equalsIgnoreCase(vendorIdType, "VENDORID")) {
-			// TODO : this is for testing to get the list of vendorcontactgenerateddetailid
-			String retVal = vendor != null ? vendor.getVendorNumber() : VENDOR_NOT_FOUND;
-			if (vendor != null && CollectionUtils.isNotEmpty(vendor.getVendorContacts())) {
-			for (VendorContact contact :vendor.getVendorContacts()) {
-				retVal = retVal + "~"+contact.getVendorContactGeneratedIdentifier();
-			}
-			retVal = retVal + "p~";
-			for (VendorPhoneNumber phoneNumber :vendor.getVendorPhoneNumbers()) {
-				retVal = retVal + "~"+phoneNumber.getVendorPhoneGeneratedIdentifier();
-			}
-
-		    }
-			return retVal;
-		}
-		return vendor != null ? vendor.getVendorNumber() : VENDOR_NOT_FOUND;
-	}
-
 	/*
 	 * get existing vendor address that matched the address generated id from parameter
 	 */
@@ -530,23 +497,9 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 	 */
 	public String retrieveKfsVendorByNamePlusLastFour(String vendorName, String lastFour) throws Exception {
 		VendorDetail vendor = SpringContext.getBean(CUVendorService.class).getVendorByNamePlusLastFourOfTaxID(vendorName, lastFour);
-		// TODO : this is not quite right because vendor may not be found
-		//return vendor.getVendorNumber();
 		return vendor != null ? vendor.getVendorNumber() : VENDOR_NOT_FOUND;
 	}
 	
-	/**
-	 * 
-	 * @param vendorId
-	 * @param vendorIdType - DUNS, VENDORID, SSN, FEIN
-	 * @return
-	 * @throws Exception
-	 */
-	public boolean vendorExists(String vendorId, String vendorIdType) throws Exception {
-		VendorDetail vendor = retrieveVendor(vendorId, vendorIdType);
-		return ObjectUtils.isNotNull(vendor);
-	}
-
 	/**
 	 * 
 	 * @param vendorId
@@ -599,66 +552,7 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 		return vendorValues.toString();
 	}
 
-	public String uploadAttachment(String vendorId, String fileData, String fileName, String noteText) throws Exception {
-		try {
-			LOG.info("Starting uploadAttachment");
-        GlobalVariables.setUserSession(new UserSession("kfs"));
-		VendorDetail vendor = SpringContext.getBean(VendorService.class).getVendorDetail(vendorId);
-		if (vendor == null) {
-			return VENDOR_NOT_FOUND;
-		}
-		byte[] fileDataBytes = Base64Utility.decode(fileData);
-		LOG.info("call service to create attachment");
-        Attachment attachment = SpringContext.getBean(AttachmentService.class).createAttachment(vendor, fileName, "application/pdf", fileDataBytes.length, new ByteArrayInputStream(fileDataBytes), null);
-        Note newNote = new Note();
-        newNote.setNoteText(noteText);
-        newNote.setAttachment(attachment);
-		LOG.info("create tempnote");
-
-        Note tmpNote = SpringContext.getBean(NoteService.class).createNote(newNote, vendor);
-		LOG.info("save note");
-
-        SpringContext.getBean(NoteService.class).save(tmpNote);
-//		FileOutputStream bas64Out = new FileOutputStream("C:\\temp\\testBase64.pdf");
-//		bas64Out.write(Base64Utility.decode(vendorEin));
-//		bas64Out.close();
-		return "upload Attachment ok";
-		} catch (Exception e) {
-			return "Failed request : "+ e.getMessage();		}
-	}
 	
-	public String uploadAtt(String vendorId,  @XmlMimeType("application/octet-stream")DataHandler fileData, String fileName, String noteText) throws Exception {
-		try {
-			LOG.info("Starting uploadAtt");
-        GlobalVariables.setUserSession(new UserSession("kfs"));
-		VendorDetail vendor = SpringContext.getBean(VendorService.class).getVendorDetail(vendorId);
-		if (vendor == null) {
-			return VENDOR_NOT_FOUND;
-		}
-        BufferedInputStream bin = new BufferedInputStream(fileData.getInputStream());
-	 
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int c;
-        while ((c = bin.read()) != -1) buffer.write(c);
-	                   
-        bin.close();
-        Attachment attachment = SpringContext.getBean(AttachmentService.class).createAttachment(vendor, fileName, "application/pdf", buffer.toByteArray().length, fileData.getInputStream(), null);
-        Note newNote = new Note();
-        newNote.setNoteText(noteText);
-        newNote.setAttachment(attachment);
-		LOG.info("create tempnote");
-
-        Note tmpNote = SpringContext.getBean(NoteService.class).createNote(newNote, vendor);
-		LOG.info("save note");
-
-        SpringContext.getBean(NoteService.class).save(tmpNote);
-//		FileOutputStream bas64Out = new FileOutputStream("C:\\temp\\testBase64.pdf");
-//		bas64Out.write(Base64Utility.decode(vendorEin));
-//		bas64Out.close();
-		return "upload Attachment ok";
-		} catch (Exception e) {
-			return "Failed request : "+ e.getMessage();		}
-	}
 
 	public String retrieveKfsVendorByEin(String vendorEin) throws Exception {
 		VendorHeader vendor = SpringContext.getBean(CUVendorService.class).getVendorByEin(vendorEin);
