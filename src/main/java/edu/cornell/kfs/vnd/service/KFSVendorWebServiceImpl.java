@@ -81,6 +81,7 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 			vendorDoc.getDocumentHeader().setDocumentDescription(docDesc);
            
         	VendorMaintainableImpl vImpl = (VendorMaintainableImpl)vendorDoc.getNewMaintainableObject();
+			vImpl.setMaintenanceAction(KFSConstants.MAINTENANCE_NEW_ACTION);
 
         	VendorDetail vDetail = (VendorDetail)vImpl.getBusinessObject();
         	
