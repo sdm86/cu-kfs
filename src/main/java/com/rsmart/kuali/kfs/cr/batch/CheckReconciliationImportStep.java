@@ -1061,7 +1061,6 @@ public class CheckReconciliationImportStep extends AbstractStep {
                 records.add(getCheckReconError(cr, "The check amount does not match payment net amount from the payment groups."));
         	}
         	
-        	
             if( statusMap.get(cr.getStatus()) != null ) {
                 defaultStatus = statusMap.get(cr.getStatus());
                 // Update PDP status and save
