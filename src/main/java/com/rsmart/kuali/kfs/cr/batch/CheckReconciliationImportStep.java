@@ -47,7 +47,6 @@ import org.kuali.rice.kns.service.BusinessObjectService;
 import org.kuali.rice.kns.service.KualiConfigurationService;
 import org.kuali.rice.kns.util.KualiDecimal;
 import org.kuali.rice.kns.util.KualiInteger;
-import org.kuali.rice.kns.util.ObjectUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.rsmart.kuali.kfs.cr.CRConstants;
@@ -1060,19 +1059,6 @@ public class CheckReconciliationImportStep extends AbstractStep {
             */
         	if(!(totalNetAmount.doubleValue() ==  cr.getAmount().doubleValue())){
                 records.add(getCheckReconError(cr, "The check amount does not match payment net amount from the payment groups."));
-                defaultStatus = CRConstants.EXCP;
-                // Find existing check record
-                CheckReconciliation existingRecord = getCheckReconciliation(cr.getCheckNumber(), cr.getBankAccountNumber());
-                //update status to exception because pdp amount does not match bank file amount for this check number
-                if (ObjectUtils.isNotNull(existingRecord)) {
-                    existingRecord.setStatus(defaultStatus);
-                    existingRecord.setStatusChangeDate(cr.getStatusChangeDate());
-                    Timestamp ts = new Timestamp(new java.util.Date().getTime());
-                    existingRecord.setLastUpdate(ts);
-                    businessObjectService.save(existingRecord);
-                    LOG.info("Updated Check Recon Record to status EXCEPTION: " + existingRecord.getId());
-                }
-                return defaultStatus;
         	}
         	
         	
