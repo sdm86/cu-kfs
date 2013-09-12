@@ -216,8 +216,6 @@ public class CurrentAccountBalanceLookupableHelperServiceImpl extends AbstractGe
 		KFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.INCOME_OBJECT_TYPE_CODE_PARAM);
 	List<String> encumbranceBalTypes = this.getParameterService().getParameterValues(CurrentAccountBalance.class,
 		KFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.ENCUMBRANCE_BALANCE_TYPE_PARAM);
-	boolean cbExclusion = this.getParameterService().getIndicatorParameter(CurrentAccountBalance.class, 
-			KFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.EXCLUDE_CB_PERIOD_PARAM);
 	List<String> aSlIfBObjectTypes = Arrays.asList(new String[] { "AS", "LI", "FB" });
 
 	String balanceTypeCode = balance.getBalanceTypeCode();
@@ -225,9 +223,6 @@ public class CurrentAccountBalanceLookupableHelperServiceImpl extends AbstractGe
 	String objectCode = balance.getObjectCode();
 	Account account = balance.getAccount();
 	String bdgtCd = account.getBudgetRecordingLevelCode();
-
-	
-	
 
 	if (ObjectUtils.isNull(account) || ObjectUtils.isNull(bdgtCd)) {
 		 account = SpringContext.getBean(AccountService.class).getByPrimaryId(balance.getChartOfAccountsCode(), balance.getAccountNumber());
@@ -276,10 +271,8 @@ public class CurrentAccountBalanceLookupableHelperServiceImpl extends AbstractGe
 	if (isCashBdgtRecording) {
 	    if (incomeObjTypeCodes.contains(objectTypeCode) && KFSConstants.BALANCE_TYPE_ACTUAL.equals(balanceTypeCode)) {
 		currentBalance.setTotalIncome(add(currentBalance.getTotalIncome(), accumulateMonthlyAmounts(balance, fiscalPeriod)));
-			if (!cbExclusion) {
-			currentBalance.setTotalIncome(add(currentBalance.getTotalIncome(), accumulateMonthlyAmounts(balance, KFSConstants.PERIOD_CODE_CG_BEGINNING_BALANCE)));
-			}
-		}
+		currentBalance.setTotalIncome(add(currentBalance.getTotalIncome(), accumulateMonthlyAmounts(balance, KFSConstants.PERIOD_CODE_CG_BEGINNING_BALANCE)));
+	    }
 	} else {
 	    currentBalance.setTotalIncome(KualiDecimal.ZERO);
 	}
@@ -287,9 +280,7 @@ public class CurrentAccountBalanceLookupableHelperServiceImpl extends AbstractGe
 	// Total Expense (F)
 	if (expenseObjectTypeCodes.contains(objectTypeCode) && KFSConstants.BALANCE_TYPE_ACTUAL.equals(balanceTypeCode)) {
 	    currentBalance.setTotalExpense(add(currentBalance.getTotalExpense(), accumulateMonthlyAmounts(balance, fiscalPeriod)));
-	    if (!cbExclusion) {
 	    currentBalance.setTotalExpense(add(currentBalance.getTotalExpense(), accumulateMonthlyAmounts(balance, KFSConstants.PERIOD_CODE_CG_BEGINNING_BALANCE)));
-	    }
 	}
 
 	// Encumbrances (G)
