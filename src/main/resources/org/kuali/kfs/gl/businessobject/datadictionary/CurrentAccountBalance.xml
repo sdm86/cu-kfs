@@ -197,8 +197,8 @@
 	<bean id="CurrentAccountBalance-cashExpenditureAuthority" parent="CurrentAccountBalance-cashExpenditureAuthority-parentBean"/>
 	<bean id="CurrentAccountBalance-cashExpenditureAuthority-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
 	    <property name="name" value="cashExpenditureAuthority"/>
-	    <property name="label" value="Fund Balance Including Encumbrances""/>
-	    <property name="shortLabel" value="Fund Balance Including Encumbrances""/>
+	    <property name="label" value="Fund Balance Including Encumbrances"/>
+	    <property name="shortLabel" value="Fund Balance Including Encumbrances"/>
 	</bean>
 	<bean id="CurrentAccountBalance-currentFundBalance" parent="CurrentAccountBalance-currentFundBalance-parentBean"/>
 	<bean id="CurrentAccountBalance-currentFundBalance-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
