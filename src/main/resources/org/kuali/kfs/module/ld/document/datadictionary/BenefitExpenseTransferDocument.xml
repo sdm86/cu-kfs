@@ -23,6 +23,7 @@
     <property name="documentTypeName" value="BT"/>
     <property name="documentClass" value="org.kuali.kfs.module.ld.document.BenefitExpenseTransferDocument"/>
     <property name="businessRulesClass" value="org.kuali.kfs.sys.document.validation.impl.AccountingRuleEngineRuleBase"/>
+    <property name="promptBeforeValidationClass" value="org.kuali.kfs.module.ld.document.validation.impl.BenefitExpenseTransferDocumentPreRules"/>
     <property name="documentAuthorizerClass" value="org.kuali.kfs.module.ld.document.authorization.LaborExpenseDocumentAuthorizerBase"/>
     <property name="documentPresentationControllerClass" value="org.kuali.kfs.module.ld.document.authorization.LaborExpensesDocumentPresentationController"/>
         
@@ -98,7 +99,6 @@
 				<key><value>org.kuali.kfs.sys.document.validation.event.AttributedSaveDocumentEvent</value></key>
 				<value>BenefitExpenseTransferDocument-saveDocumentValidation</value>
 			</entry>			
-			
     	</map>
     </property>
   </bean>  
