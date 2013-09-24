@@ -196,14 +196,18 @@ public class EzraServiceImpl implements EzraService {
 		if (ezraAward.getCsMandUniv() != null) 
 			costShareRequired.add(ezraAward.getCsMandUniv());
 		
+		AwardExtendedAttribute aea = (AwardExtendedAttribute)award.getExtension();
+		
 		if (costShareRequired.isNonZero() ) {
-			AwardExtendedAttribute aea = (AwardExtendedAttribute)award.getExtension();
+		    aea = (AwardExtendedAttribute)award.getExtension();
 			aea.setCostShareRequired(true);
 		}
 		
-		AwardExtendedAttribute aea = (AwardExtendedAttribute)award.getExtension();
 		award.refreshReferenceObject("proposal");
 		award.refreshNonUpdateableReferences();
+		
+		award.setExtension(aea);
+		
 		return award;
 	}
 	
