@@ -65,7 +65,14 @@
 			<ref bean="cuLaborObjectDao" />
 		</property>
 	</bean>
+   	
+   	<bean id="ldEnterpriseFeedService" parent="ldEnterpriseFeedService-parentBean"/>
+
+    <bean id="ldEnterpriseFeedService-parentBean" class="edu.cornell.kfs.module.ld.service.impl.LaborLedgerEnterpriseFeedServiceImpl" abstract="true">
+	</bean>
 	
-    
+	
+	<bean id="disencumbranceEnterpriseFeederFileSetType" class="edu.cornell.kfs.module.ld.batch.DisencumbranceEnterpriseFeederFileSetType"></bean>
+	
 
 </beans>
