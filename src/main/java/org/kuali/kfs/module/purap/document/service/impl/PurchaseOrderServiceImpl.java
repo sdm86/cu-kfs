@@ -372,7 +372,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
      * @return The purchase order document created by this method.
      * @throws WorkflowException
      */
-    protected PurchaseOrderDocument generatePurchaseOrderFromRequisition(RequisitionDocument reqDocument) throws WorkflowException {
+    protected PurchaseOrderDocument kfsGeneratePurchaseOrderFromRequisition(RequisitionDocument reqDocument) throws WorkflowException {
         PurchaseOrderDocument poDocument = null;
         poDocument = (PurchaseOrderDocument) documentService.getNewDocument(PurchaseOrderDocTypes.PURCHASE_ORDER_DOCUMENT);
         poDocument.populatePurchaseOrderFromRequisition(reqDocument);
@@ -2226,4 +2226,23 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         return annotation;
     }
 
+    /**
+     * For B2B orders, default to the central receiving address always and set the
+     * delivery address to that.
+     * KFSPTS-1891
+     */
+    protected PurchaseOrderDocument generatePurchaseOrderFromRequisition(RequisitionDocument reqDocument) throws WorkflowException {
+        PurchaseOrderDocument po = kfsGeneratePurchaseOrderFromRequisition(reqDocument);
+
+        // TODO : cause b2b vendor PO sent to SQ with exception because there is no receiving address
+        // Investigated this more.  If not needed, then remove this during clean up.
+//        if (PurapConstants.RequisitionSources.B2B.equals(po.getRequisitionSourceCode())) {
+//            // ensure the default receiving address is set
+//            po.loadReceivingAddress();
+//            // set to use the receiving address by default  
+//            po.setAddressToVendorIndicator(true);
+//        }
+
+        return po;
+    }
 }

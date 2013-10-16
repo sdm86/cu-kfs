@@ -1335,5 +1335,11 @@ public class KFSConstants extends JSTLConstants implements ParameterKeyConstants
     
     //KFSPTS-1460
     public static final String SEMICOLON = ";";
+    
+    public static final String PREQ_WIRETRANSFER_TAB_ERRORS = "PREQWireTransfersErrors,document.preqWireTransfer.*";
+    public static final String CM_WIRETRANSFER_TAB_ERRORS = "CMWireTransfersErrors,document.cmWireTransfer.*";
+    public static final String PREQ_FOREIGNDRAFTS_TAB_ERRORS = "PREQForeignDraftErrors,document.preqWireTransfer.preqForeignCurrencyTypeCode,document.preqWireTransfer.preqForeignCurrencyTypeName";
+    public static final String CM_FOREIGNDRAFTS_TAB_ERRORS = "CMForeignDraftErrors,document.cmWireTransfer.cmForeignCurrencyTypeCode,document.cmWireTransfer.cmForeignCurrencyTypeName";
+
 }
 
