@@ -146,7 +146,6 @@
     <property name="control">
       <ref bean="StandardNameTextControl" />
     </property>
-    <!-- KFSPTS-1891 : temp unmask DO NOT Commit to test -->  
     <property name="attributeSecurity">
 		<bean parent="AttributeSecurity">
   			<property name="mask" value="true" /> 
