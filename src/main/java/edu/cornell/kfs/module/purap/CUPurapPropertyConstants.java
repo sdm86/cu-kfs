@@ -20,4 +20,18 @@ public class CUPurapPropertyConstants extends PurapPropertyConstants {
     public static final String CM_FD_CURRENCY_TYPE_CODE = "cmForeignCurrencyTypeCode";
     public static final String CM_FD_CURRENCY_TYPE_NAME = "cmForeignCurrencyTypeName";
 
+    public static final String CM_BANK_NAME = "cmBankName";
+    public static final String CM_BANK_CITY_NAME = "cmBankCityName";
+    public static final String CM_BANK_COUNTRY_CODE = "cmBankCountryCode";
+    public static final String CM_CURRENCY_TYPE_NAME = "cmCurrencyTypeName";
+    public static final String CM_PAYEE_ACCT_NUMBER = "cmPayeeAccountNumber";
+    public static final String CM_PAYEE_ACCT_NAME = "cmPayeeAccountName";
+    
+    public static final String PREQ_BANK_NAME = "preqBankName";
+    public static final String PREQ_BANK_CITY_NAME = "preqBankCityName";
+    public static final String PREQ_BANK_COUNTRY_CODE = "preqBankCountryCode";
+    public static final String PREQ_CURRENCY_TYPE_NAME = "preqCurrencyTypeName";
+    public static final String PREQ_PAYEE_ACCT_NUMBER = "preqPayeeAccountNumber";
+    public static final String PREQ_PAYEE_ACCT_NAME = "preqPayeeAccountName";
+    public static final String DOCUMENT_PAYMENT_METHOD_CODE = "document.paymentMethodCode";
 }

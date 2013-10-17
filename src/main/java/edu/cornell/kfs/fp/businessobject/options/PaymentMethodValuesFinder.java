@@ -26,6 +26,7 @@ import org.kuali.rice.core.util.KeyLabelPair;
 import org.kuali.rice.kns.lookup.keyvalues.KeyValuesBase;
 import org.kuali.rice.kns.service.BusinessObjectService;
 
+import edu.cornell.kfs.fp.CuFPConstants;
 import edu.cornell.kfs.fp.businessobject.PaymentMethod;
 
 /**
@@ -40,7 +41,7 @@ public class PaymentMethodValuesFinder extends KeyValuesBase {
     private static BusinessObjectService businessObjectService;
     static protected Map<String,String> filterCriteria = new HashMap<String, String>();
     static {
-        filterCriteria.put("active", "Y");
+        filterCriteria.put(CuFPConstants.ACTIVE, CuFPConstants.YES);
     }
     
     /*

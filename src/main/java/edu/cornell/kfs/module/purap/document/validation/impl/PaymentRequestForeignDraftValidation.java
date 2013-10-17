@@ -22,7 +22,9 @@ public class PaymentRequestForeignDraftValidation extends GenericValidation {
      * @see org.kuali.kfs.sys.document.validation.Validation#validate(org.kuali.kfs.sys.document.validation.event.AttributedDocumentEvent)
      */
     public boolean validate(AttributedDocumentEvent event) {
-        LOG.debug("validate start");
+    	if (LOG.isDebugEnabled()) {
+            LOG.debug("validate start");
+    	}
         boolean isValid = true;
         
         PaymentRequestDocument document = (PaymentRequestDocument) accountingDocumentForValidation;

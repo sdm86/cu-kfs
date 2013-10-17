@@ -57,8 +57,8 @@ public class PaymentMethodRule extends KfsMaintenanceDocumentRuleBase {
         GlobalVariables.getMessageMap().addToErrorPath("document.newMaintainableObject");
      
         // TODO : This is a hack now, foreign draft does not need this check
-        if (!StringUtils.equals("F", paymentMethod.getPaymentMethodCode()) && !StringUtils.equals("W", paymentMethod.getPaymentMethodCode())) {
-        continueRouting &= sanityCheckFlags( paymentMethod );
+        if (!StringUtils.equals(PaymentMethod.PM_CODE_FOREIGN_DRAFT, paymentMethod.getPaymentMethodCode()) && !StringUtils.equals(PaymentMethod.PM_CODE_WIRE, paymentMethod.getPaymentMethodCode())) {
+            continueRouting &= sanityCheckFlags( paymentMethod );
         }
         continueRouting &= checkNeedForBankCode(paymentMethod);
         
@@ -93,19 +93,19 @@ public class PaymentMethodRule extends KfsMaintenanceDocumentRuleBase {
     protected boolean checkFeeInformation( PaymentMethod paymentMethod, PaymentMethodChart paymentMethodChart ) {
         boolean continueRouting = true;
         if ( paymentMethod.isAssessedFees() ) {
-            if ( StringUtils.isEmpty( paymentMethodChart.getFeeIncomeChartOfAccountsCode() ) ) {
+            if ( StringUtils.isBlank( paymentMethodChart.getFeeIncomeChartOfAccountsCode() ) ) {
                 GlobalVariables.getMessageMap().putError("feeIncomeChartOfAccountsCode", ERROR_FEE_CHART_REQUIRED, (String[])null);
                 continueRouting = false;
             }
-            if ( StringUtils.isEmpty( paymentMethodChart.getFeeIncomeAccountNumber() ) ) {
+            if ( StringUtils.isBlank( paymentMethodChart.getFeeIncomeAccountNumber() ) ) {
                 GlobalVariables.getMessageMap().putError("feeIncomeAccountNumber", ERROR_FEE_ACCOUNT_REQUIRED, (String[])null);
                 continueRouting = false;
             }
-            if ( StringUtils.isEmpty( paymentMethodChart.getFeeIncomeFinancialObjectCode() ) ) {
+            if ( StringUtils.isBlank( paymentMethodChart.getFeeIncomeFinancialObjectCode() ) ) {
                 GlobalVariables.getMessageMap().putError("feeIncomeFinancialObjectCode", ERROR_FEE_INCOBJ_REQUIRED, (String[])null);
                 continueRouting = false;
             }
-            if ( StringUtils.isEmpty( paymentMethodChart.getFeeExpenseFinancialObjectCode() ) ) {
+            if ( StringUtils.isBlank( paymentMethodChart.getFeeExpenseFinancialObjectCode() ) ) {
                 GlobalVariables.getMessageMap().putError("feeExpenseFinancialObjectCode", ERROR_FEE_EXPOBJ_REQUIRED, (String[])null);
                 continueRouting = false;
             }
@@ -114,16 +114,16 @@ public class PaymentMethodRule extends KfsMaintenanceDocumentRuleBase {
                 continueRouting = false;
             }
         } else {
-            if ( StringUtils.isNotEmpty( paymentMethodChart.getFeeIncomeChartOfAccountsCode() ) ) {
+            if ( StringUtils.isNotBlank( paymentMethodChart.getFeeIncomeChartOfAccountsCode() ) ) {
                 GlobalVariables.getMessageMap().putError("feeIncomeChartOfAccountsCode", WARNING_FEE_CHART_NOTREQUIRED, (String[])null);
             }
-            if ( StringUtils.isNotEmpty( paymentMethodChart.getFeeIncomeAccountNumber() ) ) {
+            if ( StringUtils.isNotBlank( paymentMethodChart.getFeeIncomeAccountNumber() ) ) {
                 GlobalVariables.getMessageMap().putError("feeIncomeAccountNumber", WARNING_FEE_ACCOUNT_NOTREQUIRED, (String[])null);
             }
-            if ( StringUtils.isNotEmpty( paymentMethodChart.getFeeIncomeFinancialObjectCode() ) ) {
+            if ( StringUtils.isNotBlank( paymentMethodChart.getFeeIncomeFinancialObjectCode() ) ) {
                 GlobalVariables.getMessageMap().putError("feeIncomeFinancialObjectCode", WARNING_FEE_INCOBJ_NOTREQUIRED, (String[])null);
             }
-            if ( StringUtils.isNotEmpty( paymentMethodChart.getFeeExpenseFinancialObjectCode() ) ) {
+            if ( StringUtils.isNotBlank( paymentMethodChart.getFeeExpenseFinancialObjectCode() ) ) {
                 GlobalVariables.getMessageMap().putError("feeExpenseFinancialObjectCode", WARNING_FEE_EXPOBJ_NOTREQUIRED, (String[])null);
             }
             if ( paymentMethodChart.getFeeAmount() != null && paymentMethodChart.getFeeAmount().isNonZero() ) {

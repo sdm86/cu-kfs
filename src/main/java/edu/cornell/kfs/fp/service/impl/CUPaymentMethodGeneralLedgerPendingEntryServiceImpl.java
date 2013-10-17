@@ -339,7 +339,7 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
     public boolean generateDocumentBankOffsetEntries(AccountingDocument document, String bankCode, String bankCodePropertyName, String documentTypeCode, GeneralLedgerPendingEntrySequenceHelper sequenceHelper, KualiDecimal bankOffsetAmount ) {
         boolean success = true;
 
-        if (!SpringContext.getBean(BankService.class).isBankSpecificationEnabled()) {
+        if (!getBankService().isBankSpecificationEnabled()) {
             return success;
         }
         Bank bank = getBankService().getByPrimaryId(bankCode);

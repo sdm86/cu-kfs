@@ -39,6 +39,7 @@ import org.kuali.rice.kns.service.ParameterService;
 import org.kuali.rice.kns.util.ObjectUtils;
 import org.kuali.rice.core.util.KeyLabelPair;
 
+import edu.cornell.kfs.fp.CuFPConstants;
 import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
@@ -118,7 +119,7 @@ public class DisbursementVoucherDocumentPreRules extends PromptBeforeValidationB
             String nonEmplTravReasonStr = getValidPaymentReasonsAsString(nonEmpltravelPaymentReasonCodes);
 
             String paymentReasonName = dvDocument.getDvPayeeDetail().getDisbVchrPaymentReasonName();
-            Object[] args = { "payment reason", "'" + paymentReasonName + "'", "Non-Employee Travel", nonEmplTravReasonStr };
+            Object[] args = { CuFPConstants.PAYMENT_REASON, "'" + paymentReasonName + "'", CuFPConstants.NON_EMPLOYEE_TRAVEL, nonEmplTravReasonStr };
 
             String questionText = SpringContext.getBean(KualiConfigurationService.class).getPropertyString(KFSKeyConstants.QUESTION_CLEAR_UNNEEDED_TAB);
             questionText = MessageFormat.format(questionText, args);

@@ -1138,8 +1138,8 @@ public class PaymentRequestDocument extends AccountsPayableDocumentBase {
         // First, only do this if the document is in initiated status - after that, we don't want to 
         // accidentally reset the bank code
         // KFSPTS-1891
-        if ( KEWConstants.ROUTE_HEADER_INITIATED_CD.equals( getDocumentHeader().getWorkflowDocument().getRouteHeader().getDocRouteStatus() )
-                || KEWConstants.ROUTE_HEADER_SAVED_CD.equals( getDocumentHeader().getWorkflowDocument().getRouteHeader().getDocRouteStatus() ) ) {
+        if ( StringUtils.equals(KEWConstants.ROUTE_HEADER_INITIATED_CD, getDocumentHeader().getWorkflowDocument().getRouteHeader().getDocRouteStatus() )
+                || StringUtils.equals(KEWConstants.ROUTE_HEADER_SAVED_CD, getDocumentHeader().getWorkflowDocument().getRouteHeader().getDocRouteStatus() ) ) {
             // need to check whether the user has the permission to edit the bank code
             // if so, don't synchronize since we can't tell whether the value coming in
             // was entered by the user or not.

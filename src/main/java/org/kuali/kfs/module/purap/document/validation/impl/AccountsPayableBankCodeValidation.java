@@ -35,15 +35,6 @@ public class AccountsPayableBankCodeValidation extends GenericValidation {
     /**
      * @see org.kuali.kfs.sys.document.validation.Validation#validate(org.kuali.kfs.sys.document.validation.event.AttributedDocumentEvent)
      */
-//    public boolean validate(AttributedDocumentEvent event) {
-//        LOG.debug("validate start");
-//        
-//        AccountsPayableDocumentBase apDocument = (AccountsPayableDocumentBase) accountingDocumentForValidation;
-//        
-//        boolean isValid = BankCodeValidation.validate(apDocument.getBankCode(), PurapPropertyConstants.BANK_CODE, false, true);
-//
-//        return isValid;
-//    }
     // KFSPTS-1891 : not sure if need another validation class for this ?
     public boolean validate(AttributedDocumentEvent event) {
         AccountsPayableDocumentBase apDocument = (AccountsPayableDocumentBase) getAccountingDocumentForValidation();
@@ -55,10 +46,6 @@ public class AccountsPayableBankCodeValidation extends GenericValidation {
         		// PREQ bank code is not required
                 isValid = BankCodeValidation.validate(apDocument.getBankCode(), "document." + PurapPropertyConstants.BANK_CODE, ((PaymentRequestDocument)apDocument).getPaymentMethodCode(), false, true);            
                 if ( isValid ) {
-                // clear out the bank code on the document if not needed (per the message set by the call above)
-            	// TODO : may cause problem.  bankcd is required, it set to 'null' during route, then it is not good
-            	// unless all payment menthod has bank code, but this is not the case
-            	// so temporatily to filter with event too.  Need further investigation
                     if ( !(event instanceof AttributedRouteDocumentEvent) &&  StringUtils.isNotBlank(apDocument.getBankCode())
                         && !BankCodeValidation.doesBankCodeNeedToBePopulated(((PaymentRequestDocument)apDocument).getPaymentMethodCode()) ) {
                         apDocument.setBank(null);

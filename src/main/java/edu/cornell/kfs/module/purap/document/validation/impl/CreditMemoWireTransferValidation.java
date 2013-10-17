@@ -1,6 +1,7 @@
 package edu.cornell.kfs.module.purap.document.validation.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.kuali.kfs.module.purap.CUPurapConstants;
 import org.kuali.kfs.module.purap.document.VendorCreditMemoDocument;
 import org.kuali.kfs.sys.KFSConstants;
 import org.kuali.kfs.sys.KFSKeyConstants;
@@ -24,11 +25,12 @@ public class CreditMemoWireTransferValidation extends GenericValidation  {
      * @see org.kuali.kfs.sys.document.validation.Validation#validate(org.kuali.kfs.sys.document.validation.event.AttributedDocumentEvent)
      */
     public boolean validate(AttributedDocumentEvent event) {
-        LOG.debug("validate start");
+    	if (LOG.isDebugEnabled()) {
+            LOG.debug("validate start");
+    	}
         boolean isValid = true;
         
         VendorCreditMemoDocument document = (VendorCreditMemoDocument) accountingDocumentForValidation;
-//        DisbursementVoucherPayeeDetail payeeDetail = document.getDvPayeeDetail();
         CreditMemoWireTransfer wireTransfer = document.getCmWireTransfer();
 
         if (!PaymentMethod.PM_CODE_WIRE.equals(document.getPaymentMethodCode())) {
@@ -40,13 +42,12 @@ public class CreditMemoWireTransferValidation extends GenericValidation  {
         errors.addToErrorPath(CUPurapPropertyConstants.CM_WIRE_TRANSFER);
 
 
-//        SpringContext.getBean(DictionaryValidationService.class).validateBusinessObject(wireTransfer);
-        isValid &= isValid(wireTransfer.getCmBankName(), "Bank Name", "cmBankName");
-        isValid &= isValid(wireTransfer.getCmBankCityName(), "Bank City", "cmBankCityName");
-        isValid &= isValid(wireTransfer.getCmBankCountryCode(), "Bank Country", "cmBankCountryCode");
-        isValid &= isValid(wireTransfer.getCmCurrencyTypeName(), "Currency", "cmCurrencyTypeName");
-        isValid &= isValid(wireTransfer.getCmPayeeAccountNumber(), "Bank Account#", "cmPayeeAccountNumber");
-        isValid &= isValid(wireTransfer.getCmPayeeAccountName(), "Bank Account Name", "cmPayeeAccountName");
+        isValid &= isValid(wireTransfer.getCmBankName(), CUPurapConstants.LABEL_BANK_NAME, CUPurapPropertyConstants.CM_BANK_NAME);
+        isValid &= isValid(wireTransfer.getCmBankCityName(), CUPurapConstants.LABEL_BANK_CITY, CUPurapPropertyConstants.CM_BANK_CITY_NAME);
+        isValid &= isValid(wireTransfer.getCmBankCountryCode(), CUPurapConstants.LABEL_BANK_COUNTRY, CUPurapPropertyConstants.CM_BANK_COUNTRY_CODE);
+        isValid &= isValid(wireTransfer.getCmCurrencyTypeName(), CUPurapConstants.LABEL_CURRENCY, CUPurapPropertyConstants.CM_CURRENCY_TYPE_NAME);
+        isValid &= isValid(wireTransfer.getCmPayeeAccountNumber(), CUPurapConstants.LABEL_BANK_ACCT_NUMBER, CUPurapPropertyConstants.CM_PAYEE_ACCT_NUMBER);
+        isValid &= isValid(wireTransfer.getCmPayeeAccountName(), CUPurapConstants.LABEL_BANK_ACCT_NAME, CUPurapPropertyConstants.CM_PAYEE_ACCT_NAME);
 
         if (KFSConstants.COUNTRY_CODE_UNITED_STATES.equals(wireTransfer.getCmBankCountryCode()) && StringUtils.isBlank(wireTransfer.getCmBankRoutingNumber())) {
             errors.putError(CUPurapPropertyConstants.CM_BANK_ROUTING_NUMBER, KFSKeyConstants.ERROR_DV_BANK_ROUTING_NUMBER);
@@ -58,11 +59,6 @@ public class CreditMemoWireTransferValidation extends GenericValidation  {
             isValid = false;
         }
 
-        /* cannot have attachment checked for wire transfer */
-//        if (document.isDisbVchrAttachmentCode()) {
-//            errors.putErrorWithoutFullErrorPath(KFSPropertyConstants.DOCUMENT + "." + KFSPropertyConstants.DISB_VCHR_ATTACHMENT_CODE, KFSKeyConstants.ERROR_DV_WIRE_ATTACHMENT);
-//            isValid = false;
-//        }
 
         errors.removeFromErrorPath(CUPurapPropertyConstants.CM_WIRE_TRANSFER);
         errors.removeFromErrorPath(KFSPropertyConstants.DOCUMENT);

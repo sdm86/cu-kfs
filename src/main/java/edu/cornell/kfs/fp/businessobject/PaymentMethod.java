@@ -18,6 +18,7 @@ package edu.cornell.kfs.fp.businessobject;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.kuali.kfs.sys.businessobject.Bank;
 import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.rice.kns.bo.Inactivateable;
@@ -151,7 +152,7 @@ public class PaymentMethod extends PersistableBusinessObjectBase implements Inac
             // the ORM mapping ensures that these are retrieved in reverse date order,
             // so the first one found will be the effective entry
             for ( PaymentMethodChart pmc : getPaymentMethodCharts() ) {
-                if ( pmc.getChartOfAccountsCode().equals(chartOfAccountsCode)
+                if ( StringUtils.equals(pmc.getChartOfAccountsCode(), chartOfAccountsCode)
                         && transDate.after(pmc.getEffectiveDate()) ) {
                     return pmc;
                 }

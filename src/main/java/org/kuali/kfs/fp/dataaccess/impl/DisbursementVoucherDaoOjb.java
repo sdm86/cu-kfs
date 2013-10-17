@@ -22,9 +22,12 @@ import org.apache.ojb.broker.query.QueryByCriteria;
 import org.kuali.kfs.fp.dataaccess.DisbursementVoucherDao;
 import org.kuali.kfs.fp.document.DisbursementVoucherConstants;
 import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
+import org.kuali.kfs.sys.KFSPropertyConstants;
 import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.rice.kns.dao.impl.PlatformAwareDaoBaseOjb;
 import org.kuali.rice.kns.service.DataDictionaryService;
+
+import edu.cornell.kfs.sys.CuKFSPropertyConstants;
 
 // KFSPTS-1891 : change in this class
 public class DisbursementVoucherDaoOjb extends PlatformAwareDaoBaseOjb implements DisbursementVoucherDao {
@@ -56,8 +59,8 @@ public class DisbursementVoucherDaoOjb extends PlatformAwareDaoBaseOjb implement
         LOG.debug("getDocumentsByHeaderStatus() started");
 
         Criteria criteria = new Criteria();
-        criteria.addEqualTo("documentHeader.financialDocumentStatusCode", statusCode);
-        criteria.addEqualTo("disbVchrPaymentMethodCode", DisbursementVoucherConstants.PAYMENT_METHOD_CHECK);
+        criteria.addEqualTo(CuKFSPropertyConstants.DOC_HDR_FINANCIAL_DOCUMENT_STATUS_CODE, statusCode);
+        criteria.addEqualTo(KFSPropertyConstants.DISB_VCHR_PAYMENT_METHOD_CODE, DisbursementVoucherConstants.PAYMENT_METHOD_CHECK);
 
         return getPersistenceBrokerTemplate().getCollectionByQuery(new QueryByCriteria(getDisbursementVoucherDocumentClass(), criteria));
     }

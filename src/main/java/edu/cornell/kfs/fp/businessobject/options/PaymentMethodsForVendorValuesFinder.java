@@ -15,18 +15,10 @@
  */
 package edu.cornell.kfs.fp.businessobject.options;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.kuali.kfs.sys.context.SpringContext;
-import org.kuali.rice.core.util.KeyLabelPair;
-import org.kuali.rice.kns.lookup.keyvalues.KeyValuesBase;
-import org.kuali.rice.kns.service.BusinessObjectService;
-
-import edu.cornell.kfs.fp.businessobject.PaymentMethod;
+import edu.cornell.kfs.fp.CuFPConstants;
 
 /**
  * This class returns list of payment method key value pairs.
@@ -39,8 +31,8 @@ import edu.cornell.kfs.fp.businessobject.PaymentMethod;
 public class PaymentMethodsForVendorValuesFinder extends PaymentMethodValuesFinder {
     static private Map<String,String> filterCriteria = new HashMap<String, String>();
     static {
-        filterCriteria.put("active", "Y");
-        filterCriteria.put("displayOnVendorDocument", "Y");
+        filterCriteria.put(CuFPConstants.ACTIVE, CuFPConstants.YES);
+        filterCriteria.put(CuFPConstants.DISPLAY_ON_VENDOR_DOCUMENT, CuFPConstants.YES);
     }
     
     protected Map<String,String> getFilterCriteria() {

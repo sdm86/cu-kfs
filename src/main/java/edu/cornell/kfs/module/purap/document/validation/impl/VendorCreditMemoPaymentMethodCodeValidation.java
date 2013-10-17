@@ -22,6 +22,9 @@ import org.kuali.kfs.sys.document.validation.GenericValidation;
 import org.kuali.kfs.sys.document.validation.event.AttributedDocumentEvent;
 import org.kuali.rice.kns.util.GlobalVariables;
 
+import edu.cornell.kfs.module.purap.CUPurapKeyConstants;
+import edu.cornell.kfs.module.purap.CUPurapPropertyConstants;
+
 
 /**
  * Validates the payment method code used on credit memo document if it was created
@@ -30,8 +33,6 @@ import org.kuali.rice.kns.util.GlobalVariables;
  * @author jonathan
  */
 public class VendorCreditMemoPaymentMethodCodeValidation extends GenericValidation {
-// KFSPTS-1891 mods
-    protected static final String ERROR_PAYMENTMETHODCODE_MUSTMATCHPREQ = "error.document.creditmemo.paymentmethodcode.mustmatchpreq";
 
     public boolean validate(AttributedDocumentEvent event) {
         if ( event.getDocument() instanceof VendorCreditMemoDocument ) {
@@ -45,7 +46,7 @@ public class VendorCreditMemoPaymentMethodCodeValidation extends GenericValidati
                     // check if the PMC on this document is the same
                     String preqPaymentMethodCode = ((PaymentRequestDocument)preqDoc).getPaymentMethodCode();
                     if ( !StringUtils.equals(preqPaymentMethodCode, doc.getPaymentMethodCode() ) ) {
-                        GlobalVariables.getMessageMap().putError("document.paymentMethodCode", ERROR_PAYMENTMETHODCODE_MUSTMATCHPREQ, preqPaymentMethodCode);
+                        GlobalVariables.getMessageMap().putError(CUPurapPropertyConstants.DOCUMENT_PAYMENT_METHOD_CODE, CUPurapKeyConstants.ERROR_PAYMENTMETHODCODE_MUSTMATCHPREQ, preqPaymentMethodCode);
                         return false;
                     }
                 }

@@ -18,6 +18,7 @@ package org.kuali.kfs.module.purap.document.validation.impl;
 import java.text.MessageFormat;
 
 import org.apache.commons.lang.StringUtils;
+import org.kuali.kfs.module.purap.CUPurapConstants;
 import org.kuali.kfs.module.purap.PurapConstants;
 import org.kuali.kfs.module.purap.PurapParameterConstants;
 import org.kuali.kfs.module.purap.businessobject.PaymentRequestWireTransfer;
@@ -131,7 +132,7 @@ public class CreditMemoDocumentPreRules extends AccountsPayableDocumentPreRulesB
         if (!StringUtils.equals(PaymentMethod.PM_CODE_WIRE, cmDocument.getPaymentMethodCode()) && hasWireTransferValues(cmWireTransfer)) {
             String questionText = SpringContext.getBean(KualiConfigurationService.class).getPropertyString(KFSKeyConstants.QUESTION_CLEAR_UNNEEDED_CM_WIRW_TAB);
 
-            Object[] args = { "payment method", cmDocument.getPaymentMethodCode(), "Wire Transfer", PaymentMethod.PM_CODE_WIRE };
+            Object[] args = { CUPurapConstants.PAYMENT_METHOD, cmDocument.getPaymentMethodCode(), CUPurapConstants.WIRE_TRANSFER, PaymentMethod.PM_CODE_WIRE };
             questionText = MessageFormat.format(questionText, args);
 
             boolean clearTab = super.askOrAnalyzeYesNoQuestion(KFSConstants.DisbursementVoucherDocumentConstants.CLEAR_WIRE_TRANSFER_TAB_QUESTION_ID, questionText);

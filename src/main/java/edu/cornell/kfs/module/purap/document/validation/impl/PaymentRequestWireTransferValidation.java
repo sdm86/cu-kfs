@@ -1,6 +1,7 @@
 package edu.cornell.kfs.module.purap.document.validation.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.kuali.kfs.module.purap.CUPurapConstants;
 import org.kuali.kfs.module.purap.businessobject.PaymentRequestWireTransfer;
 import org.kuali.kfs.module.purap.document.PaymentRequestDocument;
 import org.kuali.kfs.sys.KFSConstants;
@@ -28,7 +29,6 @@ public class PaymentRequestWireTransferValidation extends GenericValidation  {
         boolean isValid = true;
         
         PaymentRequestDocument document = (PaymentRequestDocument) accountingDocumentForValidation;
-//        DisbursementVoucherPayeeDetail payeeDetail = document.getDvPayeeDetail();
         PaymentRequestWireTransfer wireTransfer = document.getPreqWireTransfer();
 
         if (!PaymentMethod.PM_CODE_WIRE.equals(document.getPaymentMethodCode())) {
@@ -40,13 +40,12 @@ public class PaymentRequestWireTransferValidation extends GenericValidation  {
         errors.addToErrorPath(CUPurapPropertyConstants.PREQ_WIRE_TRANSFER);
 
 
-//        SpringContext.getBean(DictionaryValidationService.class).validateBusinessObject(wireTransfer);
-        isValid &= isValid(wireTransfer.getPreqBankName(), "Bank Name", "preqBankName");
-        isValid &= isValid(wireTransfer.getPreqBankCityName(), "Bank City", "preqBankCityName");
-        isValid &= isValid(wireTransfer.getPreqBankCountryCode(), "Bank Country", "preqBankCountryCode");
-        isValid &= isValid(wireTransfer.getPreqCurrencyTypeName(), "Currency", "preqCurrencyTypeName");
-        isValid &= isValid(wireTransfer.getPreqPayeeAccountNumber(), "Bank Account#", "preqPayeeAccountNumber");
-        isValid &= isValid(wireTransfer.getPreqPayeeAccountName(), "Bank Account Name", "preqPayeeAccountName");
+        isValid &= isValid(wireTransfer.getPreqBankName(), CUPurapConstants.LABEL_BANK_NAME, CUPurapPropertyConstants.PREQ_BANK_NAME);
+        isValid &= isValid(wireTransfer.getPreqBankCityName(), CUPurapConstants.LABEL_BANK_CITY, CUPurapPropertyConstants.PREQ_BANK_CITY_NAME);
+        isValid &= isValid(wireTransfer.getPreqBankCountryCode(), CUPurapConstants.LABEL_BANK_COUNTRY, CUPurapPropertyConstants.PREQ_BANK_COUNTRY_CODE);
+        isValid &= isValid(wireTransfer.getPreqCurrencyTypeName(), CUPurapConstants.LABEL_CURRENCY, CUPurapPropertyConstants.PREQ_CURRENCY_TYPE_NAME);
+        isValid &= isValid(wireTransfer.getPreqPayeeAccountNumber(), CUPurapConstants.LABEL_BANK_ACCT_NUMBER, CUPurapPropertyConstants.PREQ_PAYEE_ACCT_NUMBER);
+        isValid &= isValid(wireTransfer.getPreqPayeeAccountName(), CUPurapConstants.LABEL_BANK_ACCT_NAME, CUPurapPropertyConstants.PREQ_PAYEE_ACCT_NAME);
 
         if (KFSConstants.COUNTRY_CODE_UNITED_STATES.equals(wireTransfer.getPreqBankCountryCode()) && StringUtils.isBlank(wireTransfer.getPreqBankRoutingNumber())) {
             errors.putError(CUPurapPropertyConstants.PREQ_BANK_ROUTING_NUMBER, KFSKeyConstants.ERROR_DV_BANK_ROUTING_NUMBER);
@@ -58,11 +57,6 @@ public class PaymentRequestWireTransferValidation extends GenericValidation  {
             isValid = false;
         }
 
-        /* cannot have attachment checked for wire transfer */
-//        if (document.isDisbVchrAttachmentCode()) {
-//            errors.putErrorWithoutFullErrorPath(KFSPropertyConstants.DOCUMENT + "." + KFSPropertyConstants.DISB_VCHR_ATTACHMENT_CODE, KFSKeyConstants.ERROR_DV_WIRE_ATTACHMENT);
-//            isValid = false;
-//        }
 
         errors.removeFromErrorPath(CUPurapPropertyConstants.PREQ_WIRE_TRANSFER);
         errors.removeFromErrorPath(KFSPropertyConstants.DOCUMENT);
