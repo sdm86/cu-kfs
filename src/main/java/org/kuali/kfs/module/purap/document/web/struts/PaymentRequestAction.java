@@ -417,7 +417,8 @@ public class PaymentRequestAction extends AccountsPayableActionBase {
         SpringContext.getBean(KualiRuleService.class).applyRules(new AttributedCalculateAccountsPayableEvent(preqDoc));
         SpringContext.getBean(PaymentRequestService.class).calculatePaymentRequest(preqDoc, true);
         // KFSPTS-2578
-        if (preqDoc.getStatusCode().equals(PaymentRequestStatuses.PAYMENT_METHODL_REVIEW)) {
+        if (preqDoc.getStatusCode().equals(PaymentRequestStatuses.PAYMENT_METHODL_REVIEW)
+        		&& StringUtils.isNotBlank(preqDoc.getTaxClassificationCode()) && !StringUtils.equalsIgnoreCase(preqDoc.getTaxClassificationCode(), "N")) {
             SpringContext.getBean(PaymentRequestService.class).calculateTaxArea(preqDoc);
             return;
        }
