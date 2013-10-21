@@ -41,9 +41,9 @@ public class AccountsPayableBankCodeValidation extends GenericValidation {
 
         // check if one of the extended UA documents, if so, take the payment method into account, otherwise, revert to baseline behavior
         boolean isValid = true;
-        if ( apDocument instanceof PaymentRequestDocument ) {
+        if ( apDocument instanceof PaymentRequestDocument ||  apDocument instanceof VendorCreditMemoDocument) {
         	if (StringUtils.isNotBlank(apDocument.getBankCode())) {
-        		// PREQ bank code is not required
+        		// PREQ & CM bank code is not required
                 isValid = BankCodeValidation.validate(apDocument.getBankCode(), "document." + PurapPropertyConstants.BANK_CODE, ((PaymentRequestDocument)apDocument).getPaymentMethodCode(), false, true);            
                 if ( isValid ) {
                     if ( !(event instanceof AttributedRouteDocumentEvent) &&  StringUtils.isNotBlank(apDocument.getBankCode())
@@ -53,16 +53,6 @@ public class AccountsPayableBankCodeValidation extends GenericValidation {
                     }
                 }
         	}
-        } else if ( apDocument instanceof VendorCreditMemoDocument ) {
-            isValid = BankCodeValidation.validate(apDocument.getBankCode(), "document." + PurapPropertyConstants.BANK_CODE,  ((VendorCreditMemoDocument)apDocument).getPaymentMethodCode(), false, true);                        
-            if ( isValid ) {
-                // clear out the bank code on the document if not needed (per the message set by the call above)
-                if ( StringUtils.isNotBlank(apDocument.getBankCode())
-                        && !BankCodeValidation.doesBankCodeNeedToBePopulated(((VendorCreditMemoDocument)apDocument).getPaymentMethodCode()) ) {
-                    apDocument.setBank(null);
-                    apDocument.setBankCode(null);                
-                }
-            }
         } else {
             isValid = BankCodeValidation.validate(apDocument.getBankCode(), "document." + PurapPropertyConstants.BANK_CODE, false, true);
         }
