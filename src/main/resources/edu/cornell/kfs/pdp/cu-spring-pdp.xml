@@ -46,6 +46,7 @@
         </property>
         <property name="databaseRepositoryFilePaths">
             <list>
+           		<value>edu/cornell/kfs/pdp/cu-ojb-pdp.xml</value>
                 <value>org/kuali/kfs/pdp/ojb-pdp.xml</value>
             </list>
         </property>
