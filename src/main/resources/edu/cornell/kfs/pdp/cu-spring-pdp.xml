@@ -34,7 +34,6 @@
         <property name="packagePrefixes">
             <list>
                 <value>org.kuali.kfs.pdp</value>
-                <value>edu.cornell.kfs.pdp</value>
             </list>
         </property>
         <property name="dataDictionaryPackages">
@@ -46,7 +45,6 @@
         </property>
         <property name="databaseRepositoryFilePaths">
             <list>
-           		<value>edu/cornell/kfs/pdp/cu-ojb-pdp.xml</value>
                 <value>org/kuali/kfs/pdp/ojb-pdp.xml</value>
             </list>
         </property>
@@ -520,9 +518,6 @@
         </property>
         <property name="dvExtractService">
             <ref bean="disbursementVoucherExtractService" />
-        </property>
-        <property name="businessObjectService">
-            <ref bean="businessObjectService" />
         </property>
     </bean>
 
