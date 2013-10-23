@@ -216,7 +216,9 @@
 		              <bean parent="FieldDefinition" p:attributeName="feeAmount"/>
 		              <bean parent="FieldDefinition" p:attributeName="clearingChartOfAccountsCode"/>
 		              <bean parent="FieldDefinition" p:attributeName="clearingAccountNumber"/>
+		              <bean parent="FieldDefinition" p:attributeName="clearingSubAccountNumber"/>
 		              <bean parent="FieldDefinition" p:attributeName="clearingFinancialObjectCode"/>
+		              <bean parent="FieldDefinition" p:attributeName="clearingFinancialSubObjectCode"/>
 		              <bean parent="FieldDefinition" p:attributeName="active"/>
 		            </list>
 		          </property>
