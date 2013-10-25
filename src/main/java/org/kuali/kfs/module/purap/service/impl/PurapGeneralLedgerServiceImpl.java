@@ -868,7 +868,7 @@ public class PurapGeneralLedgerServiceImpl implements PurapGeneralLedgerService 
                 continue;
             }
 
-            KualiDecimal itemAmount = null;
+            KualiDecimal itemAmount = ZERO;
             if (item.getItemType().isAmountBasedGeneralLedgerIndicator()) {
                 LOG.debug("generateEntriesVoidPurchaseOrder() " + logItmNbr + " Calculate based on amounts");
                 itemAmount = item.getItemOutstandingEncumberedAmount() == null ? ZERO : item.getItemOutstandingEncumberedAmount();
@@ -1024,7 +1024,9 @@ public class PurapGeneralLedgerServiceImpl implements PurapGeneralLedgerService 
                             poItem.setItemInvoicedTotalQuantity(poItem.getItemInvoicedTotalQuantity().add(invoiceQuantity));
                         }
 
-                        itemDisEncumber = encumbranceQuantity.multiply(new KualiDecimal(poItem.getItemUnitPrice()));
+                        // KFSPTS-2240 : issue with itemunit price with 4-decimal
+                        //this is a fix from foundation, so stay in cu-kfs-4.0-fix.
+                        itemDisEncumber = new KualiDecimal(encumbranceQuantity.bigDecimalValue().multiply(poItem.getItemUnitPrice()));
 
                         //add tax for encumbrance
                         KualiDecimal itemTaxAmount = poItem.getItemTaxAmount() == null ? ZERO : poItem.getItemTaxAmount();
@@ -1192,7 +1194,9 @@ public class PurapGeneralLedgerServiceImpl implements PurapGeneralLedgerService 
                     poItem.setItemInvoicedTotalQuantity(invoicedTotal.subtract(preqQuantity));
                     poItem.setItemOutstandingEncumberedQuantity(outstandingEncumberedQuantity.add(preqQuantity));
 
-                    itemReEncumber = preqQuantity.multiply(new KualiDecimal(poItem.getItemUnitPrice()));
+                    // KFSPTS-2240 : issue with itemunit price with 4-decimal
+                    //do math as big decimal as doing it as a KualiDecimal will cause the item price to round to 2 digits
+                    itemReEncumber = new KualiDecimal(preqQuantity.bigDecimalValue().multiply(poItem.getItemUnitPrice()));
 
                     //add tax for encumbrance
                     KualiDecimal itemTaxAmount = poItem.getItemTaxAmount() == null ? ZERO : poItem.getItemTaxAmount();
