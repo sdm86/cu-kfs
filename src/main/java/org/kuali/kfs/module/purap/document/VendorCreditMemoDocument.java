@@ -765,7 +765,7 @@ public class VendorCreditMemoDocument extends AccountsPayableDocumentBase {
 		this.paymentMethodCode = paymentMethodCode;
 	}
     
-    protected void synchronizeBankCodeWithPaymentMethod() {
+    public void synchronizeBankCodeWithPaymentMethod() {
         Bank bank = getPaymentMethodGeneralLedgerPendingEntryService().getBankForPaymentMethod( getPaymentMethodCode() );
         if ( bank != null ) {
             setBankCode(bank.getBankCode());

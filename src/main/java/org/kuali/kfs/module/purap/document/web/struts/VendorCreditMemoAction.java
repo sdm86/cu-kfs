@@ -315,4 +315,30 @@ public class VendorCreditMemoAction extends AccountsPayableActionBase {
         formBase.setAdHocActionRequestCodes(adHocActionRequestCodes);
 
     }
+    
+	@Override
+	public ActionForward calculate(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+        VendorCreditMemoForm cmForm = (VendorCreditMemoForm) form;
+        VendorCreditMemoDocument creditMemoDocument = (VendorCreditMemoDocument) cmForm.getDocument();
+        if ( KEWConstants.ROUTE_HEADER_INITIATED_CD.equals( creditMemoDocument.getDocumentHeader().getWorkflowDocument().getRouteHeader().getDocRouteStatus() )
+                || KEWConstants.ROUTE_HEADER_SAVED_CD.equals( creditMemoDocument.getDocumentHeader().getWorkflowDocument().getRouteHeader().getDocRouteStatus() ) ) {
+            // need to check whether the user has the permission to edit the bank code
+            // if so, don't synchronize since we can't tell whether the value coming in
+            // was entered by the user or not.
+            DocumentAuthorizer docAuth = SpringContext.getBean(DocumentHelperService.class).getDocumentAuthorizer(creditMemoDocument);
+            if ( !docAuth.isAuthorizedByTemplate(creditMemoDocument, 
+                    KFSConstants.ParameterNamespaces.KFS, 
+                    KFSConstants.PermissionTemplate.EDIT_BANK_CODE.name, 
+                    GlobalVariables.getUserSession().getPrincipalId()  ) ) {
+            	creditMemoDocument.synchronizeBankCodeWithPaymentMethod();        
+            } else {
+                // ensure that the name is updated properly
+            	creditMemoDocument.refreshReferenceObject( "bank" );
+            }
+        }        
+		return super.calculate(mapping, form, request, response);
+	}
+
 }
