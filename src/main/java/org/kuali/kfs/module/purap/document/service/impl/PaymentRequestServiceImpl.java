@@ -1849,5 +1849,24 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         this.paymentMethodGeneralLedgerPendingEntryService = paymentMethodGeneralLedgerPendingEntryService;
     }
 
+    public void clearTax(PaymentRequestDocument document) {
+        // remove all existing tax items added by previous calculation
+        removeTaxItems(document);
+        // reset values
+        document.setTaxClassificationCode(null);
+        document.setTaxFederalPercent(null);
+        document.setTaxStatePercent(null);
+        document.setTaxCountryCode(null);
+        document.setTaxNQIId(null);
+
+        document.setTaxForeignSourceIndicator(false);
+        document.setTaxExemptTreatyIndicator(false);
+        document.setTaxOtherExemptIndicator(false);
+        document.setTaxGrossUpIndicator(false);
+        document.setTaxUSAIDPerDiemIndicator(false);
+        document.setTaxSpecialW4Amount(null);
+
+    }
+
 }
 
