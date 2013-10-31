@@ -153,6 +153,7 @@
                 		readOnly="${not taxAreaEditable}" tabindexOverride="${tabindexOverrideBase + 3}"/>
                 </td>
             </tr>
+            <c:if test="${taxAreaEditable}">
 			<tr>
 				<td class="infoline" colspan="4">
 					<center>	
@@ -160,7 +161,7 @@
 	    			</center>
    				</td>
     		</tr>
-
+            </c:if>
 		</table> 				
 
     </div>
