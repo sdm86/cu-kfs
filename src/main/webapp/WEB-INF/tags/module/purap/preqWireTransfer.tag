@@ -14,8 +14,10 @@
  limitations under the License.
 --%>
 <%@ include file="/jsp/sys/kfsTldHeader.jsp"%>
+<c:set var="isOpen" value="${KualiForm.documentActions[Constants.KUALI_ACTION_CAN_EDIT] && (empty KualiForm.editingMode['restrictFiscalEntry'])
+                               && KualiForm.document.paymentMethodCode == 'W'}" />
 
-<kul:tab tabTitle="Wire Transfer" defaultOpen="false" tabErrorKey="${KFSConstants.PREQ_WIRETRANSFER_TAB_ERRORS}">
+<kul:tab tabTitle="Wire Transfer" defaultOpen="${isOpen}" tabErrorKey="${KFSConstants.PREQ_WIRETRANSFER_TAB_ERRORS}">
 	<c:set var="wireTransAttributes" value="${DataDictionary.PaymentRequestWireTransfer.attributes}" />
     <div class="tab-container" align=center > 
     <h3>Wire Transfer</h3>
