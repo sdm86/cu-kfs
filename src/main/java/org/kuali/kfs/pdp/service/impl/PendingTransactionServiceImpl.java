@@ -346,6 +346,7 @@ public class PendingTransactionServiceImpl implements PendingTransactionService 
                             try {
                                 Note noteObj = documentService.createNoteFromDocument(cmDocument, crCmCancelNote);
                                 documentService.addNoteToDocument(cmDocument, noteObj);
+                                noteService.save(noteObj);
                             } catch (Exception e) {
                                 throw new RuntimeException(e.getMessage());
                             }
