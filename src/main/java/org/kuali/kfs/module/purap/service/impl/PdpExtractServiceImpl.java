@@ -77,8 +77,6 @@ import org.kuali.rice.kns.util.KualiDecimal;
 import org.kuali.rice.kns.util.KualiInteger;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.cornell.kfs.pdp.businessobject.PaymentDetailExtendedAttribute;
-
 /**
  * Implementation of PdpExtractService
  */
@@ -588,12 +586,6 @@ public class PdpExtractServiceImpl implements PdpExtractService {
 
         addAccounts(creditMemoDocument, paymentDetail, creditMemoDocType);
         addNotes(creditMemoDocument, paymentDetail);
-        
-        // add extended attribute
-        PaymentDetailExtendedAttribute paymentDetailExtendedAttribute =  new PaymentDetailExtendedAttribute();;
-        paymentDetailExtendedAttribute.setId(paymentDetail.getId());
-        paymentDetailExtendedAttribute.setCrCancelledPayment(false);
-        paymentDetail.setExtension(paymentDetailExtendedAttribute);
 
         return paymentDetail;
     }
@@ -679,12 +671,6 @@ public class PdpExtractServiceImpl implements PdpExtractService {
 
         addAccounts(paymentRequestDocument, paymentDetail, paymentRequestDocType);
         addNotes(paymentRequestDocument, paymentDetail);
-        
-        // add extended attribute
-        PaymentDetailExtendedAttribute paymentDetailExtendedAttribute =  new PaymentDetailExtendedAttribute();;
-        paymentDetailExtendedAttribute.setId(paymentDetail.getId());
-        paymentDetailExtendedAttribute.setCrCancelledPayment(false);
-        paymentDetail.setExtension(paymentDetailExtendedAttribute);
 
         return paymentDetail;
     }
