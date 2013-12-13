@@ -74,6 +74,7 @@ import org.kuali.rice.kns.util.ObjectUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.cornell.kfs.fp.service.CUPaymentMethodGeneralLedgerPendingEntryService;
+import edu.cornell.kfs.pdp.businessobject.PaymentDetailExtendedAttribute;
 
 /**
  * This is the default implementation of the DisbursementVoucherExtractService interface.
@@ -555,6 +556,12 @@ public class DisbursementVoucherExtractServiceImpl implements DisbursementVouche
                 }
             }
         }
+        
+        // add extended attribute
+        PaymentDetailExtendedAttribute paymentDetailExtendedAttribute =  new PaymentDetailExtendedAttribute();;
+        paymentDetailExtendedAttribute.setId(pd.getId());
+        paymentDetailExtendedAttribute.setCrCancelledPayment(false);
+        pd.setExtension(paymentDetailExtendedAttribute);
         
         return pd;
     }
