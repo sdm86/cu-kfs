@@ -40,8 +40,6 @@ import org.kuali.rice.kns.service.ParameterService;
 import org.kuali.rice.kns.util.KualiDecimal;
 import org.kuali.rice.kns.util.KualiInteger;
 
-import edu.cornell.kfs.pdp.businessobject.PaymentDetailExtendedAttribute;
-
 public class PaymentDetail extends TimestampedBusinessObjectBase {
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(PaymentDetail.class);
     private static KualiDecimal zero = KualiDecimal.ZERO;
@@ -71,10 +69,6 @@ public class PaymentDetail extends TimestampedBusinessObjectBase {
 
     public PaymentDetail() {
         super();
-        PaymentDetailExtendedAttribute paymentDetailExtendedAttribute =  new PaymentDetailExtendedAttribute();;
-        paymentDetailExtendedAttribute.setId(this.getId());
-        paymentDetailExtendedAttribute.setCrCancelledPayment(false);
-        this.setExtension(paymentDetailExtendedAttribute);
     }
 
     public boolean isDetailAmountProvided() {

@@ -5,14 +5,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.kuali.kfs.fp.batch.service.DisbursementVoucherExtractService;
 import org.kuali.kfs.fp.document.DisbursementVoucherConstants;
 import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
+import org.kuali.kfs.integration.purap.PurchasingAccountsPayableModuleService;
 import org.kuali.kfs.pdp.PdpConstants;
 import org.kuali.kfs.pdp.batch.service.impl.ProcessPdpCancelPaidServiceImpl;
 import org.kuali.kfs.pdp.businessobject.PaymentDetail;
+import org.kuali.kfs.pdp.service.PaymentDetailService;
+import org.kuali.kfs.pdp.service.PaymentGroupService;
 import org.kuali.kfs.sys.KFSParameterKeyConstants;
 import org.kuali.kfs.sys.service.impl.KfsParameterConstants;
-import org.kuali.rice.kns.util.ObjectUtils;
+import org.kuali.rice.kns.service.DateTimeService;
+import org.kuali.rice.kns.service.ParameterService;
 
 import edu.cornell.kfs.integration.purap.CuPurchasingAccountsPayableModuleService;
 import edu.cornell.kfs.pdp.businessobject.PaymentDetailExtendedAttribute;
@@ -47,12 +52,8 @@ public class CuProcessPdpCancelPaidServiceImpl extends ProcessPdpCancelPaidServi
 
             boolean primaryCancel = paymentDetail.getPrimaryCancelledPayment();
             boolean disbursedPayment = PdpConstants.PaymentStatusCodes.CANCEL_PAYMENT.equals(paymentDetail.getPaymentGroup().getPaymentStatusCode());
-            // KFSPTS-2719 KFSPTS-2966
-            boolean crCancel = false;
-            PaymentDetailExtendedAttribute paymentDetailExtendedAttribute = (PaymentDetailExtendedAttribute) paymentDetail.getExtension();
-            if (ObjectUtils.isNull(paymentDetailExtendedAttribute)) {
-                crCancel = paymentDetailExtendedAttribute.getCrCancelledPayment();
-            }
+            //KFSPTS-2719
+            boolean crCancel = ((PaymentDetailExtendedAttribute)paymentDetail.getExtension()).getCrCancelledPayment();
 
             if(purchasingAccountsPayableModuleService.isPurchasingBatchDocument(documentTypeCode)) {
                 ((CuPurchasingAccountsPayableModuleService)purchasingAccountsPayableModuleService).handlePurchasingBatchCancels(documentNumber, documentTypeCode, primaryCancel, disbursedPayment, crCancel);
