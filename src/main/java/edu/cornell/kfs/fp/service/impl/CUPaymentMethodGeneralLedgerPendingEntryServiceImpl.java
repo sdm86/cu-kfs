@@ -15,18 +15,35 @@
  */
 package edu.cornell.kfs.fp.service.impl;
 
+import static org.kuali.kfs.module.purap.PurapConstants.PURAP_ORIGIN_CODE;
 import static org.kuali.kfs.sys.KFSConstants.GL_CREDIT_CODE;
 import static org.kuali.kfs.sys.KFSConstants.GL_DEBIT_CODE;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.ojb.broker.query.Criteria;
+import org.apache.ojb.broker.query.QueryByCriteria;
 import org.kuali.kfs.coa.businessobject.ObjectCode;
+import org.kuali.kfs.coa.businessobject.OffsetDefinition;
 import org.kuali.kfs.coa.service.ObjectCodeService;
+import org.kuali.kfs.coa.service.OffsetDefinitionService;
+import org.kuali.kfs.gl.businessobject.Entry;
+
+import org.kuali.kfs.module.cab.CabPropertyConstants;
+import org.kuali.kfs.module.cab.businessobject.BatchParameters;
+import org.kuali.kfs.module.purap.document.PaymentRequestDocument;
+import org.kuali.kfs.module.purap.service.PurapGeneralLedgerService;
 import org.kuali.kfs.sys.KFSConstants;
 import org.kuali.kfs.sys.KFSKeyConstants;
+import org.kuali.kfs.sys.KFSPropertyConstants;
+import org.kuali.kfs.sys.businessobject.AccountingLine;
 import org.kuali.kfs.sys.businessobject.Bank;
 import org.kuali.kfs.sys.businessobject.GeneralLedgerPendingEntry;
 import org.kuali.kfs.sys.businessobject.GeneralLedgerPendingEntrySequenceHelper;
@@ -40,7 +57,9 @@ import org.kuali.kfs.sys.service.GeneralLedgerPendingEntryService;
 import org.kuali.kfs.sys.service.NonTransactional;
 import org.kuali.rice.kns.service.BusinessObjectService;
 import org.kuali.rice.kns.service.ParameterService;
+import org.kuali.rice.kns.util.KNSConstants;
 import org.kuali.rice.kns.util.KualiDecimal;
+import org.kuali.rice.kns.util.ObjectUtils;
 import org.kuali.rice.kns.util.spring.CacheNoCopy;
 
 import edu.cornell.kfs.fp.businessobject.PaymentMethod;
@@ -58,6 +77,7 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
     private ParameterService parameterService;
     private BusinessObjectService businessObjectService;
     private BankService bankService;
+    protected PurapGeneralLedgerService purapGeneralLedgerService; 
     
 
     @CacheNoCopy
@@ -137,7 +157,12 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
         }
         
         if ( !pm.isProcessedUsingPdp() && StringUtils.isNotBlank( bankCode ) ) {
+            if(PaymentMethod.PM_CODE_WIRE.equalsIgnoreCase(paymentMethodCode) || PaymentMethod.PM_CODE_FOREIGN_DRAFT.equalsIgnoreCase(paymentMethodCode)){
+                //do not create bank offsets unless DM approval
+            }
+            else{
             generateDocumentBankOffsetEntries(document,bankCode,bankCodePropertyName,templatePendingEntry.getFinancialDocumentTypeCode(), sequenceHelper, bankOffsetAmount );
+            }
         }
         
         return true;
@@ -363,6 +388,7 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
                 GeneralLedgerPendingEntry offsetEntry = new GeneralLedgerPendingEntry(bankOffsetEntry);
                 success &= getGeneralLedgerPendingEntryService().populateOffsetGeneralLedgerPendingEntry(document.getPostingYear(), bankOffsetEntry, sequenceHelper, offsetEntry);
                 bankOffsetEntry.setFinancialDocumentTypeCode(documentTypeCode);
+
                 document.addPendingEntry(offsetEntry);
                 sequenceHelper.increment();
             }
@@ -406,4 +432,11 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
         return bankService;
     }
 
+    /**
+     * Creates final entries for PRNC doc: Reverse all usage 2900 object codes Replaces with 1000 offset object code Generate
+     * Bank Offsets for total amounts
+     * 
+     * @see edu.cornell.kfs.fp.service.CUPaymentMethodGeneralLedgerPendingEntryService#generateFinalEntriesForPRNC(org.kuali.kfs.module.purap.document.PaymentRequestDocument)
+     */
+    public void generateFinalEntriesForPRNC(PaymentRequestDocument document) {
 }
