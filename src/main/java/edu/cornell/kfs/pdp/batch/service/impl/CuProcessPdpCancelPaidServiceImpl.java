@@ -5,19 +5,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.kuali.kfs.fp.batch.service.DisbursementVoucherExtractService;
 import org.kuali.kfs.fp.document.DisbursementVoucherConstants;
 import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
-import org.kuali.kfs.integration.purap.PurchasingAccountsPayableModuleService;
 import org.kuali.kfs.pdp.PdpConstants;
 import org.kuali.kfs.pdp.batch.service.impl.ProcessPdpCancelPaidServiceImpl;
 import org.kuali.kfs.pdp.businessobject.PaymentDetail;
-import org.kuali.kfs.pdp.service.PaymentDetailService;
-import org.kuali.kfs.pdp.service.PaymentGroupService;
 import org.kuali.kfs.sys.KFSParameterKeyConstants;
 import org.kuali.kfs.sys.service.impl.KfsParameterConstants;
-import org.kuali.rice.kns.service.DateTimeService;
-import org.kuali.rice.kns.service.ParameterService;
 import org.kuali.rice.kns.util.ObjectUtils;
 
 import edu.cornell.kfs.integration.purap.CuPurchasingAccountsPayableModuleService;
@@ -53,10 +47,10 @@ public class CuProcessPdpCancelPaidServiceImpl extends ProcessPdpCancelPaidServi
 
             boolean primaryCancel = paymentDetail.getPrimaryCancelledPayment();
             boolean disbursedPayment = PdpConstants.PaymentStatusCodes.CANCEL_PAYMENT.equals(paymentDetail.getPaymentGroup().getPaymentStatusCode());
-                      // KFSPTS-2719
+            // KFSPTS-2719
             boolean crCancel = false;
             PaymentDetailExtendedAttribute paymentDetailExtendedAttribute = (PaymentDetailExtendedAttribute) paymentDetail.getExtension();
-            if (ObjectUtils.isNull(paymentDetailExtendedAttribute)) {
+            if (ObjectUtils.isNotNull(paymentDetailExtendedAttribute)) {
                 crCancel = paymentDetailExtendedAttribute.getCrCancelledPayment();
             }
 
