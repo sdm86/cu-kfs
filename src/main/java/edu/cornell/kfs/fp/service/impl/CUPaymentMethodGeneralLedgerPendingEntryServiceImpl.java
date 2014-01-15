@@ -457,6 +457,8 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
                     glpe.refreshReferenceObject(KFSPropertyConstants.CHART);
                 }
                 glpe.setFinancialObjectCode(glpe.getChart().getFinancialCashObjectCode());
+                glpe.refreshReferenceObject(KFSPropertyConstants.FINANCIAL_OBJECT);
+                glpe.setFinancialObjectTypeCode(glpe.getFinancialObject().getFinancialObjectTypeCode());
             }
         }
 
@@ -499,6 +501,12 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
                     document.addPendingEntry(cashGlpe);
                     sequenceHelper.increment();
                 }
+            }
+        }
+        
+        if (document.getGeneralLedgerPendingEntries() != null && document.getGeneralLedgerPendingEntries().size() > 0) {
+            for (GeneralLedgerPendingEntry glpe : document.getGeneralLedgerPendingEntries()) {
+                glpe.setFinancialDocumentApprovedCode(KFSConstants.PENDING_ENTRY_APPROVED_STATUS_CODE.APPROVED);
             }
         }
 
