@@ -139,12 +139,16 @@ public class PaymentRequestDocumentPresentationController extends PurchasingAcco
     @Override
     public Set<String> getEditModes(Document document) {
         Set<String> editModes = super.getEditModes(document);
-        // KFSPTS-1891
-        editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.FRN_ENTRY);
-        editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.WIRE_ENTRY);
+
 
         KualiWorkflowDocument workflowDocument = document.getDocumentHeader().getWorkflowDocument();
         PaymentRequestDocument paymentRequestDocument = (PaymentRequestDocument)document;
+        
+        if(workflowDocument.stateIsInitiated() || workflowDocument.stateIsSaved()){
+            // KFSPTS-1891
+            editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.FRN_ENTRY);
+            editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.WIRE_ENTRY);
+        }
         
         if (canProcessorCancel(paymentRequestDocument)) {
             editModes.add(PaymentRequestEditMode.ACCOUNTS_PAYABLE_PROCESSOR_CANCEL);
@@ -222,6 +226,9 @@ public class PaymentRequestDocumentPresentationController extends PurchasingAcco
         
         if (paymentRequestDocument.isDocumentStoppedInRouteNode(NodeDetailEnum.PAYMENT_METHOD_REVIEW)) {
             editModes.add(PaymentRequestEditMode.WAIVE_WIRE_FEE_EDITABLE);
+            // KFSPTS-1891
+            editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.FRN_ENTRY);
+            editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.WIRE_ENTRY);
         }
 
         // the tax tab is viewable to everyone after tax is approved
