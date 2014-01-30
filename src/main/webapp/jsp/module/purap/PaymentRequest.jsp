@@ -27,8 +27,9 @@
     <c:set var="taxInfoViewable" value="${KualiForm.editingMode['taxInfoViewable']}" scope="request" />
     <c:set var="taxAreaEditable" value="${KualiForm.editingMode['taxAreaEditable']}" scope="request" />
     <!-- KFSPTS-1891 -->
-	<c:set var="wireEntryMode" value="${(canEdit || canSave) && KualiForm.editingMode['wireEntry']}" scope="request" />
-	<c:set var="frnEntryMode" value="${(canEdit || canSave) && KualiForm.editingMode['frnEntry']}" scope="request" />
+	<c:set var="wireEntryMode" value="${(canEdit) && KualiForm.editingMode['wireEntry']}" scope="request" />
+	<c:set var="frnEntryMode" value="${(canEdit) && KualiForm.editingMode['frnEntry']}" scope="request" />
+
 
     
 	<!--  Display hold message if payment is on hold -->
