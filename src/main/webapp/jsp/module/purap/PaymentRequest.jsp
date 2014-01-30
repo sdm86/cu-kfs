@@ -27,8 +27,8 @@
     <c:set var="taxInfoViewable" value="${KualiForm.editingMode['taxInfoViewable']}" scope="request" />
     <c:set var="taxAreaEditable" value="${KualiForm.editingMode['taxAreaEditable']}" scope="request" />
     <!-- KFSPTS-1891 -->
-	<c:set var="wireEntryMode" value="${KualiForm.editingMode['wireEntry']}" scope="request" />
-	<c:set var="frnEntryMode" value="${KualiForm.editingMode['frnEntry']}" scope="request" />
+	<c:set var="wireEntryMode" value="${canSave && KualiForm.editingMode['wireEntry']}" scope="request" />
+	<c:set var="frnEntryMode" value="${canSave && KualiForm.editingMode['frnEntry']}" scope="request" />
 
 
     
