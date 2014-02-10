@@ -69,7 +69,6 @@ import org.kuali.rice.kns.rule.event.SaveDocumentEvent;
 import org.kuali.rice.kns.service.BusinessObjectService;
 import org.kuali.rice.kns.service.DataDictionaryService;
 import org.kuali.rice.kns.service.DictionaryValidationService;
-import org.kuali.rice.kns.service.DocumentService;
 import org.kuali.rice.kns.service.KualiRuleService;
 import org.kuali.rice.kns.service.ParameterEvaluator;
 import org.kuali.rice.kns.service.ParameterService;
@@ -771,41 +770,13 @@ public class KualiAccountingDocumentActionBase extends FinancialSystemTransactio
     public ActionForward approve(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
         KualiAccountingDocumentFormBase tmpForm = (KualiAccountingDocumentFormBase) form;
         this.applyCapitalAssetInformation(tmpForm);
-        ActionForward forward  = null;
         
-        boolean passed = SpringContext.getBean(KualiRuleService.class).applyRules(new ApproveDocumentEvent(tmpForm.getFinancialDocument()));
+        ActionForward forward = super.approve(mapping, form, request, response);
 
-        if (passed) {
+        if (GlobalVariables.getErrorMap().hasNoErrors()) {
             // KFSPTS-1735
             SpringContext.getBean(CUFinancialSystemDocumentService.class).checkAccountingLinesForChanges((AccountingDocument) tmpForm.getFinancialDocument());
             // KFSPTS-1735
-            forward = super.approve(mapping, form, request, response);
-        } else {
-            // KFSPTS-3057
-            // remove any error messages from this validation. After pre-rules are called document may be valid and approve may go through
-            GlobalVariables.getErrorMap().clearErrorMessages();
-            
-            // get saved document so that we can compare it with the approved version if approve succeeds
-            DocumentService docService = SpringContext.getBean(DocumentService.class);
-            AccountingDocument savedDoc = null;
-            try {
-                savedDoc = (AccountingDocument) docService.getByDocumentHeaderId(tmpForm.getFinancialDocument().getDocumentNumber());
-
-            } catch (WorkflowException we) {
-                LOG.error("Unable to retrieve document number " + tmpForm.getFinancialDocument().getDocumentNumber() + " to evaluate accounting line changes");
-            }
-
-            // attempt to approve
-            forward = super.approve(mapping, form, request, response);
-            
-            // if a saved document exists and the approve was successful log any changes in accounting lines
-            if (savedDoc != null) {
-
-                SpringContext.getBean(CUFinancialSystemDocumentService.class).checkAccountingLinesForChanges(savedDoc, (AccountingDocument) tmpForm.getFinancialDocument());
-
-            }
-            // end // KFSPTS-3057
-
         }
         
         // need to check on sales tax for all the accounting lines
