@@ -752,16 +752,34 @@ public class KualiAccountingDocumentActionBase extends FinancialSystemTransactio
         KualiAccountingDocumentFormBase tmpForm = (KualiAccountingDocumentFormBase) form;
         this.applyCapitalAssetInformation(tmpForm);
         
-      //KFSPTS-1735
-        boolean passed = SpringContext.getBean(KualiRuleService.class).applyRules(new SaveDocumentEvent(tmpForm.getFinancialDocument()));
-        if (tmpForm.getFinancialDocument().getDocumentHeader().getWorkflowDocument().stateIsEnroute() && passed) {
-        	SpringContext.getBean(CUFinancialSystemDocumentService.class).checkAccountingLinesForChanges((AccountingDocument) tmpForm.getFinancialDocument());
+        // KFSPTS-3083
+        // get saved document so that we can compare it with the approved version if approve succeeds
+        DocumentService docService = SpringContext.getBean(DocumentService.class);
+        AccountingDocument savedDoc = null;
+        try {
+            savedDoc = (AccountingDocument) docService.getByDocumentHeaderId(tmpForm.getFinancialDocument().getDocumentNumber());
+            if(savedDoc!=null){
+                //this will set source acct lines on purap docs
+                savedDoc.getSourceAccountingLines();
+            }
+
+        } catch (WorkflowException we) {
+            LOG.error("Unable to retrieve document number " + tmpForm.getFinancialDocument().getDocumentNumber() + " to evaluate accounting line changes");
         }
-      //KFSPTS-1735
-       
+        
         ActionForward forward = super.save(mapping, form, request, response);
-        
-        
+        boolean saved = GlobalVariables.getMessageList().contains(new ErrorMessage(RiceKeyConstants.MESSAGE_SAVED));
+        // if a saved document exists and the approve was successful log any changes in accounting lines
+        if (savedDoc != null && saved) {
+            AccountingDocument accountingDocument = (AccountingDocument) tmpForm.getFinancialDocument();
+
+            SpringContext.getBean(CUFinancialSystemDocumentService.class).checkAccountingLinesForChanges(savedDoc, accountingDocument);
+            
+            //save document after adding notes for changed accounting lines
+            getDocumentService().saveDocument(accountingDocument);
+
+        }
+        // end KFSPTS-3083
         
         // need to check on sales tax for all the accounting lines
         checkSalesTaxRequiredAllLines(tmpForm, tmpForm.getFinancialDocument().getSourceAccountingLines());
@@ -773,49 +791,39 @@ public class KualiAccountingDocumentActionBase extends FinancialSystemTransactio
     public ActionForward approve(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
         KualiAccountingDocumentFormBase tmpForm = (KualiAccountingDocumentFormBase) form;
         this.applyCapitalAssetInformation(tmpForm);
-        ActionForward forward  = null;
-        
-        boolean passed = SpringContext.getBean(KualiRuleService.class).applyRules(new ApproveDocumentEvent(tmpForm.getFinancialDocument()));
 
-        if (passed) {
-            // KFSPTS-1735
-            SpringContext.getBean(CUFinancialSystemDocumentService.class).checkAccountingLinesForChanges((AccountingDocument) tmpForm.getFinancialDocument());
-            // KFSPTS-1735
-            forward = super.approve(mapping, form, request, response);
-        } else {
-            // KFSPTS-3057
-            // remove any error messages from this validation. After pre-rules are called document may be valid and approve may go through
-            GlobalVariables.getErrorMap().clearErrorMessages();
-            
-            // get saved document so that we can compare it with the approved version if approve succeeds
-            DocumentService docService = SpringContext.getBean(DocumentService.class);
-            AccountingDocument savedDoc = null;
-            try {
-                savedDoc = (AccountingDocument) docService.getByDocumentHeaderId(tmpForm.getFinancialDocument().getDocumentNumber());
-
-            } catch (WorkflowException we) {
-                LOG.error("Unable to retrieve document number " + tmpForm.getFinancialDocument().getDocumentNumber() + " to evaluate accounting line changes");
+        // get saved document so that we can compare it with the approved version if approve succeeds
+        DocumentService docService = SpringContext.getBean(DocumentService.class);
+        AccountingDocument savedDoc = null;
+        try {
+            savedDoc = (AccountingDocument) docService.getByDocumentHeaderId(tmpForm.getFinancialDocument().getDocumentNumber());
+            if (savedDoc != null) {
+                // this will set source acct lines on purap docs
+                savedDoc.getSourceAccountingLines();
             }
 
-            // attempt to approve
-            forward = super.approve(mapping, form, request, response);
-            
-            // check if the document was approved. it could be that a pre-rule was fired and the user selected no for the proceed question
-            boolean approved = GlobalVariables.getMessageList().contains(new ErrorMessage(RiceKeyConstants.MESSAGE_ROUTE_APPROVED));
-            
-            // if a saved document exists and the approve was successful log any changes in accounting lines
-            if (savedDoc != null && approved) {
-                AccountingDocument accountingDocument = (AccountingDocument) tmpForm.getFinancialDocument();
+        } catch (WorkflowException we) {
+            LOG.error("Unable to retrieve document number " + tmpForm.getFinancialDocument().getDocumentNumber() + " to evaluate accounting line changes");
+        }
 
-                SpringContext.getBean(CUFinancialSystemDocumentService.class).checkAccountingLinesForChanges(savedDoc, accountingDocument);
-                
-                //save document after adding notes for changed accounting lines
-                getDocumentService().saveDocument(accountingDocument);
+        // attempt to approve
+        ActionForward forward = super.approve(mapping, form, request, response);
 
-            }
-            // end // KFSPTS-3057
+        // check if the document was approved. it could be that a pre-rule was fired and the user selected no for the proceed
+        // question
+        boolean approved = GlobalVariables.getMessageList().contains(new ErrorMessage(RiceKeyConstants.MESSAGE_ROUTE_APPROVED));
+
+        // if a saved document exists and the approve was successful log any changes in accounting lines
+        if (savedDoc != null && approved) {
+            AccountingDocument accountingDocument = (AccountingDocument) tmpForm.getFinancialDocument();
+
+            SpringContext.getBean(CUFinancialSystemDocumentService.class).checkAccountingLinesForChanges(savedDoc, accountingDocument);
+
+            // save document after adding notes for changed accounting lines
+            getDocumentService().saveDocument(accountingDocument);
 
         }
+        // end // KFSPTS-3057
         
         // need to check on sales tax for all the accounting lines
         checkSalesTaxRequiredAllLines(tmpForm, tmpForm.getFinancialDocument().getSourceAccountingLines());
@@ -1230,8 +1238,8 @@ public class KualiAccountingDocumentActionBase extends FinancialSystemTransactio
             Integer linenum = getNextItemLineNumberAndIncremented(capitalAssetInformation);
             detailLine.setItemLineNumber(linenum);
             CapitalAssetInformationDetailExtendedAttribute detailea = (CapitalAssetInformationDetailExtendedAttribute)(detailLine.getExtension());
-			detailea.setItemLineNumber(linenum);
-			detailLines.add(detailLine);
+            detailea.setItemLineNumber(linenum);
+            detailLines.add(detailLine);
             
         }
     }
@@ -1320,71 +1328,71 @@ public class KualiAccountingDocumentActionBase extends FinancialSystemTransactio
         CapitalAssetEditable capitalAssetEditable = (CapitalAssetEditable) document;
         CapitalAssetInformation capitalAssetInformation = capitalAssetEditable.getCapitalAssetInformation();
         if (capitalAssetInformation != null || !(kualiAccountingDocumentFormBase instanceof CapitalAssetEditable)) {
-        	if (!capitalAssetEditable.getCapitalAssetInformation().getCapitalAssetInformationDetails().isEmpty())
-        	{	
-        		//if fdoc num is not set for CapitalAssetInformationDetail set fdoc num so CapitalAssetInformationDetail info can be added
-        		String detail_doc = capitalAssetEditable.getCapitalAssetInformation().getCapitalAssetInformationDetails().get(0).getDocumentNumber();
-        		String info_doc = capitalAssetEditable.getCapitalAssetInformation().getDocumentNumber();
-        		PersistableBusinessObject capassetinfo = SpringContext.getBean(BusinessObjectService.class).findBySinglePrimaryKey(CapitalAssetInformation.class, info_doc);
-        		
-        		
-        		
-        		if (capassetinfo != null) {
-        			if (detail_doc == null){  
-        				List<CapitalAssetInformationDetail> detailLines = new ArrayList<CapitalAssetInformationDetail>();
-        			    CapitalAssetInformationDetail detailLine = new CapitalAssetInformationDetail();
-        				detailLine.setDocumentNumber(document.getDocumentNumber());
-        				CapitalAssetInformationDetailExtendedAttribute detailea = (CapitalAssetInformationDetailExtendedAttribute)(detailLine.getExtension());
-        				detailea.setDocumentNumber(document.getDocumentNumber());
-        				detailea.setItemLineNumber(1);
-        				detailLine.setItemLineNumber(1);
-        				detailLines.add(detailLine);
-        				SpringContext.getBean(BusinessObjectService.class).save(detailLines);        				        				        				        				
-        			}
-        			List<CapitalAssetInformationDetail> detailLines2 = capitalAssetEditable.getCapitalAssetInformation().getCapitalAssetInformationDetails();
-    				Integer quantity = capitalAssetInformation.getCapitalAssetQuantity();
-    				for (int index = 0; index < quantity; index++) {
-    					CapitalAssetInformationDetail detailLine2 = capitalAssetEditable.getCapitalAssetInformation().getCapitalAssetInformationDetails().get(index);
-    					CapitalAssetInformationDetailExtendedAttribute detailea2 = (CapitalAssetInformationDetailExtendedAttribute)(detailLine2.getExtension());
-    					detailea2.setDocumentNumber(document.getDocumentNumber());
-    					detailLines2.set(index, detailLine2);
-    				}
-    				capitalAssetEditable.getCapitalAssetInformation().setCapitalAssetInformationDetails(detailLines2);
-        			
-        		}
-        		
-        	}
-        	return;
+            if (!capitalAssetEditable.getCapitalAssetInformation().getCapitalAssetInformationDetails().isEmpty())
+            {   
+                //if fdoc num is not set for CapitalAssetInformationDetail set fdoc num so CapitalAssetInformationDetail info can be added
+                String detail_doc = capitalAssetEditable.getCapitalAssetInformation().getCapitalAssetInformationDetails().get(0).getDocumentNumber();
+                String info_doc = capitalAssetEditable.getCapitalAssetInformation().getDocumentNumber();
+                PersistableBusinessObject capassetinfo = SpringContext.getBean(BusinessObjectService.class).findBySinglePrimaryKey(CapitalAssetInformation.class, info_doc);
+                
+                
+                
+                if (capassetinfo != null) {
+                    if (detail_doc == null){  
+                        List<CapitalAssetInformationDetail> detailLines = new ArrayList<CapitalAssetInformationDetail>();
+                        CapitalAssetInformationDetail detailLine = new CapitalAssetInformationDetail();
+                        detailLine.setDocumentNumber(document.getDocumentNumber());
+                        CapitalAssetInformationDetailExtendedAttribute detailea = (CapitalAssetInformationDetailExtendedAttribute)(detailLine.getExtension());
+                        detailea.setDocumentNumber(document.getDocumentNumber());
+                        detailea.setItemLineNumber(1);
+                        detailLine.setItemLineNumber(1);
+                        detailLines.add(detailLine);
+                        SpringContext.getBean(BusinessObjectService.class).save(detailLines);                                                                                               
+                    }
+                    List<CapitalAssetInformationDetail> detailLines2 = capitalAssetEditable.getCapitalAssetInformation().getCapitalAssetInformationDetails();
+                    Integer quantity = capitalAssetInformation.getCapitalAssetQuantity();
+                    for (int index = 0; index < quantity; index++) {
+                        CapitalAssetInformationDetail detailLine2 = capitalAssetEditable.getCapitalAssetInformation().getCapitalAssetInformationDetails().get(index);
+                        CapitalAssetInformationDetailExtendedAttribute detailea2 = (CapitalAssetInformationDetailExtendedAttribute)(detailLine2.getExtension());
+                        detailea2.setDocumentNumber(document.getDocumentNumber());
+                        detailLines2.set(index, detailLine2);
+                    }
+                    capitalAssetEditable.getCapitalAssetInformation().setCapitalAssetInformationDetails(detailLines2);
+                    
+                }
+                
+            }
+            return;
         }
 
         CapitalAssetEditable capitalAssetEditableForm = (CapitalAssetEditable) kualiAccountingDocumentFormBase;
         CapitalAssetInformation newCapitalAssetInformation = capitalAssetEditableForm.getCapitalAssetInformation();
         Integer cquantity = newCapitalAssetInformation.getCapitalAssetQuantity();
         if  ( cquantity != null) {
-		    if (newCapitalAssetInformation.getCapitalAssetQuantity() > 0) {
-		        List<CapitalAssetInformationDetail> detailLines2 = capitalAssetEditableForm.getCapitalAssetInformation().getCapitalAssetInformationDetails();
-				Integer quantity = newCapitalAssetInformation.getCapitalAssetQuantity();
-				for (int index = 0; index < quantity; index++) {
-					CapitalAssetInformationDetail detailLine2 = capitalAssetEditableForm.getCapitalAssetInformation().getCapitalAssetInformationDetails().get(index);
-					CapitalAssetInformationDetailExtendedAttribute detailea2 = (CapitalAssetInformationDetailExtendedAttribute)(detailLine2.getExtension());
-					detailLine2.setDocumentNumber(document.getDocumentNumber());
-					detailea2.setDocumentNumber(document.getDocumentNumber());
-					if (index == 0) {
-						detailLine2.setItemLineNumber(1);
-						detailea2.setItemLineNumber(1);
-					}
-					
-					detailLines2.set(index, detailLine2);
-					
-				}
-				capitalAssetEditableForm.getCapitalAssetInformation().setCapitalAssetInformationDetails(detailLines2);
-		    	
-		    }
+            if (newCapitalAssetInformation.getCapitalAssetQuantity() > 0) {
+                List<CapitalAssetInformationDetail> detailLines2 = capitalAssetEditableForm.getCapitalAssetInformation().getCapitalAssetInformationDetails();
+                Integer quantity = newCapitalAssetInformation.getCapitalAssetQuantity();
+                for (int index = 0; index < quantity; index++) {
+                    CapitalAssetInformationDetail detailLine2 = capitalAssetEditableForm.getCapitalAssetInformation().getCapitalAssetInformationDetails().get(index);
+                    CapitalAssetInformationDetailExtendedAttribute detailea2 = (CapitalAssetInformationDetailExtendedAttribute)(detailLine2.getExtension());
+                    detailLine2.setDocumentNumber(document.getDocumentNumber());
+                    detailea2.setDocumentNumber(document.getDocumentNumber());
+                    if (index == 0) {
+                        detailLine2.setItemLineNumber(1);
+                        detailea2.setItemLineNumber(1);
+                    }
+                    
+                    detailLines2.set(index, detailLine2);
+                    
+                }
+                capitalAssetEditableForm.getCapitalAssetInformation().setCapitalAssetInformationDetails(detailLines2);
+                
+            }
         }
         // apply capitalAsset information if there is at least one movable object code associated with the source accounting
         // lines
         newCapitalAssetInformation.setDocumentNumber(document.getDocumentNumber());
-        capitalAssetEditable.setCapitalAssetInformation(newCapitalAssetInformation);                    	
+        capitalAssetEditable.setCapitalAssetInformation(newCapitalAssetInformation);                        
     }
 
     /**
