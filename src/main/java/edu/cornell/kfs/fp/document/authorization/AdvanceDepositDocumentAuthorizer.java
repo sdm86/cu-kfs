@@ -105,12 +105,7 @@ public class AdvanceDepositDocumentAuthorizer extends FinancialSystemTransaction
                         for (Object accountingLine : advanceDepositDocument.getSourceAccountingLines()) {
                             SourceAccountingLine sourceAccountingLine = (SourceAccountingLine) accountingLine;
                             String accountingLineChart = sourceAccountingLine.getChartOfAccountsCode();
-                            String accountingLineOrg = KFSConstants.EMPTY_STRING;
-                            sourceAccountingLine.refreshReferenceObject("account");
-                            
-                            if(sourceAccountingLine.getAccount()!=null){
-                             accountingLineOrg = sourceAccountingLine.getAccount().getOrganizationCode();
-                            }
+                            String accountingLineOrg = sourceAccountingLine.getAccount().getOrganizationCode();
 
                             if (chart != null && chart.equalsIgnoreCase(accountingLineChart) && org != null && (org.equalsIgnoreCase(accountingLineOrg) || organizationService.isParentOrganization(accountingLineChart, accountingLineOrg, chart, org))) {
                                 attributes.put(KfsKimAttributes.CHART_OF_ACCOUNTS_CODE, accountingLineChart);
