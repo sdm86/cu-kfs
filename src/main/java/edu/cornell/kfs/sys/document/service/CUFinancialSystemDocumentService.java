@@ -1,5 +1,8 @@
 package edu.cornell.kfs.sys.document.service;
 
+import java.util.List;
+
+import org.kuali.kfs.sys.businessobject.AccountingLine;
 import org.kuali.kfs.sys.document.AccountingDocument;
 
 public interface CUFinancialSystemDocumentService extends org.kuali.kfs.sys.document.service.FinancialSystemDocumentService{
