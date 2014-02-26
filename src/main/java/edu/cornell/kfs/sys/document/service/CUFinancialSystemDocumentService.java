@@ -15,5 +15,19 @@ public interface CUFinancialSystemDocumentService extends org.kuali.kfs.sys.docu
      * @param toAccountingDocument
      */
     public void checkAccountingLinesForChanges(AccountingDocument fromAccountingDocument, AccountingDocument toAccountingDocument);
+
+
+    // KFSPTS-3083
+    /**
+     * Compares and logs changes in given accounting lines.
+     * 
+     * @param savedDoc
+     * @param savedSourceAcctLines
+     * @param savedTargetAcctLines
+     * @param accountingDocument
+     * @param sourceAccountingLines
+     * @param targetAccountingLines
+     */
+    public void checkAccountingLinesForChanges(AccountingDocument savedDoc, List<AccountingLine> savedSourceAcctLines, List<AccountingLine> savedTargetAcctLines, AccountingDocument accountingDocument, List<AccountingLine> sourceAccountingLines, List<AccountingLine> targetAccountingLines);
 	
 }

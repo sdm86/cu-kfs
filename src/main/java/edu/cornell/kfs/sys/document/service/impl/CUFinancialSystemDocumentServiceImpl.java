@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
 import org.kuali.kfs.sys.KFSConstants;
 import org.kuali.kfs.sys.businessobject.AccountingLine;
 import org.kuali.kfs.sys.context.SpringContext;
@@ -19,7 +18,6 @@ import org.kuali.kfs.sys.document.service.impl.FinancialSystemDocumentServiceImp
 import org.kuali.rice.kew.exception.WorkflowException;
 import org.kuali.rice.kew.util.KEWConstants;
 import org.kuali.rice.kim.bo.Person;
-import org.kuali.rice.kim.service.PersonService;
 import org.kuali.rice.kns.bo.AdHocRoutePerson;
 import org.kuali.rice.kns.bo.Note;
 import org.kuali.rice.kns.document.Document;
@@ -121,6 +119,56 @@ public class CUFinancialSystemDocumentServiceImpl extends FinancialSystemDocumen
         }
     }
 
+    /**
+     * @see edu.cornell.kfs.sys.document.service.CUFinancialSystemDocumentService#checkAccountingLinesForChanges(org.kuali.kfs.sys.document.AccountingDocument, java.util.List, java.util.List, org.kuali.kfs.sys.document.AccountingDocument, java.util.List, java.util.List)
+     */
+    public void checkAccountingLinesForChanges(AccountingDocument savedDoc, List<AccountingLine> savedSourceAcctLines, List<AccountingLine> savedTargetAcctLines, AccountingDocument accountingDocument, List<AccountingLine> sourceAccountingLines, List<AccountingLine> targetAccountingLines) {
+        if (!sourceAccountingLines.isEmpty()) {
+            Map<Integer, AccountingLine> newSourceLines = buildAccountingLineMap(sourceAccountingLines);
+            Map<Integer, AccountingLine> savedSourceLines = buildAccountingLineMap(savedSourceAcctLines);
+
+            if (newSourceLines.isEmpty())
+                return;
+            
+            
+            int maxSourceKey = Math.max(Collections.max(newSourceLines.keySet()), Collections.max(savedSourceLines.keySet())); 
+            int minSourceKey = Math.min(Collections.min(newSourceLines.keySet()), Collections.min(savedSourceLines.keySet())); 
+
+            for (int i = minSourceKey; i < maxSourceKey+1; i++) {
+                AccountingLine newLine = newSourceLines.get(i);
+                AccountingLine oldLine = savedSourceLines.get(i);
+                if ( !compareTo(newLine, oldLine) )  {
+                    String diff = buildLineChangedNoteText(newLine, oldLine);
+                    if (StringUtils.isNotBlank(diff)) {
+                        writeNote(accountingDocument, diff);
+                    }
+                }
+            }
+        }
+        
+        if (!targetAccountingLines.isEmpty()) {
+
+            Map<Integer, AccountingLine> newTargetLines = buildAccountingLineMap(targetAccountingLines);
+            Map<Integer, AccountingLine> savedTargetLines = buildAccountingLineMap(savedTargetAcctLines);
+
+            if (newTargetLines.isEmpty())
+                return;
+            
+            int maxTargetKey = Math.max(Collections.max(newTargetLines.keySet()), Collections.max(savedTargetLines.keySet())); 
+            int minTargetKey = Math.min(Collections.min(newTargetLines.keySet()), Collections.min(savedTargetLines.keySet())); 
+
+            for (int i = minTargetKey; i < maxTargetKey+1; i++) {
+                AccountingLine newLine = newTargetLines.get(i);
+                AccountingLine oldLine = savedTargetLines.get(i);
+                if ( !compareTo(newLine, oldLine)) {
+                    String diff = buildLineChangedNoteText(newLine, oldLine);
+                    if (StringUtils.isNotBlank(diff)) {
+                        writeNote(accountingDocument, diff);
+                    }
+                }
+            }
+        }
+    }
 	
 	protected void writeNote(AccountingDocument accountingDocument, String noteText) {
         

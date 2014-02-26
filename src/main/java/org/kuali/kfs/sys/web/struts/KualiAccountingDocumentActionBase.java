@@ -756,11 +756,26 @@ public class KualiAccountingDocumentActionBase extends FinancialSystemTransactio
         // get saved document so that we can compare it with the approved version if approve succeeds
         DocumentService docService = SpringContext.getBean(DocumentService.class);
         AccountingDocument savedDoc = null;
+        List<AccountingLine> savedSourceAcctLines = new ArrayList<AccountingLine>();
+        List<AccountingLine> savedTargetAcctLines = new ArrayList<AccountingLine>();
+        
         try {
             savedDoc = (AccountingDocument) docService.getByDocumentHeaderId(tmpForm.getFinancialDocument().getDocumentNumber());
             if(savedDoc!=null){
                 //this will set source acct lines on purap docs
+
                 savedDoc.getSourceAccountingLines();
+                if(!savedDoc.getSourceAccountingLines().isEmpty()){
+                for(Object acctLine : savedDoc.getSourceAccountingLines()){
+                    savedSourceAcctLines.add((AccountingLine)acctLine);
+                }
+                }
+               
+                if(!savedDoc.getTargetAccountingLines().isEmpty()){
+                for(Object acctLine : savedDoc.getTargetAccountingLines()){
+                    savedTargetAcctLines.add((AccountingLine)acctLine);
+                }
+                }
             }
 
         } catch (WorkflowException we) {
@@ -773,7 +788,7 @@ public class KualiAccountingDocumentActionBase extends FinancialSystemTransactio
         if (savedDoc != null && saved) {
             AccountingDocument accountingDocument = (AccountingDocument) tmpForm.getFinancialDocument();
 
-            SpringContext.getBean(CUFinancialSystemDocumentService.class).checkAccountingLinesForChanges(savedDoc, accountingDocument);
+            SpringContext.getBean(CUFinancialSystemDocumentService.class).checkAccountingLinesForChanges(savedDoc, savedSourceAcctLines, savedTargetAcctLines, accountingDocument, (List<AccountingLine>)accountingDocument.getSourceAccountingLines(), (List<AccountingLine>)accountingDocument.getTargetAccountingLines());
             
             //save document after adding notes for changed accounting lines
             getDocumentService().saveDocument(accountingDocument);
@@ -786,6 +801,7 @@ public class KualiAccountingDocumentActionBase extends FinancialSystemTransactio
         checkSalesTaxRequiredAllLines(tmpForm, tmpForm.getFinancialDocument().getTargetAccountingLines());
         return forward;
     }
+    
 
     @Override
     public ActionForward approve(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
