@@ -126,8 +126,8 @@ public class CUFinancialSystemDocumentServiceImpl extends FinancialSystemDocumen
         if (!sourceAccountingLines.isEmpty()) {
             Map<Integer, AccountingLine> newSourceLines = buildAccountingLineMap(sourceAccountingLines);
             Map<Integer, AccountingLine> savedSourceLines = buildAccountingLineMap(savedSourceAcctLines);
-
-            if (newSourceLines.isEmpty())
+            
+            if (newSourceLines.isEmpty() || savedSourceLines.isEmpty())
                 return;
             
             
@@ -151,7 +151,7 @@ public class CUFinancialSystemDocumentServiceImpl extends FinancialSystemDocumen
             Map<Integer, AccountingLine> newTargetLines = buildAccountingLineMap(targetAccountingLines);
             Map<Integer, AccountingLine> savedTargetLines = buildAccountingLineMap(savedTargetAcctLines);
 
-            if (newTargetLines.isEmpty())
+            if (newTargetLines.isEmpty() || savedTargetLines.isEmpty())
                 return;
             
             int maxTargetKey = Math.max(Collections.max(newTargetLines.keySet()), Collections.max(savedTargetLines.keySet())); 
