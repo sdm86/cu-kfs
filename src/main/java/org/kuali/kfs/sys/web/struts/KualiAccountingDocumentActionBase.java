@@ -84,6 +84,7 @@ import org.kuali.rice.kns.util.RiceKeyConstants;
 import org.kuali.rice.kns.util.Timer;
 import org.kuali.rice.kns.util.UrlFactory;
 import org.kuali.rice.kns.web.struts.form.KualiDocumentFormBase;
+import org.kuali.rice.kns.workflow.service.KualiWorkflowDocument;
 
 import edu.cornell.kfs.fp.businessobject.CapitalAssetInformationDetailExtendedAttribute;
 import edu.cornell.kfs.sys.document.service.CUFinancialSystemDocumentService;
