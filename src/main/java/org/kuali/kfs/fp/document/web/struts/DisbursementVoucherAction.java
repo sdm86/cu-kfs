@@ -203,6 +203,7 @@ public class DisbursementVoucherAction extends KualiAccountingDocumentActionBase
         DisbursementVoucherForm disbursementVoucherForm = (DisbursementVoucherForm) form;
 
         IWantDocument iWantDocument = (IWantDocument) getDocumentService().getByDocumentHeaderId(iWantDocumentNumber);
+        createDocument(disbursementVoucherForm);
         
         // Do not allow the DV to be created if the IWNT doc is already associated with another DV.
         if (iWantDocument != null && (StringUtils.isNotBlank(iWantDocument.getReqsDocId()) || StringUtils.isNotBlank(iWantDocument.getDvDocId())) ) {
@@ -210,8 +211,6 @@ public class DisbursementVoucherAction extends KualiAccountingDocumentActionBase
         }
         
         IWantDocumentService iWantDocumentService = SpringContext.getBean(IWantDocumentService.class);
-
-        createDocument(disbursementVoucherForm);
         
         DisbursementVoucherDocument disbursementVoucherDocument = (DisbursementVoucherDocument)disbursementVoucherForm.getDocument();
 
