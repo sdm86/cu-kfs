@@ -63,6 +63,8 @@ import org.kuali.kfs.sys.document.web.struts.FinancialSystemTransactionalDocumen
 import org.kuali.kfs.sys.exception.AccountingLineParserException;
 import org.kuali.kfs.sys.service.impl.KfsParameterConstants;
 import org.kuali.rice.kew.exception.WorkflowException;
+import org.kuali.rice.kew.service.WorkflowDocument;
+import org.kuali.rice.kew.util.KEWConstants;
 import org.kuali.rice.kns.bo.PersistableBusinessObject;
 import org.kuali.rice.kns.rule.event.ApproveDocumentEvent;
 import org.kuali.rice.kns.rule.event.SaveDocumentEvent;
@@ -787,11 +789,13 @@ public class KualiAccountingDocumentActionBase extends FinancialSystemTransactio
         // if a saved document exists and the approve was successful log any changes in accounting lines
         if (savedDoc != null && saved) {
             AccountingDocument accountingDocument = (AccountingDocument) tmpForm.getFinancialDocument();
+            KualiWorkflowDocument workflowDocument = accountingDocument.getDocumentHeader().getWorkflowDocument();
+            if (ObjectUtils.isNotNull(workflowDocument) && KEWConstants.ROUTE_HEADER_ENROUTE_CD.equalsIgnoreCase(workflowDocument.getRouteHeader().getDocRouteStatus())) {
+                SpringContext.getBean(CUFinancialSystemDocumentService.class).checkAccountingLinesForChanges(savedDoc, savedSourceAcctLines, savedTargetAcctLines, accountingDocument, (List<AccountingLine>) accountingDocument.getSourceAccountingLines(), (List<AccountingLine>) accountingDocument.getTargetAccountingLines());
 
-            SpringContext.getBean(CUFinancialSystemDocumentService.class).checkAccountingLinesForChanges(savedDoc, savedSourceAcctLines, savedTargetAcctLines, accountingDocument, (List<AccountingLine>)accountingDocument.getSourceAccountingLines(), (List<AccountingLine>)accountingDocument.getTargetAccountingLines());
-            
-            //save document after adding notes for changed accounting lines
-            getDocumentService().saveDocument(accountingDocument);
+                // save document after adding notes for changed accounting lines
+                getDocumentService().saveDocument(accountingDocument);
+            }
 
         }
         // end KFSPTS-3083
