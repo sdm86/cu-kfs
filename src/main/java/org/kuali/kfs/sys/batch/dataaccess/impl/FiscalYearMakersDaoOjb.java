@@ -27,8 +27,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.ojb.broker.query.QueryByCriteria;
 import org.apache.ojb.broker.util.ObjectModification;
+import org.kuali.kfs.sys.KFSPropertyConstants;
 import org.kuali.kfs.sys.batch.dataaccess.FiscalYearMaker;
 import org.kuali.kfs.sys.batch.dataaccess.FiscalYearMakersDao;
+import org.kuali.rice.kns.bo.BusinessObjectRelationship;
 import org.kuali.rice.kns.bo.PersistableBusinessObject;
 import org.kuali.rice.kns.dao.impl.PlatformAwareDaoBaseOjb;
 import org.kuali.rice.kns.service.BusinessObjectService;
@@ -51,12 +53,34 @@ public class FiscalYearMakersDaoOjb extends PlatformAwareDaoBaseOjb implements F
      * @see org.kuali.kfs.coa.batch.dataaccess.FiscalYearMakersDao#deleteNewYearRows(java.lang.Integer,
      *      org.kuali.kfs.coa.batch.dataaccess.FiscalYearMakerHelper)
      */
-    public void deleteNewYearRows(Integer baseYear, FiscalYearMaker objectFiscalYearMaker) {
+    public void deleteNewYearRows(Integer baseYear, FiscalYearMaker objectFiscalYearMaker) {        
+        //Before deleting the objectFiscalYearMaker, check to see if there is an extension table, if that exists, delete that.
+        if (persistenceStructureService.hasReference(objectFiscalYearMaker.getBusinessObjectClass(), KFSPropertyConstants.EXTENSION)) {
+            Map<String, BusinessObjectRelationship> relationships = persistenceStructureService.getRelationshipMetadata(
+            		objectFiscalYearMaker.getBusinessObjectClass(), KFSPropertyConstants.EXTENSION);
+            
+            Class<? extends PersistableBusinessObject> extensionClass = relationships.get(KFSPropertyConstants.EXTENSION).getRelatedClass();
+            
+            //manually create a fiscal year object for the extension class just to allow the delete to work.
+            //We don't want to register it in Spring because extensions are handled by FYM proccesses without registering in Spring, 
+            //and will cause problems if they are.
+            FiscalYearMakerImpl extensionFiscalYearMaker = new FiscalYearMakerImpl();
+            extensionFiscalYearMaker.setBusinessObjectClass(extensionClass);
+            extensionFiscalYearMaker.setPersistenceStructureService(persistenceStructureService);
+            
+            LOG.info(String.format("\ndeleting %s for %d", extensionClass.getName(), baseYear + 1));
+            
+            QueryByCriteria queryExtension = new QueryByCriteria(extensionClass, extensionFiscalYearMaker.createDeleteCriteria(baseYear));
+            
+            getPersistenceBrokerTemplate().deleteByQuery(queryExtension);
+            getPersistenceBrokerTemplate().clearCache();
+        }
+        
         LOG.info(String.format("\ndeleting %s for %d", objectFiscalYearMaker.getBusinessObjectClass().getName(), baseYear + 1));
 
         QueryByCriteria queryID = new QueryByCriteria(objectFiscalYearMaker.getBusinessObjectClass(), objectFiscalYearMaker.createDeleteCriteria(baseYear));
-        getPersistenceBrokerTemplate().deleteByQuery(queryID);
 
+        getPersistenceBrokerTemplate().deleteByQuery(queryID);
         getPersistenceBrokerTemplate().clearCache();
     }
 
