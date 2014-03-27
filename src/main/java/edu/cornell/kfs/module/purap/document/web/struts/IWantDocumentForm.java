@@ -208,13 +208,15 @@ public class IWantDocumentForm extends FinancialSystemTransactionalDocumentFormB
             
         }
         
-        if(getEditingMode().containsKey(CUPurapConstants.IWNT_DOC_CREATE_REQ))
-        {
+        if(getEditingMode().containsKey(CUPurapConstants.IWNT_DOC_CREATE_REQ)){
             extraButtons.add(createCreateRequisitionButton());
+        }
+        
+        if(getEditingMode().containsKey(CUPurapConstants.IWNT_DOC_CREATE_DV)){
             //KFSPTS-2527 add create DV button
             extraButtons.add(createCreateDVButton());
         }
-        
+      
         return extraButtons;
     }
 
