@@ -135,15 +135,15 @@ public class PunchOutSetupCxml {
     		  return "Office,NewNonpreauthorized";
     	  } else if (KIMServiceLocator.getPermissionService().hasPermission(
                 principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SUBMIT_ESHOP_CART_PERMISSION, null))  {
-    		  return "NewPreauthorized";
+    		  return "Preauthorized";
     	  } else {
-        	return "NewNonpreauthorized";
+        	return "Nonpreauthorized";
     	  }
         
       } catch (Exception e) {
           // incase something goes wrong.  continue to process
           LOG.info("error from role check " + e.getMessage());
-          return "NewNonpreauthorized";
+          return "Nonpreauthorized";
       }
   }
   
