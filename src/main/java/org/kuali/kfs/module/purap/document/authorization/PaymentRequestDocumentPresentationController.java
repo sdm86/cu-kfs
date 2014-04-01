@@ -43,12 +43,14 @@ import org.kuali.rice.kns.service.ParameterService;
 import org.kuali.rice.kns.util.ObjectUtils;
 import org.kuali.rice.kns.workflow.service.KualiWorkflowDocument;
 
+import edu.cornell.kfs.fp.businessobject.PaymentMethod;
+
 
 public class PaymentRequestDocumentPresentationController extends PurchasingAccountsPayableDocumentPresentationController {
 
-	Boolean canHold;
-	Boolean canRequestCancel;
-	Boolean canEditPreExtraction;
+    Boolean canHold;
+    Boolean canRequestCancel;
+    Boolean canEditPreExtraction;
     
     @Override
     protected boolean canSave(Document document) {
@@ -99,8 +101,15 @@ public class PaymentRequestDocumentPresentationController extends PurchasingAcco
 
     @Override
     protected boolean canDisapprove(Document document) {
-        //disapprove is never allowed for PREQ
-        return false;
+        // disapprove is never allowed for PREQ except PRNC by Treasury
+        PaymentRequestDocument paymentRequestDocument = (PaymentRequestDocument) document;
+        String paymentMethodCode = paymentRequestDocument.getPaymentMethodCode();
+        
+        if ((PaymentMethod.PM_CODE_FOREIGN_DRAFT.equalsIgnoreCase(paymentMethodCode) || PaymentMethod.PM_CODE_WIRE.equalsIgnoreCase(paymentMethodCode)) && paymentRequestDocument.isDocumentStoppedInRouteNode(NodeDetailEnum.PAYMENT_METHOD_REVIEW)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -265,28 +274,28 @@ public class PaymentRequestDocumentPresentationController extends PurchasingAcco
         }
         // KFS-1768/KFSCNTRB-1138
         // This is ported from 5.0, and Workflowdocument is different, so needs more testing.
-		try {
-//			KualiWorkflowDocument workflowDocument = document.getDocumentHeader().getWorkflowDocument();
-			if (workflowDocument.stateIsEnroute()) {
-				List<String> activeNodes = Arrays.asList(workflowDocument.getNodeNames());
-				;
-				for (String nodeNamesNode : activeNodes) {
-					if (RequisitionStatuses.NODE_ACCOUNT.equals(nodeNamesNode) && !SpringContext.getBean(PurapAccountingService.class).isFiscalOfficersForAllAcctLines((PurchaseOrderAmendmentDocument)document)) {
-						// disable the button for setup distribution
-						editModes.add(RequisitionEditMode.DISABLE_SETUP_ACCT_DISTRIBUTION);
-						// disable the button for remove accounts from all items
-						editModes.add(RequisitionEditMode.DISABLE_REMOVE_ACCTS);
-						// disable the button for remove commodity codes from
-						// all
-						// items
-						if (editModes.contains(RequisitionEditMode.ENABLE_COMMODITY_CODE)) {
-							editModes.remove(RequisitionEditMode.ENABLE_COMMODITY_CODE);
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-		}
+        try {
+//          KualiWorkflowDocument workflowDocument = document.getDocumentHeader().getWorkflowDocument();
+            if (workflowDocument.stateIsEnroute()) {
+                List<String> activeNodes = Arrays.asList(workflowDocument.getNodeNames());
+                ;
+                for (String nodeNamesNode : activeNodes) {
+                    if (RequisitionStatuses.NODE_ACCOUNT.equals(nodeNamesNode) && !SpringContext.getBean(PurapAccountingService.class).isFiscalOfficersForAllAcctLines((PurchaseOrderAmendmentDocument)document)) {
+                        // disable the button for setup distribution
+                        editModes.add(RequisitionEditMode.DISABLE_SETUP_ACCT_DISTRIBUTION);
+                        // disable the button for remove accounts from all items
+                        editModes.add(RequisitionEditMode.DISABLE_REMOVE_ACCTS);
+                        // disable the button for remove commodity codes from
+                        // all
+                        // items
+                        if (editModes.contains(RequisitionEditMode.ENABLE_COMMODITY_CODE)) {
+                            editModes.remove(RequisitionEditMode.ENABLE_COMMODITY_CODE);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
  
 
         return editModes;
@@ -308,7 +317,7 @@ public class PaymentRequestDocumentPresentationController extends PurchasingAcco
             PaymentRequestStatuses.IN_PROCESS.equals(docStatus) || 
             PaymentRequestStatuses.AWAITING_ACCOUNTS_PAYABLE_REVIEW.equals(docStatus);
         boolean enroute = 
-        	PaymentRequestStatuses.AWAITING_RECEIVING_REVIEW.equals(docStatus) ||
+            PaymentRequestStatuses.AWAITING_RECEIVING_REVIEW.equals(docStatus) ||
             PaymentRequestStatuses.AWAITING_SUB_ACCT_MGR_REVIEW.equals(docStatus) ||
             PaymentRequestStatuses.AWAITING_FISCAL_REVIEW.equals(docStatus) || 
             PaymentRequestStatuses.AWAITING_ORG_REVIEW.equals(docStatus) || 
@@ -346,8 +355,8 @@ public class PaymentRequestDocumentPresentationController extends PurchasingAcco
             PaymentRequestStatuses.IN_PROCESS.equals(docStatus) || 
             PaymentRequestStatuses.AWAITING_ACCOUNTS_PAYABLE_REVIEW.equals(docStatus);
         boolean enroute = 
-        	PaymentRequestStatuses.AWAITING_RECEIVING_REVIEW.equals(docStatus) ||
-        	PaymentRequestStatuses.AWAITING_SUB_ACCT_MGR_REVIEW.equals(docStatus) ||
+            PaymentRequestStatuses.AWAITING_RECEIVING_REVIEW.equals(docStatus) ||
+            PaymentRequestStatuses.AWAITING_SUB_ACCT_MGR_REVIEW.equals(docStatus) ||
             PaymentRequestStatuses.AWAITING_FISCAL_REVIEW.equals(docStatus) || 
             PaymentRequestStatuses.AWAITING_ORG_REVIEW.equals(docStatus) || 
             PaymentRequestStatuses.AWAITING_TAX_REVIEW.equals(docStatus);
@@ -376,15 +385,15 @@ public class PaymentRequestDocumentPresentationController extends PurchasingAcco
      * @return True if the document state allows placing the Payment Request on hold.
      */
     protected boolean canHold(PaymentRequestDocument paymentRequestDocument) {
-    	if (canHold == null) {
-    	
-    		boolean can = !paymentRequestDocument.isHoldIndicator() && !paymentRequestDocument.isPaymentRequestedCancelIndicator() && !paymentRequestDocument.isExtracted();
-    		if (can) {
-    			can = paymentRequestDocument.getDocumentHeader().getWorkflowDocument().isAdHocRequested();
-    			can = can || !PaymentRequestStatuses.STATUSES_DISALLOWING_HOLD.contains(paymentRequestDocument.getStatusCode());
-    		}
-    		canHold = can;
-    	}
+        if (canHold == null) {
+        
+            boolean can = !paymentRequestDocument.isHoldIndicator() && !paymentRequestDocument.isPaymentRequestedCancelIndicator() && !paymentRequestDocument.isExtracted();
+            if (can) {
+                can = paymentRequestDocument.getDocumentHeader().getWorkflowDocument().isAdHocRequested();
+                can = can || !PaymentRequestStatuses.STATUSES_DISALLOWING_HOLD.contains(paymentRequestDocument.getStatusCode());
+            }
+            canHold = can;
+        }
         
         return canHold;
     }
@@ -399,14 +408,14 @@ public class PaymentRequestDocumentPresentationController extends PurchasingAcco
      * @return True if the document state allows placing the request that the Payment Request be canceled.
      */
     protected boolean canRequestCancel(PaymentRequestDocument paymentRequestDocument) {
-    	if (canRequestCancel == null) {
-    		boolean can = !paymentRequestDocument.isPaymentRequestedCancelIndicator() && !paymentRequestDocument.isHoldIndicator() && !paymentRequestDocument.isExtracted();
-    		if (can) {
-    			can = paymentRequestDocument.getDocumentHeader().getWorkflowDocument().isAdHocRequested();
-    			can = can || !PaymentRequestStatuses.STATUSES_DISALLOWING_REQUEST_CANCEL.contains(paymentRequestDocument.getStatusCode());
-    		}
-    		canRequestCancel = can;
-    	}
+        if (canRequestCancel == null) {
+            boolean can = !paymentRequestDocument.isPaymentRequestedCancelIndicator() && !paymentRequestDocument.isHoldIndicator() && !paymentRequestDocument.isExtracted();
+            if (can) {
+                can = paymentRequestDocument.getDocumentHeader().getWorkflowDocument().isAdHocRequested();
+                can = can || !PaymentRequestStatuses.STATUSES_DISALLOWING_REQUEST_CANCEL.contains(paymentRequestDocument.getStatusCode());
+            }
+            canRequestCancel = can;
+        }
         return canRequestCancel;
     }
 
@@ -439,18 +448,18 @@ public class PaymentRequestDocumentPresentationController extends PurchasingAcco
     }
 
     protected boolean canEditPreExtraction(PaymentRequestDocument paymentRequestDocument) {
-    	if (canEditPreExtraction == null) {
-    		boolean can = !paymentRequestDocument.isExtracted() && 
+        if (canEditPreExtraction == null) {
+            boolean can = !paymentRequestDocument.isExtracted() && 
                 !paymentRequestDocument.getDocumentHeader().getWorkflowDocument().isAdHocRequested() &&
                 !PurapConstants.PaymentRequestStatuses.CANCELLED_STATUSES.contains(paymentRequestDocument.getStatusCode());
-    		canEditPreExtraction = can;
-    	}
-    	return canEditPreExtraction;
+            canEditPreExtraction = can;
+        }
+        return canEditPreExtraction;
     }
 
     // KFSPTS-1891
     private boolean canEditAmount(PaymentRequestDocument paymentRequestDocument) {
-    		return  PurapConstants.PaymentRequestStatuses.PAYMENT_METHODL_REVIEW.contains(paymentRequestDocument.getStatusCode());
+            return  PurapConstants.PaymentRequestStatuses.PAYMENT_METHODL_REVIEW.contains(paymentRequestDocument.getStatusCode());
     }
 
 }
