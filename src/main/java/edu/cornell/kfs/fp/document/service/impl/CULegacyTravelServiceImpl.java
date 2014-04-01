@@ -26,6 +26,8 @@ import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.*;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
+import org.kuali.kfs.fp.document.DisbursementVoucherDocument.DISBURSEMENT_VOUCHER_TRIP_ASSOCIATIONS;
 import org.kuali.kfs.sys.service.NonTransactional;
 import org.kuali.rice.core.util.ClassLoaderUtils;
 import org.kuali.rice.core.util.ContextClassLoaderBinder;
@@ -276,6 +278,30 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
 		
 		public String getAuthorizationForRealm(HTTPConduit conduit, URL currentURL, Message message, String reqestedRealm, String fullHeader) {
 			return createUserPass(updateTripUser, updateTripPassword);
+		}
+	}
+
+	public boolean isDisbursementVoucherDocumentAssociatedWithTrip(DisbursementVoucherDocument disbursemntVoucherDocument) {
+		// TODO Auto-generated method stub
+		if (StringUtils.isBlank(disbursemntVoucherDocument.getTripAssociationStatusCode())) {
+			String tripId = getLegacyTripID(disbursemntVoucherDocument.getDocumentNumber());
+			if (StringUtils.isBlank(tripId)) {
+				disbursemntVoucherDocument.setTripAssociationStatusCode(DISBURSEMENT_VOUCHER_TRIP_ASSOCIATIONS.IS_NOT_TRIP_DV);
+				disbursemntVoucherDocument.setTripId(StringUtils.EMPTY);
+			} else {
+				disbursemntVoucherDocument.setTripAssociationStatusCode(DISBURSEMENT_VOUCHER_TRIP_ASSOCIATIONS.IS_TRIP_DV);
+				disbursemntVoucherDocument.setTripId(tripId);
+			}
+		}
+		return StringUtils.equals(DISBURSEMENT_VOUCHER_TRIP_ASSOCIATIONS.IS_TRIP_DV, 
+				disbursemntVoucherDocument.getTripAssociationStatusCode());
+	}
+
+	public String getLegacyTripIDFromDisbursementVoucherDocument(DisbursementVoucherDocument disbursemntVoucherDocument) {
+		if (isDisbursementVoucherDocumentAssociatedWithTrip(disbursemntVoucherDocument)) {
+			return disbursemntVoucherDocument.getTripId();
+		} else {
+			return StringUtils.EMPTY;
 		}
 	}
 

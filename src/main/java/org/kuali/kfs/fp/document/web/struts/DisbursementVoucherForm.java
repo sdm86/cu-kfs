@@ -155,7 +155,10 @@ public class DisbursementVoucherForm extends KualiAccountingDocumentFormBase {
      * @return true if the DV document is a travel DV; otherwise, return false
      */
     public boolean getCanViewTrip() {
-    	return SpringContext.getBean(CULegacyTravelService.class).isLegacyTravelGeneratedKfsDocument(this.getDocId());
+    	//boolean canViewTrip = SpringContext.getBean(CULegacyTravelService.class).isLegacyTravelGeneratedKfsDocument(this.getDocId());;
+    	DisbursementVoucherDocument disbursementVoucherDocument = (DisbursementVoucherDocument)this.getDocument();
+    	boolean canViewTrip = SpringContext.getBean(CULegacyTravelService.class).isDisbursementVoucherDocumentAssociatedWithTrip(disbursementVoucherDocument);
+    	return canViewTrip;
     }
 
     /**

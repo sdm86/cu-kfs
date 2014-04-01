@@ -107,7 +107,11 @@ import edu.emory.mathcs.backport.java.util.Arrays;
  */
 public class DisbursementVoucherDocument extends AccountingDocumentBase implements Copyable, AmountTotaling {
     protected static Logger LOG = Logger.getLogger(DisbursementVoucherDocument.class);
-
+    
+    public static final class DISBURSEMENT_VOUCHER_TRIP_ASSOCIATIONS {
+    	public static final String IS_TRIP_DV = "1";
+    	public static final String IS_NOT_TRIP_DV = "0";
+    }
     
 	protected static final String DOCUMENT_REQUIRES_CAMPUS_REVIEW_SPLIT = "RequiresCampusReview";
 	protected static final String DOCUMENT_REQUIRES_AWARD_REVIEW_SPLIT = "RequiresAwardReview";
@@ -182,6 +186,10 @@ public class DisbursementVoucherDocument extends AccountingDocumentBase implemen
     protected DisbursementVoucherPayeeDetail dvPayeeDetail;
     protected DisbursementVoucherPreConferenceDetail dvPreConferenceDetail;
     protected DisbursementVoucherWireTransfer dvWireTransfer;
+    
+    //TRIP INFORMATION FILEDS
+    protected String tripAssociationStatusCode;
+    protected String tripId;
 
     protected Bank bank;
     private static CUPaymentMethodGeneralLedgerPendingEntryService paymentMethodGeneralLedgerPendingEntryService;
@@ -244,7 +252,27 @@ public class DisbursementVoucherDocument extends AccountingDocumentBase implemen
     }
 
 
-    /**
+    public String getTripAssociationStatusCode() {
+		return tripAssociationStatusCode;
+	}
+
+
+	public void setTripAssociationStatusCode(String tripAssociationStatusCode) {
+		this.tripAssociationStatusCode = tripAssociationStatusCode;
+	}
+
+
+	public String getTripId() {
+		return tripId;
+	}
+
+
+	public void setTripId(String tripId) {
+		this.tripId = tripId;
+	}
+
+
+	/**
      * Gets the finDocNextRegistrantLineNbr attribute.
      * 
      * @return Returns the finDocNextRegistrantLineNbr

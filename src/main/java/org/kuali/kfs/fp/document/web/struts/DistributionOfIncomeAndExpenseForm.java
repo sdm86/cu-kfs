@@ -17,6 +17,7 @@ package org.kuali.kfs.fp.document.web.struts;
 
 import org.kuali.kfs.fp.businessobject.CapitalAssetInformation;
 import org.kuali.kfs.fp.document.CapitalAssetEditable;
+import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
 import org.kuali.kfs.fp.document.DistributionOfIncomeAndExpenseDocument;
 import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.kfs.sys.web.struts.KualiAccountingDocumentFormBase;
@@ -77,7 +78,10 @@ public class DistributionOfIncomeAndExpenseForm extends KualiAccountingDocumentF
      * @return true if the DI document is a travel DI; otherwise, return false
      */
     public boolean getCanViewTrip() {
-    	return SpringContext.getBean(CULegacyTravelService.class).isLegacyTravelGeneratedKfsDocument(this.getDocId());
+    	//boolean canViewTrip = SpringContext.getBean(CULegacyTravelService.class).isLegacyTravelGeneratedKfsDocument(this.getDocId());;
+    	DisbursementVoucherDocument disbursementVoucherDocument = (DisbursementVoucherDocument)this.getDocument();
+    	boolean canViewTrip = SpringContext.getBean(CULegacyTravelService.class).isDisbursementVoucherDocumentAssociatedWithTrip(disbursementVoucherDocument);
+    	return canViewTrip;
     }
 
     /**
