@@ -152,7 +152,7 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
             }                        
         }
         
-        if ( pm.isOffsetUsingClearingAccount() ) {
+        if ( !PaymentMethod.PM_CODE_INTERNAL_BILLING.equalsIgnoreCase(paymentMethodCode) && pm.isOffsetUsingClearingAccount() ) {
             generateClearingAccountOffsetEntries(pm, document, sequenceHelper, actualTotalsByChart);
         }
         
@@ -161,7 +161,7 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
                 //do not create bank offsets unless DM approval
             }
             else{
-            generateDocumentBankOffsetEntries(document,bankCode,bankCodePropertyName,templatePendingEntry.getFinancialDocumentTypeCode(), sequenceHelper, bankOffsetAmount );
+                generateDocumentBankOffsetEntries(document,bankCode,bankCodePropertyName,templatePendingEntry.getFinancialDocumentTypeCode(), sequenceHelper, bankOffsetAmount );
             }
         }
         
@@ -445,7 +445,13 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
         // generate bank offset
         if (PaymentMethod.PM_CODE_FOREIGN_DRAFT.equalsIgnoreCase(document.getPaymentMethodCode()) || PaymentMethod.PM_CODE_WIRE.equalsIgnoreCase(document.getPaymentMethodCode())) {
             generateDocumentBankOffsetEntries((AccountingDocument) document, document.getBankCode(), KNSConstants.DOCUMENT_PROPERTY_NAME + "." + "bankCode", document.DOCUMENT_TYPE_NON_CHECK, sequenceHelper, document.getTotalDollarAmount().negated());
-
+        }
+        
+        // KFPTS-3046
+        // for internal billing generate entries to clearing accounts
+        if(PaymentMethod.PM_CODE_INTERNAL_BILLING.equalsIgnoreCase(document.getPaymentMethodCode())){
+            PaymentMethod pm = getBusinessObjectService().findBySinglePrimaryKey(PaymentMethod.class, document.getPaymentMethodCode());
+            generateClearingAccountOffsetEntries(pm, document, sequenceHelper, null);
         }
 
         // check for pending entries and replace object code with chart cash object code
