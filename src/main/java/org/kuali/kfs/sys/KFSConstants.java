@@ -1226,6 +1226,7 @@ public class KFSConstants extends JSTLConstants implements ParameterKeyConstants
         public static final String ESHOP_SUPER_USER_ROLE_NAME = "eShop Plus User(cu)";
         public static final String B2B_SUBMIT_ESHOP_CART_PERMISSION = "B2B Submit Eshop Cart";
         public static final String B2B_SHOPPER_OFFICE_PERMISSION = "B2B Shopper Office";
+		public static final String B2B_SHOPPER_LAB_PERMISSION = "B2B Shopper Lab";
 		public static final String CONTRACTS_AND_GRANTS_PROCESSOR = "Contracts & Grants Processor";
         public static final String ADVANCE_DEPOSIT_ORGANIZATION_REVIEWER_ROLE_NAME = "Advanced Deposit Organization Review";
 

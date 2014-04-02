@@ -131,10 +131,13 @@ public class PunchOutSetupCxml {
       try {
     	  //Check for special view role first
     	  if (KIMServiceLocator.getPermissionService().hasPermission(
-                principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SHOPPER_OFFICE_PERMISSION, null))  {
+              principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SHOPPER_OFFICE_PERMISSION, null))  {
     		  return "Office,NewNonPreauthorized";
     	  } else if (KIMServiceLocator.getPermissionService().hasPermission(
-                principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SUBMIT_ESHOP_CART_PERMISSION, null))  {
+	      	  principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SHOPPER_LAB_PERMISSION, null))  {
+	    	  return "Lab,NewNonPreauthorized";
+		  } else if (KIMServiceLocator.getPermissionService().hasPermission(
+              principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SUBMIT_ESHOP_CART_PERMISSION, null))  {
     		  return "Preauthorized";
     	  } else {
         	return "NonPreauthorized";
