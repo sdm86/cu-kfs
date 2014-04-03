@@ -63,7 +63,7 @@ public class ReceiptProcessingCSVBuilder {
         receipt.setVendor(rowDataMap.get(ReceiptProcessingCSV.vendor.name()));
         receipt.setAmount(rowDataMap.get(ReceiptProcessingCSV.amount.name()));
         receipt.setPurchasedate(rowDataMap.get(ReceiptProcessingCSV.purchasedate.name()));
-        receipt.setPurchasedate(rowDataMap.get(ReceiptProcessingCSV.SharePointPath.name()));
+        receipt.setSharePointPath(rowDataMap.get(ReceiptProcessingCSV.SharePointPath.name()));
         receipt.setFilename(rowDataMap.get(ReceiptProcessingCSV.filename.name()));
         return receipt;
     }
