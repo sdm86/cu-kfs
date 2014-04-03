@@ -133,15 +133,15 @@ public class PunchOutSetupCxml {
     	  //Check for special view role first
     	  if (KIMServiceLocator.getPermissionService().hasPermission(
               principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SUBMIT_ESHOP_CART_PERMISSION, null))  {
-    		  return "Preauthorized";
+    		  return "Buyer";
     	  } else {
-        	return "NonPreauthorized";
+        	return "Shopper";
     	  }
         
       } catch (Exception e) {
           // incase something goes wrong.  continue to process
           LOG.info("error from role check " + e.getMessage());
-          return "NonPreauthorized";
+          return "Shopper";
       }
   }
   private String getViewValue(String principalId) {
