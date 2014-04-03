@@ -106,6 +106,7 @@ public class PunchOutSetupCxml {
     cxml.append("      <Extrinsic name=\"FirstName\">").append(user.getFirstName()).append("</Extrinsic>\n");
     cxml.append("      <Extrinsic name=\"LastName\">").append(user.getLastName()).append("</Extrinsic>\n");
     cxml.append("      <Extrinsic name=\"Role\">").append(getPreAuthValue(user.getPrincipalId())).append("</Extrinsic>\n");
+    cxml.append("      <Extrinsic name=\"Role\">").append(getViewValue(user.getPrincipalId())).append("</Extrinsic>\n");
     cxml.append("      <BrowserFormPost>\n");
     cxml.append("        <URL>").append(b2bInformation.getPunchbackURL()).append("</URL>\n");
     cxml.append("      </BrowserFormPost>\n");
@@ -131,12 +132,6 @@ public class PunchOutSetupCxml {
       try {
     	  //Check for special view role first
     	  if (KIMServiceLocator.getPermissionService().hasPermission(
-              principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SHOPPER_OFFICE_PERMISSION, null))  {
-    		  return "Office,NewNonPreauthorized";
-    	  } else if (KIMServiceLocator.getPermissionService().hasPermission(
-	      	  principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SHOPPER_LAB_PERMISSION, null))  {
-	    	  return "Lab,NewNonPreauthorized";
-		  } else if (KIMServiceLocator.getPermissionService().hasPermission(
               principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SUBMIT_ESHOP_CART_PERMISSION, null))  {
     		  return "Preauthorized";
     	  } else {
@@ -147,6 +142,25 @@ public class PunchOutSetupCxml {
           // incase something goes wrong.  continue to process
           LOG.info("error from role check " + e.getMessage());
           return "NonPreauthorized";
+      }
+  }
+  private String getViewValue(String principalId) {
+      try {
+    	  //Check for special view role first
+    	  if (KIMServiceLocator.getPermissionService().hasPermission(
+              	principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SHOPPER_OFFICE_PERMISSION, null))  {
+    		  	return "Office";
+    	  } else if (KIMServiceLocator.getPermissionService().hasPermission(
+	      	  	principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SHOPPER_LAB_PERMISSION, null))  {
+				return "Lab";
+		  } else {
+				return "Unrestricted";
+    	  }
+        
+      } catch (Exception e) {
+          // incase something goes wrong.  continue to process
+          LOG.info("error from role check " + e.getMessage());
+          return "Unrestricted";
       }
   }
   
