@@ -16,14 +16,7 @@ public interface ReceiptProcessingService {
     /**
      * 
      */
-    public boolean loadFile(String fileName, BatchInputFileType batchInputFileType);
-           
-    /**
-     * 
-     * Provide a file name generation for the CustomerInputFileType(csv) 
-     * 
-     * @return
-     */
-    public String getFileName(String principalName, String fileUserIdentifer, String prefix, String delim);
+    public boolean attachFiles(String fileName, BatchInputFileType batchInputFileType);           
+   
 }
 

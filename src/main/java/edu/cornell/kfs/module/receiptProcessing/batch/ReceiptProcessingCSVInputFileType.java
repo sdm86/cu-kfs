@@ -32,19 +32,19 @@ import edu.cornell.kfs.module.receiptProcessing.service.ReceiptProcessingService
 public class ReceiptProcessingCSVInputFileType extends CsvBatchInputFileTypeBase<ReceiptProcessingCSV> {
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ReceiptProcessingCSVInputFileType.class);
 
-    private static final String FILE_NAME_PREFIX = "receiptProcessing_kfs";
     private static final String FILE_NAME_DELIM = "_";
-    
-    
+        
     private ReceiptProcessingService receiptProcessingService;
+    
    
     
     /**
      * 
-     * @see org.kuali.kfs.sys.batch.BatchInputFileType#getFileName(org.kuali.rice.kim.api.identity.Person, java.lang.Object, java.lang.String)
+     * @see This method is required by extending CsvBatchInputFileTypeBase which implements an interface that requires this method,
+     *  but we do not need this method for anything in this class
      */
     public String getFileName(String principalName, Object parsedFileContents, String fileUserIdentifer) {
-        return receiptProcessingService.getFileName(principalName, fileUserIdentifer, FILE_NAME_PREFIX, FILE_NAME_DELIM);
+        return "";
     }
 
     /**

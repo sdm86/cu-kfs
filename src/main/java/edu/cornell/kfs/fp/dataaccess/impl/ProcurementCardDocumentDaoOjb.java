@@ -30,7 +30,7 @@ public class ProcurementCardDocumentDaoOjb extends PlatformAwareDaoBaseOjb imple
 		
 		GregorianCalendar gc = new GregorianCalendar();
 		gc.setTime(transactionDate);
-		gc.add(Calendar.DATE, 14);
+		gc.add(Calendar.DATE, 21);
 		
 		Criteria criteria = new Criteria();
         criteria.addLike("procurementCardHolder.cardHolderName", convertCardHolderName(cardHolder));

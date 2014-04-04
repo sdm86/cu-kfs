@@ -34,14 +34,6 @@ import org.kuali.rice.kns.service.DateTimeService;
 import org.kuali.rice.kns.service.NoteService;
 import org.kuali.rice.kns.util.KNSConstants;
 
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
-import com.lowagie.text.Paragraph;
-
 import edu.cornell.kfs.fp.dataaccess.ProcurementCardDocumentDao;
 import edu.cornell.kfs.module.receiptProcessing.businessobject.ReceiptProcessing;
 import edu.cornell.kfs.module.receiptProcessing.service.ReceiptProcessingService;
@@ -79,7 +71,7 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
             
             LOG.info("Beginning processing of filename: " + inputFileName + ".");
    
-            if (loadFile(inputFileName, fileNamesToLoad.get(inputFileName))) {
+            if (attachFiles(inputFileName, fileNamesToLoad.get(inputFileName))) {
                 result &= true;
                 LOG.info("Successfully loaded csv file");
                 processedFiles.add(inputFileName);
@@ -144,15 +136,14 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
 
     /**
     */
-    public boolean loadFile(String fileName, BatchInputFileType batchInputFileType) {
+    public boolean attachFiles(String fileName, BatchInputFileType batchInputFileType) {
         
         boolean result = true;
         
         //  load up the file into a byte array 
         byte[] fileByteContent = safelyLoadFileBytes(fileName);
-
-        //  parse the file against the XSD schema and load it into an object
-        LOG.info("Attempting to parse the file using Apache Digester.");
+        
+        LOG.info("Attempting to parse the file");
         Object parsedObject = null;
         try {
              parsedObject =  batchInputFileService.parse(batchInputFileType, fileByteContent);
@@ -172,7 +163,7 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
         
         
         StringBuilder processResults = new StringBuilder();
-        processResults.append("\"cardHolder\",\"vendor\",\"amount\",\"purchasedate\",\"SharePointPath\",\"filename\",\"Success\"\n");        
+        processResults.append("\"cardHolder\",\"amount\",\"purchasedate\",\"SharePointPath\",\"filename\",\"Success\"\n");        
        
         List<ReceiptProcessing> receipts =  ((List<ReceiptProcessing>) parsedObject);
         final String attachmentsPath = pdfDirectory;
@@ -319,7 +310,17 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
             throw new RuntimeException("IO Exception loading: [" + fileName + "]. " + e1.getMessage());
         }
         return fileByteContent;
-    }                                            
+    }
+    
+    /**
+     * LOG error and throw RunTimeException
+     * 
+     * @param errorMessage
+     */
+    private void criticalError(String errorMessage){
+        LOG.error(errorMessage);
+        throw new RuntimeException(errorMessage);
+    }    
     
     public void setBatchInputFileTypes(List<BatchInputFileType> batchInputFileType) {
         this.batchInputFileTypes = batchInputFileType;
@@ -340,53 +341,7 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
     public void setAttachmentService(AttachmentService attachmentService) {
         this.attachmentService = attachmentService;
     }
-    
-   
-
-    /**    
-     */
-    
-    public String getFileName(String principalName, String fileUserIdentifer, String prefix, String delim) {
-
-        //  start with the batch-job-prefix
-        StringBuilder fileName = new StringBuilder(delim);
-        
-        //  add the logged-in user name if there is one, otherwise use a sensible default
-        fileName.append(delim + principalName);
-        
-        //  if the user specified an identifying lable, then use it
-        if (StringUtils.isNotBlank(fileUserIdentifer)) {
-            fileName.append(delim + fileUserIdentifer);
-        }
-        
-        //  stick a timestamp on the end
-        fileName.append(delim + dateTimeService.toString(dateTimeService.getCurrentTimestamp(), "yyyyMMdd_HHmmss"));
-
-        //  stupid spaces, begone!
-        return StringUtils.remove(fileName.toString(), " ");
-    }
-
-    /**
-     * LOG error and throw RunTimeException
-     * 
-     * @param errorMessage
-     */
-    private void criticalError(String errorMessage){
-        LOG.error(errorMessage);
-        throw new RuntimeException(errorMessage);
-    }
-    
-    /**
-     * @see org.kuali.kfs.sys.batch.InitiateDirectoryBase#getRequiredDirectoryNames()
-     */
-    public List<String> getRequiredDirectoryNames() {
-        List<String> directoryNames = new ArrayList<String>();
-        for (BatchInputFileType batchInputFileType : batchInputFileTypes){
-            directoryNames.add(batchInputFileType.getDirectoryPath());
-        }
-        return directoryNames;
-    }       
-
+             
     public NoteService getNoteService() {
         return noteService;
     }

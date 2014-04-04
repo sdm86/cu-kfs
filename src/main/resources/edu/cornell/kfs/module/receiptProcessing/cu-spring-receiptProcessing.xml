@@ -27,20 +27,7 @@
 			<list>
 				<value>ReceiptProcessingUpdateBatchJob</value>
 			</list>
-		</property>
-	
-		<property name="triggerNames">
-			<list>
-			</list>
-		</property>
-		
-		<property name="batchFileDirectories">
-         	<list>
-            	<value>${reports.directory}/receiptProcessing</value>
-            	<value>${staging.directory}/receiptProcessing</value>
-          	</list>
-        </property>
-										
+		</property>												
 	</bean>
   
     <bean id="receiptProcessingModuleService" parent="receiptProcessingModuleService-parentBean"/>
@@ -92,7 +79,7 @@
 	<bean id="ReceiptProcessingCSVInputFileType"  parent="receiptProcessingCSVInputFileType-parentBean"/>
   <bean id="receiptProcessingCSVInputFileType-parentBean" class="edu.cornell.kfs.module.receiptProcessing.batch.ReceiptProcessingCSVInputFileType" abstract="true">
     <property name="directoryPath">
-      <value>${staging.directory}/receiptProcessing/incoming</value>
+      <value>${staging.directory}/fp/receiptProcessing</value>
     </property>
     <property name="fileExtension">
       <value>csv</value>
