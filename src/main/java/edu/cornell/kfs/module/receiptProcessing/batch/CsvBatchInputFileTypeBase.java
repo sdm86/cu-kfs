@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.cornell.kfs.module.sharepoint.batch;
+package edu.cornell.kfs.module.receiptProcessing.batch;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

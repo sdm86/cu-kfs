@@ -1,7 +1,7 @@
 /**
  * @author cab379
  */
-package edu.cornell.kfs.module.sharepoint.service;
+package edu.cornell.kfs.module.receiptProcessing.service;
 
 import org.kuali.kfs.sys.batch.BatchInputFileType;
 

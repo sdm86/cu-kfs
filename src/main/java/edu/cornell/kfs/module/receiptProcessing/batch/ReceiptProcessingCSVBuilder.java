@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.cornell.kfs.module.sharepoint.batch;
+package edu.cornell.kfs.module.receiptProcessing.batch;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import edu.cornell.kfs.module.sharepoint.batch.vo.ReceiptProcessing;
-import edu.cornell.kfs.module.sharepoint.batch.ReceiptProcessingCSV;
+import edu.cornell.kfs.module.receiptProcessing.businessobject.ReceiptProcessing;
+import edu.cornell.kfs.module.receiptProcessing.batch.ReceiptProcessingCSV;
 
 
 /**
@@ -59,11 +59,10 @@ public class ReceiptProcessingCSVBuilder {
     private static ReceiptProcessing buildReceiptsFromDataMap(Map<String, String> rowDataMap) {
 
         ReceiptProcessing receipt = new ReceiptProcessing();
-        receipt.setCardHolder(rowDataMap.get(ReceiptProcessingCSV.Cardholder.name()));
-        receipt.setVendor(rowDataMap.get(ReceiptProcessingCSV.vendor.name()));
+        receipt.setCardHolder(rowDataMap.get(ReceiptProcessingCSV.Cardholder.name()));        
         receipt.setAmount(rowDataMap.get(ReceiptProcessingCSV.amount.name()));
         receipt.setPurchasedate(rowDataMap.get(ReceiptProcessingCSV.purchasedate.name()));
-        receipt.setPurchasedate(rowDataMap.get(ReceiptProcessingCSV.SharePointPath.name()));
+        receipt.setSharePointPath(rowDataMap.get(ReceiptProcessingCSV.SharePointPath.name()));
         receipt.setFilename(rowDataMap.get(ReceiptProcessingCSV.filename.name()));
         return receipt;
     }

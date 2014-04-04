@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.cornell.kfs.module.sharepoint.batch;
+package edu.cornell.kfs.module.receiptProcessing.batch;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,8 +23,8 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.kuali.kfs.sys.exception.ParseException;
 
-import edu.cornell.kfs.module.sharepoint.batch.vo.ReceiptProcessing;
-import edu.cornell.kfs.module.sharepoint.service.ReceiptProcessingService;
+import edu.cornell.kfs.module.receiptProcessing.businessobject.ReceiptProcessing;
+import edu.cornell.kfs.module.receiptProcessing.service.ReceiptProcessingService;
 
 /**
  * @author cab379
@@ -32,7 +32,7 @@ import edu.cornell.kfs.module.sharepoint.service.ReceiptProcessingService;
 public class ReceiptProcessingCSVInputFileType extends CsvBatchInputFileTypeBase<ReceiptProcessingCSV> {
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ReceiptProcessingCSVInputFileType.class);
 
-    private static final String FILE_NAME_PREFIX = "sharepoint_kfs";
+    private static final String FILE_NAME_PREFIX = "receiptProcessing_kfs";
     private static final String FILE_NAME_DELIM = "_";
     
     
@@ -52,7 +52,7 @@ public class ReceiptProcessingCSVInputFileType extends CsvBatchInputFileTypeBase
      * @see org.kuali.kfs.sys.batch.BatchInputFileType#getFileTypeIdentifer()
      */
     public String getFileTypeIdentifer() {
-        return "sharepoint_kfs";
+        return "receiptProcessing_kfs";
     }
 
     
@@ -115,7 +115,7 @@ public class ReceiptProcessingCSVInputFileType extends CsvBatchInputFileTypeBase
 
     public String getTitleKey() {
         
-        return "Sharepoint (CSV format) Batch Upload";
+        return "ReceiptProcessing (CSV format) Batch Attachement Upload";
     }
     
     

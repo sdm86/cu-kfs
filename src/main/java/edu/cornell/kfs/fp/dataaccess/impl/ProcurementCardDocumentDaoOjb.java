@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.ojb.broker.query.Criteria;
@@ -12,33 +13,17 @@ import org.kuali.kfs.fp.document.ProcurementCardDocument;
 import org.kuali.rice.kns.dao.impl.PlatformAwareDaoBaseOjb;
 
 import edu.cornell.kfs.fp.dataaccess.ProcurementCardDocumentDao;
+import edu.cornell.kfs.module.ezra.businessobject.EzraProposalAward;
 
 public class ProcurementCardDocumentDaoOjb extends PlatformAwareDaoBaseOjb implements ProcurementCardDocumentDao {
 	private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ProcurementCardDocumentDaoOjb.class);
-	private static final String WILD_CARD = "%";
+	private static final String WILD_CARD = "%";			
 	
-	public void save(ProcurementCardDocument document) {
-        LOG.debug("save() started");
-
-        getPersistenceBrokerTemplate().store(document);
-		
-	}
-
-	public ProcurementCardDocument getDocument(String fdocNbr) {
-        LOG.debug("getDocument() started");
-
-        Criteria criteria = new Criteria();
-        criteria.addEqualTo("documentNumber", fdocNbr);
-
-        return (ProcurementCardDocument) getPersistenceBrokerTemplate().getObjectByQuery(new QueryByCriteria(ProcurementCardDocument.class, criteria));
-    
-	}
-	
-	public ProcurementCardDocument getDocumentByCarhdHolderAmountDateVendor(String cardHolder, String amount, Date transactionDate, String vendorName) {
+	public List<ProcurementCardDocument> getDocumentByCarhdHolderAmountDateVendor(String cardHolder, String amount, Date transactionDate) {
 
         LOG.debug("getDocumentByAmountDateVendor() started");
 		
-		if (StringUtils.isBlank(cardHolder) || StringUtils.isBlank(amount) || StringUtils.isBlank(vendorName) || transactionDate == null) {
+		if (StringUtils.isBlank(cardHolder) || StringUtils.isBlank(amount) || transactionDate == null) {
 			LOG.error("Unable to validate input");
 			return null;
 		}
@@ -52,9 +37,8 @@ public class ProcurementCardDocumentDaoOjb extends PlatformAwareDaoBaseOjb imple
         criteria.addEqualTo("transactionEntries.transactionTotalAmount", amount);
         criteria.addGreaterOrEqualThan("transactionEntries.transactionDate", transactionDate);
 		criteria.addLessOrEqualThan("transactionEntries.transactionDate", new Timestamp(gc.getTimeInMillis()));
-        criteria.addLike("transactionEntries.procurementCardVendor.vendorName", WILD_CARD + vendorName.toUpperCase() + WILD_CARD);
-
-        return (ProcurementCardDocument) getPersistenceBrokerTemplate().getObjectByQuery(new QueryByCriteria(ProcurementCardDocument.class, criteria));
+        
+        return (List<ProcurementCardDocument>) getPersistenceBrokerTemplate().getCollectionByQuery(new QueryByCriteria(ProcurementCardDocument.class, criteria));
     
 	}
 	

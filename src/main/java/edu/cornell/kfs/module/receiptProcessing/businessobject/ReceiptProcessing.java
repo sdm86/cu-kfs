@@ -1,6 +1,5 @@
-package edu.cornell.kfs.module.sharepoint.batch.vo;
+package edu.cornell.kfs.module.receiptProcessing.businessobject;
 
-import java.sql.Date;
 
 
 
@@ -11,7 +10,6 @@ public class ReceiptProcessing  {
      */
     
     private String cardHolder;
-    private String vendor;
     private String amount;
     private String purchasedate;
     private String SharePointPath;
@@ -24,15 +22,7 @@ public class ReceiptProcessing  {
 
     public void setCardHolder(String cardHolder) {
         this.cardHolder = cardHolder;
-    }
-
-    public String getVendor() {
-        return vendor;
-    }
-
-    public void setVendor(String vendor) {
-        this.vendor = vendor;
-    }
+    }   
 
     public String getAmount() {
         return amount;
@@ -60,13 +50,27 @@ public class ReceiptProcessing  {
         this.purchasedate = purchasedate;
     }
 
-    public String returnProcessFail() {
-        String line = this.getCardHolder() + "," + this.getVendor() + "," + this.getAmount() + "," + this.getPurchasedate() + "," + this.getSharePointPath() + "," + this.getFilename() + "," + "0\n";
+    public String returnBoLine() {
+        return this.getCardHolder() + "," + this.getAmount() + "," + this.getPurchasedate() + "," + this.getSharePointPath() + "," + this.getFilename() + ",";
+    }
+    
+    public String noMatch() {
+        String line = returnBoLine() + "0\n";
         return line;        
     }
     
-    public String returnProcessSucceed() {
-        String line = this.getCardHolder() + "," + this.getVendor() + "," + this.getAmount() + "," + this.getPurchasedate() + "," + this.getSharePointPath() + "," + this.getFilename() + ",";
+    public String match() {
+        String line = returnBoLine();
+        return line;        
+    }
+    
+    public String multipleMatch() {
+        String line = returnBoLine() + "1\n";
+        return line;        
+    }
+    
+    public String badData() {
+        String line = returnBoLine() + "2\n";
         return line;        
     }
 
