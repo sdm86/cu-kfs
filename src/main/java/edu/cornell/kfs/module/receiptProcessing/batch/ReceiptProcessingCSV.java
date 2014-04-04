@@ -6,7 +6,7 @@ package edu.cornell.kfs.module.receiptProcessing.batch;
  */
 public enum ReceiptProcessingCSV {
 
-    Cardholder,
+    cardHolder,
     amount,
     purchasedate,
     SharePointPath,

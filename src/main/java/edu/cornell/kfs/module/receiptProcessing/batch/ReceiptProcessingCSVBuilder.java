@@ -59,7 +59,7 @@ public class ReceiptProcessingCSVBuilder {
     private static ReceiptProcessing buildReceiptsFromDataMap(Map<String, String> rowDataMap) {
 
         ReceiptProcessing receipt = new ReceiptProcessing();
-        receipt.setCardHolder(rowDataMap.get(ReceiptProcessingCSV.Cardholder.name()));        
+        receipt.setCardHolder(rowDataMap.get(ReceiptProcessingCSV.cardHolder.name()));        
         receipt.setAmount(rowDataMap.get(ReceiptProcessingCSV.amount.name()));
         receipt.setPurchasedate(rowDataMap.get(ReceiptProcessingCSV.purchasedate.name()));
         receipt.setSharePointPath(rowDataMap.get(ReceiptProcessingCSV.SharePointPath.name()));
