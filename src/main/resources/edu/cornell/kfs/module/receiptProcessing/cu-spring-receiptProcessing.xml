@@ -8,64 +8,42 @@
                            http://www.springframework.org/schema/aop
                            http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
-	<bean id="cu-sharepoint" parent="sharepointModuleConfiguration-parentBean"/>
+	<bean id="cu-receipt" parent="receiptProcessingModuleConfiguration-parentBean"/>
 		
-	<bean id="sharepointModuleConfiguration-parentBean" class="org.kuali.kfs.sys.FinancialSystemModuleConfiguration" abstract="true">
+	<bean id="receiptProcessingModuleConfiguration-parentBean" class="org.kuali.kfs.sys.FinancialSystemModuleConfiguration" abstract="true">
     	<property name="namespaceCode" value="KFS-FP" />
 		<property name="initializeDataDictionary" value="false" />
         <property name="packagePrefixes">
             <list>
-                <value>edu.cornell.kfs.module.sharepoint</value>
+                <value>edu.cornell.kfs.module.receiptProcessing</value>
             </list>
         </property>
 		<property name="dataDictionaryPackages">
 			<list>
-                <value>edu/cornell/kfs/module/sharepoint/businessobject/datadictionary</value>
-                <value>org/kuali/kfs/module/sharepoint/businessobject/datadictionary</value>
+                <value>edu/cornell/kfs/module/receiptProcessing/businessobject/datadictionary</value>                
 			</list>
-		</property>
-		<!--
-		<property name="databaseRepositoryFilePaths">
-			<list>
-				<value>edu/cornell/kfs/module/sharepoint/cu-ojb-sharepoint.xml</value>
-			</list>
-		</property>
-		-->
+		</property>		
 		<property name="jobNames">
 			<list>
-				<value>sharepointUpdateBatchJob</value>
+				<value>ReceiptProcessingUpdateBatchJob</value>
 			</list>
-		</property>
-	
-		<property name="triggerNames">
-			<list>
-	<!-- 		<value>sharepointUpdateBatchJobTrigger</value>  -->	
-			</list>
-		</property>
-		
-		<property name="batchFileDirectories">
-         	<list>
-            	<value>${reports.directory}/sharepoint</value>
-            	<value>${staging.directory}/sharepoint</value>
-          	</list>
-        </property>
-										
+		</property>												
 	</bean>
   
-    <bean id="sharepointModuleService" parent="sharepointModuleService-parentBean"/>
+    <bean id="receiptProcessingModuleService" parent="receiptProcessingModuleService-parentBean"/>
 
-    <bean id="sharepointModuleService-parentBean" class="org.kuali.kfs.sys.service.impl.KfsModuleServiceImpl" abstract="true">
-		<property name="moduleConfiguration" ref="cu-sharepoint" />
+    <bean id="receiptProcessingModuleService-parentBean" class="org.kuali.kfs.sys.service.impl.KfsModuleServiceImpl" abstract="true">
+		<property name="moduleConfiguration" ref="cu-receipt" />
 	</bean>
 		
-	<bean id="receiptProcessingStep" class="edu.cornell.kfs.module.sharepoint.batch.ReceiptProcessingStep" parent="step">
+	<bean id="receiptProcessingStep" class="edu.cornell.kfs.module.receiptProcessing.batch.ReceiptProcessingStep" parent="step">
 		<property name="receiptProcessingService">
 			<ref bean="receiptProcessingService" />
 		</property>
 		<property name="batchInputFileType" ref="ReceiptProcessingCSVInputFileType"/>
 	</bean>
 	
-	<bean id="sharepointUpdateBatchJob" parent="unscheduledJobDescriptor">
+	<bean id="ReceiptProcessingUpdateBatchJob" parent="unscheduledJobDescriptor">
 		<property name="steps">
 			<list>
 				<ref bean="receiptProcessingStep" />	
@@ -74,7 +52,7 @@
 	</bean>
 	
 	<bean id="receiptProcessingService"  parent="receiptProcessingService-parentBean"/>
-	<bean id="receiptProcessingService-parentBean" class="edu.cornell.kfs.module.sharepoint.service.impl.ReceiptProcessingServiceImpl" abstract="true">
+	<bean id="receiptProcessingService-parentBean" class="edu.cornell.kfs.module.receiptProcessing.service.impl.ReceiptProcessingServiceImpl" abstract="true">
 		<property name="batchInputFileService">
 			<ref bean="batchInputFileService" />
 		</property>
@@ -93,24 +71,21 @@
 		<property name="dateTimeService">
 			<ref bean="dateTimeService" />
 		</property>
-		<property name="outputDirectory">
-			<value>${reports.directory}/sharepoint</value>
-		</property>
 		<property name="pdfDirectory">
-			<value>${staging.directory}/sharepoint/incoming</value>
+			<value>/infra/receipt_processing</value>
 		</property>
 	</bean>
 	
 	<bean id="ReceiptProcessingCSVInputFileType"  parent="receiptProcessingCSVInputFileType-parentBean"/>
-  <bean id="receiptProcessingCSVInputFileType-parentBean" class="edu.cornell.kfs.module.sharepoint.batch.ReceiptProcessingCSVInputFileType" abstract="true">
+  <bean id="receiptProcessingCSVInputFileType-parentBean" class="edu.cornell.kfs.module.receiptProcessing.batch.ReceiptProcessingCSVInputFileType" abstract="true">
     <property name="directoryPath">
-      <value>${staging.directory}/sharepoint/incoming</value>
+      <value>${staging.directory}/fp/receiptProcessing</value>
     </property>
     <property name="fileExtension">
       <value>csv</value>
     </property>
     <property name="csvEnumClass">
-      <value>edu.cornell.kfs.module.sharepoint.batch.ReceiptProcessingCSV</value>
+      <value>edu.cornell.kfs.module.receiptProcessing.batch.ReceiptProcessingCSV</value>
     </property>         
     <property name="receiptProcessingService">
       <ref bean="receiptProcessingService" />

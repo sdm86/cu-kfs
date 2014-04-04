@@ -1,7 +1,7 @@
 /**
  * @author cab379
  */
-package edu.cornell.kfs.module.sharepoint.service.impl;
+package edu.cornell.kfs.module.receiptProcessing.service.impl;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,29 +34,17 @@ import org.kuali.rice.kns.service.DateTimeService;
 import org.kuali.rice.kns.service.NoteService;
 import org.kuali.rice.kns.util.KNSConstants;
 
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
-import com.lowagie.text.Paragraph;
-
 import edu.cornell.kfs.fp.dataaccess.ProcurementCardDocumentDao;
-import edu.cornell.kfs.module.sharepoint.batch.vo.ReceiptProcessing;
-import edu.cornell.kfs.module.sharepoint.service.ReceiptProcessingService;
+import edu.cornell.kfs.module.receiptProcessing.businessobject.ReceiptProcessing;
+import edu.cornell.kfs.module.receiptProcessing.service.ReceiptProcessingService;
 
 public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ReceiptProcessingServiceImpl.class);
-    
-
-    private static final String WORKFLOW_DOC_ID_PREFIX = " - WITH WORKFLOW DOCID: ";
     
     private BatchInputFileService batchInputFileService;    
     private ProcurementCardDocumentDao procurementCardDocumentDao;
     private DateTimeService dateTimeService; 
     private List<BatchInputFileType> batchInputFileTypes;
-    private String outputDirectory;
     private String pdfDirectory;
     private AttachmentService attachmentService;
     private NoteService noteService;
@@ -71,10 +59,8 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
     public boolean loadFiles() {
         
         LOG.info("Beginning processing of all available files for Receipt Batch Upload.");
-        
         boolean result = true;
-        
-                       
+                     
         //  create a list of the files to process
          Map<String, BatchInputFileType> fileNamesToLoad = getListOfFilesToProcess();
         LOG.info("Found " + fileNamesToLoad.size() + " file(s) to process.");
@@ -84,10 +70,8 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
         for (String inputFileName : fileNamesToLoad.keySet()) {
             
             LOG.info("Beginning processing of filename: " + inputFileName + ".");
-            
-            
-            
-            if (loadFile(inputFileName, fileNamesToLoad.get(inputFileName))) {
+   
+            if (attachFiles(inputFileName, fileNamesToLoad.get(inputFileName))) {
                 result &= true;
                 LOG.info("Successfully loaded csv file");
                 processedFiles.add(inputFileName);
@@ -100,9 +84,7 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
 
         //  remove done files
         removeDoneFiles(processedFiles);
-        
-        
-        
+       
         return result;
     }
     
@@ -154,15 +136,14 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
 
     /**
     */
-    public boolean loadFile(String fileName, BatchInputFileType batchInputFileType) {
+    public boolean attachFiles(String fileName, BatchInputFileType batchInputFileType) {
         
         boolean result = true;
         
         //  load up the file into a byte array 
         byte[] fileByteContent = safelyLoadFileBytes(fileName);
-
-        //  parse the file against the XSD schema and load it into an object
-        LOG.info("Attempting to parse the file using Apache Digester.");
+        
+        LOG.info("Attempting to parse the file");
         Object parsedObject = null;
         try {
              parsedObject =  batchInputFileService.parse(batchInputFileType, fileByteContent);
@@ -182,7 +163,7 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
         
         
         StringBuilder processResults = new StringBuilder();
-        processResults.append("\"cardHolder\",\"vendor\",\"amount\",\"purchasedate\",\"SharePointPath\",\"filename\",\"Success\"\n");        
+        processResults.append("\"cardHolder\",\"amount\",\"purchasedate\",\"SharePointPath\",\"filename\",\"Success\"\n");        
        
         List<ReceiptProcessing> receipts =  ((List<ReceiptProcessing>) parsedObject);
         final String attachmentsPath = pdfDirectory;
@@ -199,25 +180,33 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
             }
             catch(ParseException e)
             {
-                processResults.append(receipt.returnProcessFail()); 
-                e.printStackTrace();
+                processResults.append(receipt.badData()); 
+                LOG.error("Bad date field on incoming csv");
                 continue;
             } catch (java.text.ParseException e) {
-                processResults.append(receipt.returnProcessFail()); 
-                e.printStackTrace();
+                processResults.append(receipt.badData()); 
+                LOG.error("Bad date field on incoming csv");
                 continue;
             }
             Date pdateSQL = null;
             if (pdate != null) {             
                 pdateSQL = new Date(pdate.getTime());
             }
-            ProcurementCardDocument pcdo = procurementCardDocumentDao.getDocumentByCarhdHolderAmountDateVendor(receipt.getCardHolder(), receipt.getAmount(), pdateSQL, receipt.getVendor());
-            //ProcurementCardDocument pcdo = procurementCardDocumentDao.getDocument("3397880");
-            
-            if (pcdo == null) {
-                processResults.append(receipt.returnProcessFail());
+            List<ProcurementCardDocument> pcdoList = procurementCardDocumentDao.getDocumentByCarhdHolderAmountDateVendor(receipt.getCardHolder(), receipt.getAmount(), pdateSQL);
+            ProcurementCardDocument pcdo = null;
+             
+            if (pcdoList.isEmpty()) {
+                processResults.append(receipt.noMatch());
                 continue;
-            } 
+            }
+            if (pcdoList.size() >1 ){
+                processResults.append(receipt.multipleMatch());
+                continue;
+            }
+            if (pcdoList.size() == 1){
+                pcdo = pcdoList.get(0);
+            }
+            
             String pdfFileName = attachmentsPath + "/" + receipt.getFilename();
             
             File f = null;
@@ -228,13 +217,12 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
             }
             catch (FileNotFoundException e) {
                 LOG.error("file not found for Document " + pcdo.getDocumentNumber());
-                processResults.append(receipt.returnProcessFail());
-                e.printStackTrace();
+                processResults.append(receipt.badData());;
                 continue;
             }
-            catch (IOException e1) {
+            catch (IOException e) {
                 LOG.error("generic Io exception for Document " + pcdo.getDocumentNumber());
-                processResults.append(receipt.returnProcessFail());
+                processResults.append(receipt.badData());
                 continue;
             }
             
@@ -247,35 +235,33 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
                 noteAttachment = attachmentService.createAttachment(pcdo.getDocumentHeader(), pdfFileName, mimeTypeCode , fileSize, fileInputStream, attachType);
             } catch (IOException e) {
                 LOG.error("Failed to attache file for Document " + pcdo.getDocumentNumber());
-                processResults.append(receipt.returnProcessFail());               
+                processResults.append(receipt.noMatch());               
                 e.printStackTrace();
                 continue;
             }
             
             if (noteAttachment != null) {
-                note.setNoteText("Sharepoint receipt2");
+                note.setNoteText("Receipt Attached");
                 note.addAttachment(noteAttachment);
                 note.setRemoteObjectIdentifier(pcdo.getDocumentHeader().getObjectId());
                 note.setAuthorUniversalIdentifier(getSystemUser().getPrincipalId());
                 note.setNoteTypeCode(KNSConstants.NoteTypeEnum.BUSINESS_OBJECT_NOTE_TYPE.getCode());               
-                note.setNotePostedTimestamp(dateTimeService.getCurrentTimestamp());
                                 
                 try {
                     noteService.save(note);
                 } catch (Exception e) {
                     LOG.error("Failed to save note for Document " + pcdo.getDocumentNumber());
-                    processResults.append(receipt.returnProcessFail());               
+                    processResults.append(receipt.noMatch());               
                     e.printStackTrace();
                     continue;
                 }
                 
                 LOG.info("Attached pdf for document " + pcdo.getDocumentNumber());
-                processResults.append(receipt.returnProcessSucceed() + pcdo.getDocumentNumber() +"\n");                
+                processResults.append(receipt.match() + pcdo.getDocumentNumber() +"\n");                
             }
             
             
-        }
-        
+        }        
         String outputCsv = processResults.toString();
         getcsvWriter(outputCsv);       
                 
@@ -285,7 +271,7 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
     
     protected void getcsvWriter(String csvDoc) {
         
-        String reportDropFolder = outputDirectory + "/";
+        String reportDropFolder = pdfDirectory + "/";
         String fileName = "CIT_OUT_" +
             new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(dateTimeService.getCurrentDate()) + ".csv";
         
@@ -324,35 +310,17 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
             throw new RuntimeException("IO Exception loading: [" + fileName + "]. " + e1.getMessage());
         }
         return fileByteContent;
-    }                           
+    }
     
-
-    
-   
-    
-    protected void writeMessageEntryLines(Document pdfDoc, List<String[]> messageLines) {
-        Font font = FontFactory.getFont(FontFactory.COURIER, 8, Font.NORMAL);
-        
-        Paragraph paragraph;
-        String messageEntry;
-        for (String[] messageLine : messageLines) {
-            paragraph = new Paragraph();
-            paragraph.setAlignment(Element.ALIGN_LEFT);
-            messageEntry = StringUtils.rightPad(messageLine[0], (12 - messageLine[0].length()), " ") + " - " + messageLine[1].toUpperCase();
-            paragraph.add(new Chunk(messageEntry, font));
-
-            //  blank line
-            paragraph.add(new Chunk("", font));
-            
-            try {
-                pdfDoc.add(paragraph);
-            }
-            catch (DocumentException e) {
-                LOG.error("iText DocumentException thrown when trying to write content.", e);
-                throw new RuntimeException("iText DocumentException thrown when trying to write content.", e);
-            }
-        }
-    }        
+    /**
+     * LOG error and throw RunTimeException
+     * 
+     * @param errorMessage
+     */
+    private void criticalError(String errorMessage){
+        LOG.error(errorMessage);
+        throw new RuntimeException(errorMessage);
+    }    
     
     public void setBatchInputFileTypes(List<BatchInputFileType> batchInputFileType) {
         this.batchInputFileTypes = batchInputFileType;
@@ -373,53 +341,7 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
     public void setAttachmentService(AttachmentService attachmentService) {
         this.attachmentService = attachmentService;
     }
-    
-   
-
-    /**    
-     */
-    
-    public String getFileName(String principalName, String fileUserIdentifer, String prefix, String delim) {
-
-        //  start with the batch-job-prefix
-        StringBuilder fileName = new StringBuilder(delim);
-        
-        //  add the logged-in user name if there is one, otherwise use a sensible default
-        fileName.append(delim + principalName);
-        
-        //  if the user specified an identifying lable, then use it
-        if (StringUtils.isNotBlank(fileUserIdentifer)) {
-            fileName.append(delim + fileUserIdentifer);
-        }
-        
-        //  stick a timestamp on the end
-        fileName.append(delim + dateTimeService.toString(dateTimeService.getCurrentTimestamp(), "yyyyMMdd_HHmmss"));
-
-        //  stupid spaces, begone!
-        return StringUtils.remove(fileName.toString(), " ");
-    }
-
-    /**
-     * LOG error and throw RunTimeException
-     * 
-     * @param errorMessage
-     */
-    private void criticalError(String errorMessage){
-        LOG.error(errorMessage);
-        throw new RuntimeException(errorMessage);
-    }
-    
-    /**
-     * @see org.kuali.kfs.sys.batch.InitiateDirectoryBase#getRequiredDirectoryNames()
-     */
-    public List<String> getRequiredDirectoryNames() {
-        List<String> directoryNames = new ArrayList<String>();
-        for (BatchInputFileType batchInputFileType : batchInputFileTypes){
-            directoryNames.add(batchInputFileType.getDirectoryPath());
-        }
-        return directoryNames;
-    }       
-
+             
     public NoteService getNoteService() {
         return noteService;
     }
@@ -452,14 +374,6 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
 
     public void setPdfDirectory(String pdfDirectory) {
         this.pdfDirectory = pdfDirectory;
-    }
-
-    public String getOutputDirectory() {
-        return outputDirectory;
-    }
-
-    public void setOutputDirectory(String outputDirectory) {
-        this.outputDirectory = outputDirectory;
     }
               
     

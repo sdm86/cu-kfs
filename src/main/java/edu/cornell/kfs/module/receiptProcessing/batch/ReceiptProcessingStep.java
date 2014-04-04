@@ -1,7 +1,7 @@
 /**
  * @author cab379
  */
-package edu.cornell.kfs.module.sharepoint.batch;
+package edu.cornell.kfs.module.receiptProcessing.batch;
 
 
 
@@ -10,7 +10,7 @@ import java.util.Date;
 import org.kuali.kfs.sys.batch.AbstractStep;
 import org.kuali.kfs.sys.batch.BatchInputFileType;
 
-import edu.cornell.kfs.module.sharepoint.service.ReceiptProcessingService;
+import edu.cornell.kfs.module.receiptProcessing.service.ReceiptProcessingService;
 
 public class ReceiptProcessingStep extends AbstractStep {
 
