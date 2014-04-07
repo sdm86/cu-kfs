@@ -89,10 +89,11 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
         	vDetail.setActiveIndicator(true);
         	vDetail.setTaxableIndicator(isTaxable);
         	((VendorDetailExtension)vDetail.getExtension()).setEinvoiceVendorIndicator(isEInvoice);
+        	((VendorDetailExtension)vDetail.getExtension()).setDefaultB2BPaymentMethodCode("P");
         	vDetail.setVendorAddresses(getVendorAddresses(addresses, vDetail));
         	vDetail.setVendorContacts(getVendorContacts(contacts));
         	vDetail.setVendorPhoneNumbers(getVendorPhoneNumbers(phoneNumbers));
-
+        	
             VendorHeader vHeader = vDetail.getVendorHeader();
         	
         	vHeader.setVendorTypeCode(vendorTypeCode);
@@ -314,6 +315,7 @@ public class KFSVendorWebServiceImpl implements KFSVendorWebService {
 			vDetail.setTaxableIndicator(isTaxable);
 
 			((VendorDetailExtension) vDetail.getExtension()).setEinvoiceVendorIndicator(isEInvoice);
+	        ((VendorDetailExtension)vDetail.getExtension()).setDefaultB2BPaymentMethodCode("P");
 
 			
         	updateVendorAddresses(addresses, vendor, vDetail);
