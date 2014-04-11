@@ -29,6 +29,9 @@ public class CUPurapKeyConstants extends PurapKeyConstants {
     
     // KFSPTS-2096
     public static final String PURAP_MIX_ITEM_QTY_NONQTY = "error.purap.mix.item.itemtype.nonqty";
+    
+    // KFSUPGRADE-779
+    public static final String ERROR_PAYMENTMETHODCODE_MUSTMATCHPREQ = "error.document.creditmemo.paymentmethodcode.mustmatchpreq";
 
 
 }
