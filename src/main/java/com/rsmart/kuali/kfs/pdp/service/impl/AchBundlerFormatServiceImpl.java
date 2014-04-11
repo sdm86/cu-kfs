@@ -191,7 +191,7 @@ public class AchBundlerFormatServiceImpl extends CuFormatServiceImpl {
             
             //TODO UPGRADE-911
             //Where should this come from?
-            List<DisbursementNumberRange> disbursementRanges = new ArrayList<DisbursementNumberRange>(); //SpringContext.getBean(PaymentGroupService.class).getDisbursementNumberRanges(campus);
+            List<DisbursementNumberRange> disbursementRanges = paymentDetailDao.getDisbursementNumberRanges(campus);
             
             DisbursementNumberRange range = getRange(disbursementRanges, paymentGroup.getBank(), paymentGroup.getDisbursementType().getCode());
 
