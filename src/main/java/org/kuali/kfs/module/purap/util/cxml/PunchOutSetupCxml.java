@@ -153,6 +153,9 @@ public class PunchOutSetupCxml {
     	  } else if (KIMServiceLocator.getPermissionService().hasPermission(
 	      	  	principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SHOPPER_LAB_PERMISSION, null))  {
 				return "Lab";
+		  }	else if (KIMServiceLocator.getPermissionService().hasPermission(
+			    principalId, KFSConstants.ParameterNamespaces.PURCHASING, KFSConstants.SysKimConstants.B2B_SHOPPER_FACILITIES_PERMISSION, null))  {
+				return "Facilities";
 		  } else {
 				return "Unrestricted";
     	  }
