@@ -92,8 +92,6 @@ public class DisbursementVoucherExtractServiceImpl implements DisbursementVouche
     protected BusinessObjectService businessObjectService;
     protected PdpEmailService paymentFileEmailService;
     protected int maxNoteLines;
-    
-    protected CUPaymentMethodGeneralLedgerPendingEntryService paymentMethodGeneralLedgerPendingEntryService;
 
     // This should only be set to true when testing this system. Setting this to true will run the code but
     // won't set the doc status to extracted
