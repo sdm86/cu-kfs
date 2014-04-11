@@ -70,6 +70,8 @@ import com.rsmart.kuali.kfs.fp.businessobject.DisbursementVoucherDocumentExtensi
 import com.rsmart.kuali.kfs.fp.document.BatchDisbursementVoucherDocument;
 import com.rsmart.kuali.kfs.sys.batch.service.BatchFeedHelperService;
 
+import edu.cornell.kfs.fp.businessobject.CuDisbursementVoucherWireTransfer;
+
 /**
  * @see com.rsmart.kuali.kfs.fp.batch.service.DisbursementVoucherDocumentBatchService
  */
@@ -404,7 +406,7 @@ public class DisbursementVoucherDocumentBatchServiceImpl implements Disbursement
         disbursementVoucherDocument.setDvNonResidentAlienTax(batchDisbursementVoucherDocument.getDvNonResidentAlienTax());
         disbursementVoucherDocument.getDvNonResidentAlienTax().setDocumentNumber(disbursementVoucherDocument.getDocumentNumber());
 
-        disbursementVoucherDocument.setDvWireTransfer(batchDisbursementVoucherDocument.getDvWireTransfer());
+        disbursementVoucherDocument.setDvWireTransfer((CuDisbursementVoucherWireTransfer)batchDisbursementVoucherDocument.getDvWireTransfer());
         disbursementVoucherDocument.getDvWireTransfer().setDocumentNumber(disbursementVoucherDocument.getDocumentNumber());
 
         // set defaults

@@ -97,6 +97,7 @@ import org.kuali.rice.kns.util.KNSConstants;
 import org.kuali.rice.kns.util.KualiDecimal;
 import org.kuali.rice.kns.util.ObjectUtils;
 
+import edu.cornell.kfs.fp.businessobject.CuDisbursementVoucherWireTransfer;
 import edu.cornell.kfs.fp.businessobject.DisbursementVoucherPayeeDetailExtension;
 import edu.cornell.kfs.fp.service.CUPaymentMethodGeneralLedgerPendingEntryService;
 import edu.cornell.kfs.vnd.businessobject.VendorDetailExtension;
@@ -181,7 +182,7 @@ public class DisbursementVoucherDocument extends AccountingDocumentBase implemen
     protected DisbursementVoucherNonResidentAlienTax dvNonResidentAlienTax;
     protected DisbursementVoucherPayeeDetail dvPayeeDetail;
     protected DisbursementVoucherPreConferenceDetail dvPreConferenceDetail;
-    protected DisbursementVoucherWireTransfer dvWireTransfer;
+    protected CuDisbursementVoucherWireTransfer dvWireTransfer;
 
     protected Bank bank;
     private static CUPaymentMethodGeneralLedgerPendingEntryService paymentMethodGeneralLedgerPendingEntryService;
@@ -197,7 +198,7 @@ public class DisbursementVoucherDocument extends AccountingDocumentBase implemen
         dvNonResidentAlienTax = new DisbursementVoucherNonResidentAlienTax();
         dvPayeeDetail = new DisbursementVoucherPayeeDetail();
         dvPreConferenceDetail = new DisbursementVoucherPreConferenceDetail();
-        dvWireTransfer = new DisbursementVoucherWireTransfer();
+        dvWireTransfer = new CuDisbursementVoucherWireTransfer();
         disbVchrCheckTotalAmount = KualiDecimal.ZERO;
         bank = new Bank();
     }
@@ -714,7 +715,7 @@ public class DisbursementVoucherDocument extends AccountingDocumentBase implemen
     /**
      * @param dvWireTransfer The dvWireTransfer to set.
      */
-    public void setDvWireTransfer(DisbursementVoucherWireTransfer dvWireTransfer) {
+    public void setDvWireTransfer(CuDisbursementVoucherWireTransfer dvWireTransfer) {
         this.dvWireTransfer = dvWireTransfer;
     }
 

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p" xmlns:dd="http://rice.kuali.org/dd" xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://rice.kuali.org/dd http://rice.kuali.org/dd/dd.xsd">
+<!--
+ Copyright 2006-2009 The Kuali Foundation
+ 
+ Licensed under the Educational Community License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+ http://www.opensource.org/licenses/ecl2.php
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+  <bean id="DisbursementVoucherWireTransfer" parent="DisbursementVoucherWireTransfer-parentBean">
+    <property name="businessObjectClass" value="edu.cornell.kfs.fp.businessobject.CuDisbursementVoucherWireTransfer"/>
+    <property name="attributes">
+      <list merge="true">
+        <ref bean="DisbursementVoucherWireTransfer-disbVchrBankStreetAddress"/>
+        <ref bean="DisbursementVoucherWireTransfer-disbVchrBankProvince"/>
+        <ref bean="DisbursementVoucherWireTransfer-disbVchrBankSWIFTCode"/>
+        <ref bean="DisbursementVoucherWireTransfer-disbVchrBankIBAN"/>
+        <ref bean="DisbursementVoucherWireTransfer-disbVchrSortOrTransitCode"/>
+        <ref bean="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankName"/>
+        <ref bean="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankAddress"/>
+        <ref bean="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankRoutingNumber"/>
+        <ref bean="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankAccountNumber"/>
+        <ref bean="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankSwiftCode"/>
+      </list>
+    </property>
+  </bean>
+    
+  <bean id="DisbursementVoucherWireTransfer-disbVchrBankStreetAddress" parent="DisbursementVoucherWireTransfer-disbVchrBankStreetAddress-parentBean"/>
+
+  <bean id="DisbursementVoucherWireTransfer-disbVchrBankStreetAddress-parentBean" abstract="true" parent="AttributeDefinition">
+    <property name="name" value="disbVchrBankStreetAddress"/>
+    <property name="forceUppercase" value="false"/>
+    <property name="label" value="Bank Street Address"/>
+    <property name="shortLabel" value="Bnk Str Addr"/>
+    <property name="maxLength" value="9"/>
+    <property name="required" value="false"/>
+    <property name="control">
+      <bean parent="TextControlDefinition" p:size="9"/>
+    </property>
+  </bean>  
+  <bean id="DisbursementVoucherWireTransfer-disbVchrBankProvince" parent="DisbursementVoucherWireTransfer-disbVchrBankProvince-parentBean"/>
+
+  <bean id="DisbursementVoucherWireTransfer-disbVchrBankProvince-parentBean" abstract="true" parent="AttributeDefinition">
+    <property name="name" value="disbVchrBankProvince"/>
+    <property name="forceUppercase" value="false"/>
+    <property name="label" value="Bank Province (if non-US)"/>
+    <property name="shortLabel" value="Bnk Province"/>
+    <property name="maxLength" value="9"/>
+    <property name="required" value="false"/>
+    <property name="control">
+      <bean parent="TextControlDefinition" p:size="9"/>
+    </property>
+  </bean>  
+  <bean id="DisbursementVoucherWireTransfer-disbVchrBankSWIFTCode" parent="DisbursementVoucherWireTransfer-disbVchrBankSWIFTCode-parentBean"/>
+
+  <bean id="DisbursementVoucherWireTransfer-disbVchrBankSWIFTCode-parentBean" abstract="true" parent="AttributeDefinition">
+    <property name="name" value="disbVchrBankSWIFTCode"/>
+    <property name="forceUppercase" value="false"/>
+    <property name="label" value="Bank SWIFT Code (BIC)"/>
+    <property name="shortLabel" value="Bnk SWIFT Cd"/>
+    <property name="maxLength" value="9"/>
+    <property name="required" value="false"/>
+    <property name="control">
+      <bean parent="TextControlDefinition" p:size="9"/>
+    </property>
+  </bean> 
+  <bean id="DisbursementVoucherWireTransfer-disbVchrBankIBAN" parent="DisbursementVoucherWireTransfer-disbVchrBankIBAN-parentBean"/>
+
+  <bean id="DisbursementVoucherWireTransfer-disbVchrBankIBAN-parentBean" abstract="true" parent="AttributeDefinition">
+    <property name="name" value="disbVchrBankIBAN"/>
+    <property name="forceUppercase" value="false"/>
+    <property name="label" value="Bank IBAN #, Account # or CLABE (Mexico)"/>
+    <property name="shortLabel" value="Bnk IBAN"/>
+    <property name="maxLength" value="9"/>
+    <property name="required" value="false"/>
+    <property name="control">
+      <bean parent="TextControlDefinition" p:size="9"/>
+    </property>
+  </bean> 
+  <bean id="DisbursementVoucherWireTransfer-disbVchrSortOrTransitCode" parent="DisbursementVoucherWireTransfer-disbVchrSortOrTransitCode-parentBean"/>
+
+  <bean id="DisbursementVoucherWireTransfer-disbVchrSortOrTransitCode-parentBean" abstract="true" parent="AttributeDefinition">
+    <property name="name" value="disbVchrSortOrTransitCode"/>
+    <property name="forceUppercase" value="false"/>
+    <property name="label" value="Bank Sort or Transit Code"/>
+    <property name="shortLabel" value="Bnk Sort Cd"/>
+    <property name="maxLength" value="9"/>
+    <property name="required" value="false"/>
+    <property name="control">
+      <bean parent="TextControlDefinition" p:size="9"/>
+    </property>
+  </bean>
+  <bean id="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankName" parent="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankName-parentBean"/>
+
+  <bean id="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankName-parentBean" abstract="true" parent="AttributeDefinition">
+    <property name="name" value="disbVchrCorrespondentBankName"/>
+    <property name="forceUppercase" value="false"/>
+    <property name="label" value="Correspondent Bank Name"/>
+    <property name="shortLabel" value="Corresp Bnk Nm"/>
+    <property name="maxLength" value="9"/>
+    <property name="required" value="false"/>
+    <property name="control">
+      <bean parent="TextControlDefinition" p:size="9"/>
+    </property>
+  </bean>
+  <bean id="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankAddress" parent="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankAddress-parentBean"/>
+
+  <bean id="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankAddress-parentBean" abstract="true" parent="AttributeDefinition">
+    <property name="name" value="disbVchrCorrespondentBankAddress"/>
+    <property name="forceUppercase" value="false"/>
+    <property name="label" value="Correspondent Bank Address"/>
+    <property name="shortLabel" value="Corresp Bnk Addr"/>
+    <property name="maxLength" value="9"/>
+    <property name="required" value="false"/>
+    <property name="control">
+      <bean parent="TextControlDefinition" p:size="9"/>
+    </property>
+  </bean>
+  <bean id="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankRoutingNumber" parent="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankRoutingNumber-parentBean"/>
+
+  <bean id="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankRoutingNumber-parentBean" abstract="true" parent="AttributeDefinition">
+    <property name="name" value="disbVchrCorrespondentBankRoutingNumber"/>
+    <property name="forceUppercase" value="false"/>
+    <property name="label" value="Correspondent Bank Routing Number"/>
+    <property name="shortLabel" value="Corresp Bnk Rt #"/>
+    <property name="maxLength" value="9"/>
+    <property name="required" value="false"/>
+    <property name="control">
+      <bean parent="TextControlDefinition" p:size="9"/>
+    </property>
+  </bean>
+  <bean id="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankAccountNumber" parent="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankAccountNumber-parentBean"/>
+
+  <bean id="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankAccountNumber-parentBean" abstract="true" parent="AttributeDefinition">
+    <property name="name" value="disbVchrCorrespondentBankAccountNumber"/>
+    <property name="forceUppercase" value="false"/>
+    <property name="label" value="Correspondent Bank Account Number"/>
+    <property name="shortLabel" value="Corresp Bnk Acct #"/>
+    <property name="maxLength" value="9"/>
+    <property name="required" value="false"/>
+    <property name="control">
+      <bean parent="TextControlDefinition" p:size="9"/>
+    </property>
+  </bean>
+  <bean id="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankSwiftCode" parent="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankSwiftCode-parentBean"/>
+
+  <bean id="DisbursementVoucherWireTransfer-disbVchrCorrespondentBankSwiftCode-parentBean" abstract="true" parent="AttributeDefinition">
+    <property name="name" value="disbVchrCorrespondentBankSwiftCode"/>
+    <property name="forceUppercase" value="false"/>
+    <property name="label" value="Correspondent Bank SWIFT Code"/>
+    <property name="shortLabel" value="Corresp Bnk SWIFT Cd"/>
+    <property name="maxLength" value="9"/>
+    <property name="required" value="false"/>
+    <property name="control">
+      <bean parent="TextControlDefinition" p:size="9"/>
+    </property>
+  </bean>      
+
+  
+</beans>
