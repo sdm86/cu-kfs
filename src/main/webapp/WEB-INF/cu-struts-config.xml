@@ -107,7 +107,7 @@
 			<forward name="basic" path="/jsp/fp/DisbursementVoucher.jsp" />
 		</action> 
 		
-		<action path="/DistributionOfIncomeAndExpense" name="CuDistributionOfIncomeAndExpenseForm" input="/jsp/fp/DistributionOfIncomeAndExpense.jsp"
+		<action path="/financialDistributionOfIncomeAndExpense" name="CuDistributionOfIncomeAndExpenseForm" input="/jsp/fp/DistributionOfIncomeAndExpense.jsp"
 			type="edu.cornell.kfs.fp.document.web.struts.CuDistributionOfIncomeAndExpenseAction" scope="request"
 			parameter="methodToCall" validate="true" attribute="KualiForm">
 			<set-property property="cancellable" value="true" />
