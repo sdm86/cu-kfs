@@ -17,6 +17,8 @@ package edu.cornell.kfs.fp.document.service;
 
 import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
 
+import edu.cornell.kfs.fp.document.interfaces.CULegacyTravelIntegrationInterface;
+
 
 /**
  * 
@@ -25,12 +27,8 @@ import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
  */
 public interface CULegacyTravelService {
 	
-	/**
-	 * @deprecated Use isDisbursementVoucherDocumentAssociatedWithTrip instead, it makes use of member variables so it doesn't call the webservice every time.
-	 * @param docID
-	 * @return
-	 */
-	public boolean isLegacyTravelGeneratedKfsDocument(String docID);
+	
+	//public boolean isLegacyTravelGeneratedKfsDocument(String docID);
 	
 	public String getLegacyTripID(String docID);
 	
@@ -40,10 +38,10 @@ public interface CULegacyTravelService {
 
 	public boolean reopenLegacyTrip(String docID, String disapproveReason);
 	
-	public boolean updateLegacyTrip(String docID);
+	//public boolean updateLegacyTrip(String docID);
 	
-	public boolean isDisbursementVoucherDocumentAssociatedWithTrip(DisbursementVoucherDocument disbursemntVoucherDocument);
+	public boolean isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(CULegacyTravelIntegrationInterface cuLegacyTravelIntegrationInterace);
 	
-	public String getLegacyTripIDFromDisbursementVoucherDocument(DisbursementVoucherDocument disbursemntVoucherDocument);
+	public String getLegacyTripIDFromCULegacyTravelIntegrationInterface(CULegacyTravelIntegrationInterface cuLegacyTravelIntegrationInterace);
 	
 }

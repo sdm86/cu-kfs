@@ -150,7 +150,7 @@ public class DisbursementVoucherAction extends KualiAccountingDocumentActionBase
 	        	CULegacyTravelService cuLegacyTravelService = SpringContext.getBean(CULegacyTravelService.class);
 				//String tripID = cuLegacyTravelService.getLegacyTripID(kualiDocumentFormBase.getDocId());
 	        	DisbursementVoucherDocument disbursemntVoucherDocument = (DisbursementVoucherDocument) kualiDocumentFormBase.getDocument();
-	        	isTravelDV = cuLegacyTravelService.isDisbursementVoucherDocumentAssociatedWithTrip(disbursemntVoucherDocument);
+	        	isTravelDV = cuLegacyTravelService.isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(disbursemntVoucherDocument);
 				//if(isTravelDV = StringUtils.isNotEmpty(tripID)) { // This means the DV is a Travel DV
 	        	if(isTravelDV) { // This means the DV is a Travel DV	
 					tripReOpened &= cuLegacyTravelService.reopenLegacyTrip(kualiDocumentFormBase.getDocId(), reason);
@@ -261,7 +261,7 @@ public class DisbursementVoucherAction extends KualiAccountingDocumentActionBase
         	CULegacyTravelService cuLegacyTravelService = SpringContext.getBean(CULegacyTravelService.class);
 			//String tripID = cuLegacyTravelService.getLegacyTripID(kualiDocumentFormBase.getDocId());
         	DisbursementVoucherDocument disbursemntVoucherDocument = (DisbursementVoucherDocument) kualiDocumentFormBase.getDocument();
-        	isTravelDV = cuLegacyTravelService.isDisbursementVoucherDocumentAssociatedWithTrip(disbursemntVoucherDocument);
+        	isTravelDV = cuLegacyTravelService.isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(disbursemntVoucherDocument);
 			//if(isTravelDV = StringUtils.isNotEmpty(tripID)) { // This means the DV is a Travel DV
         	if(isTravelDV) { // This means the DV is a Travel DV
 				tripReOpened &= cuLegacyTravelService.reopenLegacyTrip(kualiDocumentFormBase.getDocId());

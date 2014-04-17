@@ -98,6 +98,7 @@ import org.kuali.rice.kns.util.KualiDecimal;
 import org.kuali.rice.kns.util.ObjectUtils;
 
 import edu.cornell.kfs.fp.businessobject.DisbursementVoucherPayeeDetailExtension;
+import edu.cornell.kfs.fp.document.interfaces.CULegacyTravelIntegrationInterface;
 import edu.cornell.kfs.fp.service.CUPaymentMethodGeneralLedgerPendingEntryService;
 import edu.cornell.kfs.vnd.businessobject.VendorDetailExtension;
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -105,13 +106,8 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 /**
  * This is the business object that represents the DisbursementVoucher document in Kuali.
  */
-public class DisbursementVoucherDocument extends AccountingDocumentBase implements Copyable, AmountTotaling {
+public class DisbursementVoucherDocument extends AccountingDocumentBase implements Copyable, AmountTotaling, CULegacyTravelIntegrationInterface {
     protected static Logger LOG = Logger.getLogger(DisbursementVoucherDocument.class);
-    
-    public static final class DISBURSEMENT_VOUCHER_TRIP_ASSOCIATIONS {
-    	public static final String IS_TRIP_DV = "1";
-    	public static final String IS_NOT_TRIP_DV = "0";
-    }
     
 	protected static final String DOCUMENT_REQUIRES_CAMPUS_REVIEW_SPLIT = "RequiresCampusReview";
 	protected static final String DOCUMENT_REQUIRES_AWARD_REVIEW_SPLIT = "RequiresAwardReview";

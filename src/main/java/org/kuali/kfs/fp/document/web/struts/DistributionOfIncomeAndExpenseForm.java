@@ -80,7 +80,7 @@ public class DistributionOfIncomeAndExpenseForm extends KualiAccountingDocumentF
     public boolean getCanViewTrip() {
     	//boolean canViewTrip = SpringContext.getBean(CULegacyTravelService.class).isLegacyTravelGeneratedKfsDocument(this.getDocId());;
     	DisbursementVoucherDocument disbursementVoucherDocument = (DisbursementVoucherDocument)this.getDocument();
-    	boolean canViewTrip = SpringContext.getBean(CULegacyTravelService.class).isDisbursementVoucherDocumentAssociatedWithTrip(disbursementVoucherDocument);
+    	boolean canViewTrip = SpringContext.getBean(CULegacyTravelService.class).isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(disbursementVoucherDocument);
     	return canViewTrip;
     }
 

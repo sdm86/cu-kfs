@@ -19,20 +19,23 @@ import java.net.URL;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.Base64Utility;
-import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.*;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
-import org.kuali.kfs.fp.document.DisbursementVoucherDocument.DISBURSEMENT_VOUCHER_TRIP_ASSOCIATIONS;
+import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.kfs.sys.service.NonTransactional;
 import org.kuali.rice.core.util.ClassLoaderUtils;
 import org.kuali.rice.core.util.ContextClassLoaderBinder;
+import org.kuali.rice.kns.bo.PersistableBusinessObjectBase;
+import org.kuali.rice.kns.service.BusinessObjectService;
 import org.kuali.rice.kns.util.GlobalVariables;
 import org.kuali.rice.kns.util.spring.Cached;
+
+import edu.cornell.kfs.fp.document.interfaces.CULegacyTravelIntegrationInterface;
+import edu.cornell.kfs.fp.document.service.CULegacyTravelService;
 
 /**
  * This is the default implementation of the CULegacyTravelService interface.
@@ -48,6 +51,11 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
     	public static final String UPDATE_TRIP = "updateTrip";
     }
     
+    public static final class TRIP_ASSOCIATIONS {
+    	public static final String IS_TRIP_DV = "1";
+    	public static final String IS_NOT_TRIP_DV = "0";
+    }
+    
     public static final String KFS_DOC_VOIDED = "VOID";
     public static final String KFS_DOC_APPROVED = "APPROVE";
     public static final String KFS_DOC_COMPLETED = "COMPLETE";
@@ -58,6 +66,7 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
     private String updateTripUser;
     private String updateTripPassword;
     
+    /*
 	@Cached
 	public boolean isLegacyTravelGeneratedKfsDocument(String docID) {
         Client client = null;
@@ -86,6 +95,7 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
         	ContextClassLoaderBinder.bind(classLoader);
         }
 	}
+	*/
 	
     @Cached
 	public String getLegacyTripID(String docID) {
@@ -159,9 +169,11 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
         }
 	}
 	
+	/*
 	public boolean updateLegacyTrip(String docID) {
 		return true;
 	}
+	*/
 	
     /**
 	 * @return the updateTripWsdl
@@ -281,25 +293,31 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
 		}
 	}
 
-	public boolean isDisbursementVoucherDocumentAssociatedWithTrip(DisbursementVoucherDocument disbursemntVoucherDocument) {
+	public boolean isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(CULegacyTravelIntegrationInterface cuLegacyTravelIntegrationInterace) {
 		// TODO Auto-generated method stub
-		if (StringUtils.isBlank(disbursemntVoucherDocument.getTripAssociationStatusCode())) {
-			String tripId = getLegacyTripID(disbursemntVoucherDocument.getDocumentNumber());
+		//System.err.println("isCULegacyTravelIntegrationInterfaceAssociatedWithTrip");
+		if (StringUtils.isBlank(cuLegacyTravelIntegrationInterace.getTripAssociationStatusCode())) {
+			String tripId = getLegacyTripID(cuLegacyTravelIntegrationInterace.getDocumentNumber());
+			//System.err.println("  status not set, tripId: " + tripId + "  getDocumentNumber(): " + cuLegacyTravelIntegrationInterace.getDocumentNumber());
 			if (StringUtils.isBlank(tripId)) {
-				disbursemntVoucherDocument.setTripAssociationStatusCode(DISBURSEMENT_VOUCHER_TRIP_ASSOCIATIONS.IS_NOT_TRIP_DV);
-				disbursemntVoucherDocument.setTripId(StringUtils.EMPTY);
+				cuLegacyTravelIntegrationInterace.setTripAssociationStatusCode(TRIP_ASSOCIATIONS.IS_NOT_TRIP_DV);
+				cuLegacyTravelIntegrationInterace.setTripId(StringUtils.EMPTY);
 			} else {
-				disbursemntVoucherDocument.setTripAssociationStatusCode(DISBURSEMENT_VOUCHER_TRIP_ASSOCIATIONS.IS_TRIP_DV);
-				disbursemntVoucherDocument.setTripId(tripId);
+				cuLegacyTravelIntegrationInterace.setTripAssociationStatusCode(TRIP_ASSOCIATIONS.IS_TRIP_DV);
+				cuLegacyTravelIntegrationInterace.setTripId(tripId);
 			}
+			//PersistableBusinessObjectBase pbo = (PersistableBusinessObjectBase) cuLegacyTravelIntegrationInterace;
+			//SpringContext.getBean(BusinessObjectService.class).save(pbo);
 		}
-		return StringUtils.equals(DISBURSEMENT_VOUCHER_TRIP_ASSOCIATIONS.IS_TRIP_DV, 
-				disbursemntVoucherDocument.getTripAssociationStatusCode());
+		boolean retVal = StringUtils.equals(TRIP_ASSOCIATIONS.IS_TRIP_DV, 
+				cuLegacyTravelIntegrationInterace.getTripAssociationStatusCode());
+		//System.err.println("  retVal: " + (retVal));
+		return retVal;
 	}
 
-	public String getLegacyTripIDFromDisbursementVoucherDocument(DisbursementVoucherDocument disbursemntVoucherDocument) {
-		if (isDisbursementVoucherDocumentAssociatedWithTrip(disbursemntVoucherDocument)) {
-			return disbursemntVoucherDocument.getTripId();
+	public String getLegacyTripIDFromCULegacyTravelIntegrationInterface(CULegacyTravelIntegrationInterface cuLegacyTravelIntegrationInterace) {
+		if (isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(cuLegacyTravelIntegrationInterace)) {
+			return cuLegacyTravelIntegrationInterace.getTripId();
 		} else {
 			return StringUtils.EMPTY;
 		}
