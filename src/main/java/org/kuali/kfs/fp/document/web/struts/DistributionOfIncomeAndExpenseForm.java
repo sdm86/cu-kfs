@@ -15,6 +15,7 @@
  */
 package org.kuali.kfs.fp.document.web.struts;
 
+import org.apache.commons.lang.StringUtils;
 import org.kuali.kfs.fp.businessobject.CapitalAssetInformation;
 import org.kuali.kfs.fp.document.CapitalAssetEditable;
 import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
@@ -79,7 +80,7 @@ public class DistributionOfIncomeAndExpenseForm extends KualiAccountingDocumentF
      */
     public boolean getCanViewTrip() {
     	//boolean canViewTrip = SpringContext.getBean(CULegacyTravelService.class).isLegacyTravelGeneratedKfsDocument(this.getDocId());;
-    	DisbursementVoucherDocument disbursementVoucherDocument = (DisbursementVoucherDocument)this.getDocument();
+    	DistributionOfIncomeAndExpenseDocument disbursementVoucherDocument = (DistributionOfIncomeAndExpenseDocument)this.getDocument();
     	boolean canViewTrip = SpringContext.getBean(CULegacyTravelService.class).isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(disbursementVoucherDocument);
     	return canViewTrip;
     }
@@ -90,8 +91,9 @@ public class DistributionOfIncomeAndExpenseForm extends KualiAccountingDocumentF
      * @return
      */
     public String getTripUrl() {
-    	String tripID = SpringContext.getBean(CULegacyTravelService.class).getLegacyTripID(this.getDocId());
-    	LOG.info("getTripUrl() called");
+    	//String tripID = SpringContext.getBean(CULegacyTravelService.class).getLegacyTripID(this.getDocId());
+    	String tripID = this.getTripID();
+    	//LOG.info("getTripUrl() called");
     	StringBuffer url = new StringBuffer();
     	url.append(SpringContext.getBean(CULegacyTravelService.class).getTravelUrl());
         url.append("/navigation?form_action=0&tripid=").append(tripID).append("&link=true");
@@ -103,7 +105,15 @@ public class DistributionOfIncomeAndExpenseForm extends KualiAccountingDocumentF
      * @return
      */
     public String getTripID() {
-    	return SpringContext.getBean(CULegacyTravelService.class).getLegacyTripID(this.getDocId());
+    	DistributionOfIncomeAndExpenseDocument did = (DistributionOfIncomeAndExpenseDocument) this.getDocument();
+    	//return SpringContext.getBean(CULegacyTravelService.class).getLegacyTripID(this.getDocId());
+    	boolean isAssociated = SpringContext.getBean(CULegacyTravelService.class).isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(did);
+    	//return SpringContext.getBean(CULegacyTravelService.class).getLegacyTripID(this.getDocId());
+    	if (isAssociated) {
+    		return did.getTripId();
+    	} else {
+    		return StringUtils.EMPTY;
+    	}
     }
     
 

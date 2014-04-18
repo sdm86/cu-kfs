@@ -454,8 +454,9 @@ public class DisbursementVoucherForm extends KualiAccountingDocumentFormBase {
      * @return
      */
     public String getTripUrl() {
-    	String tripID = SpringContext.getBean(CULegacyTravelService.class).getLegacyTripID(this.getDocId());
-    	LOG.info("getTripUrl() called");
+    	//String tripID = SpringContext.getBean(CULegacyTravelService.class).getLegacyTripID(this.getDocId());
+    	String tripID = this.getTripID();
+    	//LOG.info("getTripUrl() called");
     	StringBuffer url = new StringBuffer();
     	url.append(SpringContext.getBean(CULegacyTravelService.class).getTravelUrl());
         url.append("/navigation?form_action=0&tripid=").append(tripID).append("&link=true");
@@ -467,7 +468,14 @@ public class DisbursementVoucherForm extends KualiAccountingDocumentFormBase {
      * @return
      */
     public String getTripID() {
-    	return SpringContext.getBean(CULegacyTravelService.class).getLegacyTripID(this.getDocId());
+    	DisbursementVoucherDocument dvd = (DisbursementVoucherDocument) this.getDocument();
+    	boolean isAssociated = SpringContext.getBean(CULegacyTravelService.class).isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(dvd);
+    	//return SpringContext.getBean(CULegacyTravelService.class).getLegacyTripID(this.getDocId());
+    	if (isAssociated) {
+    		return dvd.getTripId();
+    	} else {
+    		return StringUtils.EMPTY;
+    	}
     }
     
     // KFSPTS-2527
