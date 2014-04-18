@@ -25,12 +25,9 @@ import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.*;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.kfs.sys.service.NonTransactional;
 import org.kuali.rice.core.util.ClassLoaderUtils;
 import org.kuali.rice.core.util.ContextClassLoaderBinder;
-import org.kuali.rice.kns.bo.PersistableBusinessObjectBase;
-import org.kuali.rice.kns.service.BusinessObjectService;
 import org.kuali.rice.kns.util.GlobalVariables;
 import org.kuali.rice.kns.util.spring.Cached;
 
@@ -294,11 +291,8 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
 	}
 
 	public boolean isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(CULegacyTravelIntegrationInterface cuLegacyTravelIntegrationInterace) {
-		// TODO Auto-generated method stub
-		//System.err.println("isCULegacyTravelIntegrationInterfaceAssociatedWithTrip");
 		if (StringUtils.isBlank(cuLegacyTravelIntegrationInterace.getTripAssociationStatusCode())) {
 			String tripId = getLegacyTripID(cuLegacyTravelIntegrationInterace.getDocumentNumber());
-			//System.err.println("  status not set, tripId: " + tripId + "  getDocumentNumber(): " + cuLegacyTravelIntegrationInterace.getDocumentNumber());
 			if (StringUtils.isBlank(tripId)) {
 				cuLegacyTravelIntegrationInterace.setTripAssociationStatusCode(TRIP_ASSOCIATIONS.IS_NOT_TRIP_DV);
 				cuLegacyTravelIntegrationInterace.setTripId(StringUtils.EMPTY);
@@ -306,12 +300,9 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
 				cuLegacyTravelIntegrationInterace.setTripAssociationStatusCode(TRIP_ASSOCIATIONS.IS_TRIP_DV);
 				cuLegacyTravelIntegrationInterace.setTripId(tripId);
 			}
-			//PersistableBusinessObjectBase pbo = (PersistableBusinessObjectBase) cuLegacyTravelIntegrationInterace;
-			//SpringContext.getBean(BusinessObjectService.class).save(pbo);
 		}
 		boolean retVal = StringUtils.equals(TRIP_ASSOCIATIONS.IS_TRIP_DV, 
 				cuLegacyTravelIntegrationInterace.getTripAssociationStatusCode());
-		//System.err.println("  retVal: " + (retVal));
 		return retVal;
 	}
 
