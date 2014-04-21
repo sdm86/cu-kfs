@@ -49,8 +49,8 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
     }
     
     public static final class TRIP_ASSOCIATIONS {
-    	public static final String IS_TRIP_DV = "1";
-    	public static final String IS_NOT_TRIP_DV = "0";
+    	public static final String IS_TRIP_DOC = "1";
+    	public static final String IS_NOT_TRIP_DOC = "0";
     }
     
     public static final String KFS_DOC_VOIDED = "VOID";
@@ -62,37 +62,6 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
     private String updateTripEndpoint;
     private String updateTripUser;
     private String updateTripPassword;
-    
-    /*
-	@Cached
-	public boolean isLegacyTravelGeneratedKfsDocument(String docID) {
-        Client client = null;
-        // Need to grab copy of current class loader because call to web services wrecks class loader, so we want to restore it following call.
-        ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
-        try {
-			URL wsdlUrl = new URL(updateTripWsdl);
-			
-			JaxWsDynamicClientFactory dcf = JaxWsDynamicClientFactory.newInstance();
-			client = dcf.createClient(wsdlUrl);
-			  
-			configureWebServiceClient(client);
-			  
-			Object[] results1 = client.invoke(DFA_TRAVEL_WS_METHODS.GET_TRIP_ID, docID);
-			String tripID = (String)results1[0];
-			return StringUtils.isNotBlank(tripID);
-        } catch (Exception ex) {
-        	LOG.error("Exception occurred while trying to identify KFS doc as travel KFS doc.", ex);
-      	  	ex.printStackTrace();
-      	  	return false;
-        } finally {
-        	if(client != null) {
-        		client.destroy();
-        	}
-        	// Restore class loader that was grabbed before call to web service
-        	ContextClassLoaderBinder.bind(classLoader);
-        }
-	}
-	*/
 	
     @Cached
 	public String getLegacyTripID(String docID) {
@@ -165,12 +134,6 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
         	ContextClassLoaderBinder.bind(classLoader);
         }
 	}
-	
-	/*
-	public boolean updateLegacyTrip(String docID) {
-		return true;
-	}
-	*/
 	
     /**
 	 * @return the updateTripWsdl
@@ -289,30 +252,36 @@ public class CULegacyTravelServiceImpl implements edu.cornell.kfs.fp.document.se
 			return createUserPass(updateTripUser, updateTripPassword);
 		}
 	}
-
+	
+	/**
+	 * Determines if the passed in CULegacyTravelIntegrationInterface (Disbursement Voucher Document, or Distribution of Incum Document
+	 * is associated with a trip.  Either way, this function sets internval of document for the trip association status code and the trip ID.
+	 */
 	public boolean isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(CULegacyTravelIntegrationInterface cuLegacyTravelIntegrationInterace) {
 		if (StringUtils.isBlank(cuLegacyTravelIntegrationInterace.getTripAssociationStatusCode())) {
 			String tripId = getLegacyTripID(cuLegacyTravelIntegrationInterace.getDocumentNumber());
 			if (StringUtils.isBlank(tripId)) {
-				cuLegacyTravelIntegrationInterace.setTripAssociationStatusCode(TRIP_ASSOCIATIONS.IS_NOT_TRIP_DV);
+				cuLegacyTravelIntegrationInterace.setTripAssociationStatusCode(TRIP_ASSOCIATIONS.IS_NOT_TRIP_DOC);
 				cuLegacyTravelIntegrationInterace.setTripId(StringUtils.EMPTY);
 			} else {
-				cuLegacyTravelIntegrationInterace.setTripAssociationStatusCode(TRIP_ASSOCIATIONS.IS_TRIP_DV);
+				cuLegacyTravelIntegrationInterace.setTripAssociationStatusCode(TRIP_ASSOCIATIONS.IS_TRIP_DOC);
 				cuLegacyTravelIntegrationInterace.setTripId(tripId);
 			}
 		}
-		boolean retVal = StringUtils.equals(TRIP_ASSOCIATIONS.IS_TRIP_DV, 
+		boolean retVal = StringUtils.equals(TRIP_ASSOCIATIONS.IS_TRIP_DOC, 
 				cuLegacyTravelIntegrationInterace.getTripAssociationStatusCode());
 		return retVal;
 	}
-
+	
+	/**
+	 * Returns the TRIP ID of the passed in CULegacyTravelIntegrationInterface.  If the CULegacyTravelIntegrationInterface is not
+	 * associated with a trip, an empty string is returned.
+	 */
 	public String getLegacyTripIDFromCULegacyTravelIntegrationInterface(CULegacyTravelIntegrationInterface cuLegacyTravelIntegrationInterace) {
 		if (isCULegacyTravelIntegrationInterfaceAssociatedWithTrip(cuLegacyTravelIntegrationInterace)) {
 			return cuLegacyTravelIntegrationInterace.getTripId();
 		} else {
 			return StringUtils.EMPTY;
 		}
-	}
-
-	
+	}	
 }

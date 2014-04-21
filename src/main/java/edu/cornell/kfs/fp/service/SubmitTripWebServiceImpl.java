@@ -167,7 +167,7 @@ public class SubmitTripWebServiceImpl implements SubmitTripWebService {
 
 			dvDoc.setDisbVchrCheckStubText(checkStubText);
 			dvDoc.setTripId(tripNumber);
-			dvDoc.setTripAssociationStatusCode(CULegacyTravelServiceImpl.TRIP_ASSOCIATIONS.IS_TRIP_DV);
+			dvDoc.setTripAssociationStatusCode(CULegacyTravelServiceImpl.TRIP_ASSOCIATIONS.IS_TRIP_DOC);
 			// Persist document
 			SpringContext.getBean(DocumentService.class).saveDocument(dvDoc);
 			
@@ -215,7 +215,7 @@ public class SubmitTripWebServiceImpl implements SubmitTripWebService {
         	diDoc.getDocumentHeader().setDocumentDescription(diDescription);
         	diDoc.getDocumentHeader().setExplanation(diExplanation);
         	diDoc.getDocumentHeader().setOrganizationDocumentNumber(tripNumber);
-        	diDoc.setTripAssociationStatusCode(CULegacyTravelServiceImpl.TRIP_ASSOCIATIONS.IS_TRIP_DV);
+        	diDoc.setTripAssociationStatusCode(CULegacyTravelServiceImpl.TRIP_ASSOCIATIONS.IS_TRIP_DOC);
         	diDoc.setTripId(tripNumber);
 			
 			// Persist document
