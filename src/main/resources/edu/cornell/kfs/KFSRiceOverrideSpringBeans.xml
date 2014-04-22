@@ -4,10 +4,10 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
     <!-- Our CUWebAuthAuthenticationService is a RemoteUserAuthenticationService subclass that can 
-         also look at the HTTP headers that CUWebAuth exposes 
+         also look at the HTTP headers that CUWebAuth exposes -->
     <bean id="kimAuthenticationService" class="edu.cornell.cynergy.service.impl.CUWebAuthAuthenticationService">
         <property name="useHttpHeaders"><value>${cynergy.cuwal.useHttpHeaders}</value></property>
-     </bean>-->
+    </bean>
     
   
     <!-- override encryption services  -->
@@ -65,14 +65,14 @@
             <ref bean="lastLoginTimeDAO" />
         </property>
     </bean>
-        
+   
    <!-- CYNERGY-2210: Added the "reloadActionListDAO" bean needed for the "RELOAD_ACTION_LIST" fix. -->
     <bean id="reloadActionListDAO" class="org.kuali.rice.kew.useroptions.dao.impl.ReloadActionListDaoJdbcImpl">
         <constructor-arg>
-           <ref bean="kewNonTransactionalDataSource"/>
+            <ref bean="kewNonTransactionalDataSource"/>
         </constructor-arg>
-   </bean>
-   
+    </bean>
+    
     <!-- CYNERGY-2365: Added a new "lastLoginTimeDAO" bean for tracking each user's most recent login. -->
     <bean id="lastLoginTimeDAO" class="edu.cornell.cynergy.kew.useroptions.dao.impl.LastLoginTimeDaoJdbcImpl">
         <constructor-arg>
@@ -94,7 +94,7 @@
         <property name="initialSize" value="5"/> 
         <property name="accessToUnderlyingConnectionAllowed" value="true"/> 
     </bean> 
-
+    
     
     <!-- KFSPTS-1735 -->
     <bean id="documentService" class="edu.cornell.kfs.sys.document.service.impl.CUFinancialSystemDocumentServiceImpl">
