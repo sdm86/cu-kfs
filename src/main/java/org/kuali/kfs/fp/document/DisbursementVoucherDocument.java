@@ -99,6 +99,7 @@ import org.kuali.rice.kns.util.ObjectUtils;
 
 import edu.cornell.kfs.fp.businessobject.CuDisbursementVoucherWireTransfer;
 import edu.cornell.kfs.fp.businessobject.DisbursementVoucherPayeeDetailExtension;
+import edu.cornell.kfs.fp.businessobject.DisbursementVoucherWireTransferExtendedAttribute;
 import edu.cornell.kfs.fp.service.CUPaymentMethodGeneralLedgerPendingEntryService;
 import edu.cornell.kfs.vnd.businessobject.VendorDetailExtension;
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -182,7 +183,7 @@ public class DisbursementVoucherDocument extends AccountingDocumentBase implemen
     protected DisbursementVoucherNonResidentAlienTax dvNonResidentAlienTax;
     protected DisbursementVoucherPayeeDetail dvPayeeDetail;
     protected DisbursementVoucherPreConferenceDetail dvPreConferenceDetail;
-    protected CuDisbursementVoucherWireTransfer dvWireTransfer;
+    protected DisbursementVoucherWireTransfer dvWireTransfer;
 
     protected Bank bank;
     private static CUPaymentMethodGeneralLedgerPendingEntryService paymentMethodGeneralLedgerPendingEntryService;
@@ -198,7 +199,7 @@ public class DisbursementVoucherDocument extends AccountingDocumentBase implemen
         dvNonResidentAlienTax = new DisbursementVoucherNonResidentAlienTax();
         dvPayeeDetail = new DisbursementVoucherPayeeDetail();
         dvPreConferenceDetail = new DisbursementVoucherPreConferenceDetail();
-        dvWireTransfer = new CuDisbursementVoucherWireTransfer();
+        dvWireTransfer = new DisbursementVoucherWireTransfer();
         disbVchrCheckTotalAmount = KualiDecimal.ZERO;
         bank = new Bank();
     }
@@ -1293,6 +1294,7 @@ public class DisbursementVoucherDocument extends AccountingDocumentBase implemen
 
         if (dvWireTransfer != null) {
             dvWireTransfer.setDocumentNumber(this.documentNumber);
+            ((DisbursementVoucherWireTransferExtendedAttribute)dvWireTransfer.getExtension()).setDocumentNumber(this.documentNumber);
         }
 
         if (dvNonResidentAlienTax != null) {
