@@ -72,7 +72,7 @@
 			<ref bean="dateTimeService" />
 		</property>
 		<property name="pdfDirectory">
-			<value>/infra/receipt_processing/CIT-csv-archive</value>
+			<value>/infra/receipt_processing</value>
 		</property>
 	</bean>
 	

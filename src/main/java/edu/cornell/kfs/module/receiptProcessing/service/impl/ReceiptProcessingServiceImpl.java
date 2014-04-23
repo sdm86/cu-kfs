@@ -271,7 +271,7 @@ public class ReceiptProcessingServiceImpl implements ReceiptProcessingService {
     
     protected void getcsvWriter(String csvDoc) {
         
-        String reportDropFolder = pdfDirectory + "/";
+        String reportDropFolder = pdfDirectory + "/CIT-csv-archive";
         String fileName = "CIT_OUT_" +
             new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(dateTimeService.getCurrentDate()) + ".csv";
         
