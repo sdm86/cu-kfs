@@ -338,7 +338,7 @@
 	<field-descriptor name="disbVchrCorrespondentBankAddress" column="DV_CRSPNDT_BNK_ADDR" jdbc-type="VARCHAR" />
 	<field-descriptor name="disbVchrCorrespondentBankRoutingNumber" column="DV_CRSPNDT_BNK_RTNG_NBR" jdbc-type="VARCHAR" />
 	<field-descriptor name="disbVchrCorrespondentBankAccountNumber" column="DV_CRSPNDT_BNK_ACCT_NBR" jdbc-type="VARCHAR" />
-	<field-descriptor name="disbVchrCorrespondentBankSwiftCode" column="DV_CRSPNDT_BNK_ADDR_SWIFT_CD" jdbc-type="VARCHAR" />
+	<field-descriptor name="disbVchrCorrespondentBankSwiftCode" column="DV_CRSPNDT_BNK_SWIFT_CD" jdbc-type="VARCHAR" />
 
 </class-descriptor>
 
