@@ -97,7 +97,6 @@ import org.kuali.rice.kns.util.KNSConstants;
 import org.kuali.rice.kns.util.KualiDecimal;
 import org.kuali.rice.kns.util.ObjectUtils;
 
-import edu.cornell.kfs.fp.businessobject.CuDisbursementVoucherWireTransfer;
 import edu.cornell.kfs.fp.businessobject.DisbursementVoucherPayeeDetailExtension;
 import edu.cornell.kfs.fp.businessobject.DisbursementVoucherWireTransferExtendedAttribute;
 import edu.cornell.kfs.fp.service.CUPaymentMethodGeneralLedgerPendingEntryService;
@@ -716,7 +715,7 @@ public class DisbursementVoucherDocument extends AccountingDocumentBase implemen
     /**
      * @param dvWireTransfer The dvWireTransfer to set.
      */
-    public void setDvWireTransfer(CuDisbursementVoucherWireTransfer dvWireTransfer) {
+    public void setDvWireTransfer(DisbursementVoucherWireTransfer dvWireTransfer) {
         this.dvWireTransfer = dvWireTransfer;
     }
 
