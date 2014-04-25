@@ -106,9 +106,6 @@
     <property name="label" value="Bank Sort or Transit Code"/>
     <property name="shortLabel" value="Bnk Sort Cd"/>
     <property name="maxLength" value="8"/>
-        <property name="validationPattern">
-      <bean parent="BankSortOrTransitCodeValidationPattern"/>
-    </property>
     <property name="required" value="false"/>
     <property name="control">
       <bean parent="TextControlDefinition" p:size="8"/>
@@ -134,10 +131,10 @@
     <property name="forceUppercase" value="false"/>
     <property name="label" value="Correspondent Bank Address"/>
     <property name="shortLabel" value="Corresp Bnk Addr"/>
-    <property name="maxLength" value="9"/>
+    <property name="maxLength" value="500"/>
     <property name="required" value="false"/>
     <property name="control">
-      <bean parent="TextControlDefinition" p:size="9"/>
+      <bean parent="TextControlDefinition" p:size="40"/>
     </property>
   </bean>
   <bean id="DisbursementVoucherWireTransferExtendedAttribute-disbVchrCorrespondentBankRoutingNumber" parent="DisbursementVoucherWireTransferExtendedAttribute-disbVchrCorrespondentBankRoutingNumber-parentBean"/>
@@ -183,10 +180,10 @@
     <property name="forceUppercase" value="false"/>
     <property name="label" value="Correspondent Bank SWIFT Code"/>
     <property name="shortLabel" value="Corresp Bnk SWIFT Cd"/>
-    <property name="maxLength" value="8"/>
+    <property name="maxLength" value="18"/>
     <property name="required" value="false"/>
     <property name="control">
-      <bean parent="TextControlDefinition" p:size="8"/>
+      <bean parent="TextControlDefinition" p:size="18"/>
     </property>
   </bean>      
 

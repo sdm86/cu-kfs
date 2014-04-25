@@ -138,13 +138,13 @@
               </tr>
               
               <tr>
-                <td colspan=4 align=center valign=middle class="datacell"><bean:message key="message.wiretransfer.foreign.wires.additional.data"/></td>
+                <td colspan=4 align=center valign=middle class="tab-subhead"><b><bean:message key="message.wiretransfer.foreign.wires.additional.data"/></b></td>
               </tr>
               
               <tr>
                 <th scope=row class="bord-l-b" colspan="2"><div align="right">&nbsp;</div></th>
                 <td class="datacell" colspan="2">
-                  <bean:message key="message.wiretransfer.correspondent.bank"/>
+                 <b> <bean:message key="message.wiretransfer.correspondent.bank"/></b>
                 </td>
               </tr>
               
