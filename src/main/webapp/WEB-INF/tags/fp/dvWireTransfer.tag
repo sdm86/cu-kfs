@@ -208,7 +208,7 @@
               
               <tr>
                 <td class="datacell" colspan="2">
-                  <bean:message key="message.wiretransfer.use.IBAN"/>
+                  <b><bean:message key="message.wiretransfer.use.IBAN"/></b>
                 </td>
                 <th scope=row class="bord-l-b" ><div align="right"><kul:htmlAttributeLabel attributeEntry="${wireTransAttributes2.disbVchrCorrespondentBankAccountNumber}"/></div></th>
                 <td class="datacell">
