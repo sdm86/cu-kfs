@@ -81,13 +81,13 @@
     <property name="forceUppercase" value="false"/>
     <property name="label" value="Bank IBAN #, Account # or CLABE (Mexico)"/>
     <property name="shortLabel" value="Bnk IBAN"/>
-    <property name="maxLength" value="30"/>
+    <property name="maxLength" value="34"/>
     <property name="validationPattern" >
       <bean parent="AlphaNumericValidationPattern" />
     </property>
     <property name="required" value="false"/>
     <property name="control">
-      <bean parent="TextControlDefinition" p:size="30"/>
+      <bean parent="TextControlDefinition" p:size="34"/>
     </property>
     <property name="attributeSecurity">
 		<bean parent="AttributeSecurity">
