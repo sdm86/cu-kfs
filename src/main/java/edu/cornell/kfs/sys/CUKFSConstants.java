@@ -84,5 +84,9 @@ public class CUKFSConstants {
     public static final String LD_DIR = "ld";
     public static final String ENTERPRISE_FEED_DIR = "enterpriseFeed";
     public static final String FILE_SEPARATOR = "file.separator";
+    
+    public static final String DV_WIRETRANSFER_TAB_ERRORS_EXTENSION_FIELDS = "document.dvWireTransfer.extension.disbVchrBankStreetAddress,document.dvWireTransfer.extension.disbVchrBankProvince,document.dvWireTransfer.extension.disbVchrBankIBAN,document.dvWireTransfer.extension.disbVchrCorrespondentBankName,document.dvWireTransfer.extension.disbVchrBankSWIFTCode,document.dvWireTransfer.extension.disbVchrCorrespondentBankAddress,document.dvWireTransfer.extension.disbVchrSortOrTransitCode,document.dvWireTransfer.extension.disbVchrCorrespondentBankSwiftCode,document.dvWireTransfer.extension.disbVchrCorrespondentBankRoutingNumber,document.dvWireTransfer.extension.disbVchrCorrespondentBankAccountNumber";
+    public static final String DV_WIRETRANSFER_TAB_ERRORS = "DVWireTransfersErrors,document.dvWireTransfer.disbursementVoucherBankName,document.dvWireTransfer.disbVchrBankRoutingNumber,document.dvWireTransfer.disbVchrBankCityName,document.dvWireTransfer.disbVchrBankStateCode," + "document.dvWireTransfer.disbVchrBankCountryCode,document.dvWireTransfer.disbVchrAttentionLineText,document.dvWireTransfer.disbVchrAdditionalWireText,document.dvWireTransfer.disbVchrPayeeAccountNumber,document.dvWireTransfer.disbVchrCurrencyTypeName,document.dvWireTransfer.disbVchrCurrencyTypeCode," + "document.dvWireTransfer.disbursementVoucherWireTransferFeeWaiverIndicator,document.dvWireTransfer.disbursementVoucherPayeeAccountName,document.dvWireTransfer.disbursementVoucherPayeeAccountTypeCode,document.dvWireTransfer.disbursementVoucherAutomatedClearingHouseProfileNumber," + DV_WIRETRANSFER_TAB_ERRORS_EXTENSION_FIELDS;
+
         
 }
