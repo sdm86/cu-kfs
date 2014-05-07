@@ -9,7 +9,6 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.kuali.kfs.fp.businessobject.WireCharge;
-import org.kuali.kfs.module.purap.document.VendorCreditMemoDocument;
 import org.kuali.kfs.module.purap.document.web.struts.VendorCreditMemoAction;
 import org.kuali.kfs.module.purap.document.web.struts.VendorCreditMemoForm;
 import org.kuali.kfs.sys.KFSConstants;
@@ -18,7 +17,6 @@ import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.kfs.sys.service.UniversityDateService;
 import org.kuali.rice.core.api.config.property.ConfigurationService;
 import org.kuali.rice.kew.api.exception.WorkflowException;
-import org.kuali.rice.kew.util.KEWConstants;
 import org.kuali.rice.kns.service.DocumentHelperService;
 import org.kuali.rice.kns.web.struts.form.KualiDocumentFormBase;
 import org.kuali.rice.krad.document.DocumentAuthorizer;
@@ -33,7 +31,7 @@ public class CuVendorCreditMemoAction extends VendorCreditMemoAction {
 	protected void createDocument(KualiDocumentFormBase kualiDocumentFormBase) throws WorkflowException {
 		super.createDocument(kualiDocumentFormBase);
         // set wire charge message in form
-        ((VendorCreditMemoForm) kualiDocumentFormBase).setWireChargeMessage(retrieveWireChargeMessage());
+        ((CuVendorCreditMemoForm) kualiDocumentFormBase).setWireChargeMessage(retrieveWireChargeMessage());
 	}
 	
     protected String retrieveWireChargeMessage() {

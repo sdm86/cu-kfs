@@ -37,11 +37,12 @@ import org.kuali.rice.core.api.parameter.ParameterEvaluatorService;
 import org.kuali.rice.core.api.util.type.KualiDecimal;
 import org.kuali.rice.core.api.util.type.KualiInteger;
 import org.kuali.rice.kew.api.exception.WorkflowException;
-import org.kuali.rice.kns.service.DataDictionaryService;
+import org.kuali.rice.krad.service.DataDictionaryService;
 
 import edu.cornell.kfs.fp.businessobject.CuDisbursementVoucherPayeeDetail;
 import edu.cornell.kfs.fp.document.CuDisbursementVoucherConstants;
 import edu.cornell.kfs.fp.document.CuDisbursementVoucherDocument;
+import edu.cornell.kfs.fp.service.CUPaymentMethodGeneralLedgerPendingEntryService;
 
 public class CuDisbursementVoucherExtractServiceImpl extends DisbursementVoucherExtractServiceImpl {
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(DisbursementVoucherExtractServiceImpl.class);
@@ -436,7 +437,7 @@ public class CuDisbursementVoucherExtractServiceImpl extends DisbursementVoucher
         Collection<DisbursementVoucherDocument> list = new ArrayList<DisbursementVoucherDocument>();
 
         try {
-            Collection<DisbursementVoucherDocument> docs = SpringContext.getBean(FinancialSystemDocumentService.class).findByDocumentHeaderStatusCode(SpringContext.getBean(DataDictionaryService.class).getDocumentClassByTypeName("DV"), statusCode);
+            Collection<DisbursementVoucherDocument> docs = (Collection<DisbursementVoucherDocument>) SpringContext.getBean(FinancialSystemDocumentService.class).findByDocumentHeaderStatusCode(SpringContext.getBean(DataDictionaryService.class).getDocumentClassByTypeName("DV"), statusCode);
             for (DisbursementVoucherDocument doc : docs) {
                 String docCampusCode = doc.getCampusCode();
 

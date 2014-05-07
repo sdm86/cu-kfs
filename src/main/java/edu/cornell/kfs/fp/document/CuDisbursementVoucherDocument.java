@@ -35,7 +35,6 @@ import org.kuali.rice.coreservice.framework.parameter.ParameterService;
 import org.kuali.rice.kew.actiontaken.ActionTakenValue;
 import org.kuali.rice.kew.api.exception.WorkflowException;
 import org.kuali.rice.kew.engine.RouteContext;
-import org.kuali.rice.kew.util.KEWConstants;
 import org.kuali.rice.kim.api.KimConstants;
 import org.kuali.rice.kim.api.identity.Person;
 import org.kuali.rice.kim.api.identity.address.EntityAddress;
@@ -437,8 +436,7 @@ public class CuDisbursementVoucherDocument extends DisbursementVoucherDocument {
         }
         // KFSPTS-1891.  This is from uadisbvdocument.  
         // TODO : need to check again to see if cornell need this
-        if ( KEWConstants.ROUTE_HEADER_INITIATED_CD.equals( getDocumentHeader().getWorkflowDocument().getRouteHeader().getDocRouteStatus() )
-                || KEWConstants.ROUTE_HEADER_SAVED_CD.equals( getDocumentHeader().getWorkflowDocument().getRouteHeader().getDocRouteStatus() ) ) {
+        if ( getDocumentHeader().getWorkflowDocument().isInitiated() ||  getDocumentHeader().getWorkflowDocument().isSaved() ) {
             // need to check whether the user has the permission to edit the bank code
             // if so, don't synchronize since we can't tell whether the value coming in
             // was entered by the user or not.        

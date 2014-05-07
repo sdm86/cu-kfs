@@ -47,6 +47,7 @@ import org.kuali.kfs.sys.businessobject.AccountingLine;
 import org.kuali.kfs.sys.businessobject.Bank;
 import org.kuali.kfs.sys.businessobject.GeneralLedgerPendingEntry;
 import org.kuali.kfs.sys.businessobject.GeneralLedgerPendingEntrySequenceHelper;
+import org.kuali.kfs.sys.businessobject.SystemOptions;
 import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.kfs.sys.document.AccountingDocument;
 import org.kuali.kfs.sys.document.GeneralLedgerPostingDocument;
@@ -55,16 +56,17 @@ import org.kuali.kfs.sys.document.validation.impl.AccountingDocumentRuleBaseCons
 import org.kuali.kfs.sys.service.BankService;
 import org.kuali.kfs.sys.service.GeneralLedgerPendingEntryService;
 import org.kuali.kfs.sys.service.NonTransactional;
-import org.kuali.rice.kns.service.BusinessObjectService;
-import org.kuali.rice.kns.service.ParameterService;
-import org.kuali.rice.kns.util.KNSConstants;
-import org.kuali.rice.kns.util.KualiDecimal;
-import org.kuali.rice.kns.util.ObjectUtils;
-import org.kuali.rice.kns.util.spring.CacheNoCopy;
+import org.kuali.rice.core.api.util.type.KualiDecimal;
+import org.kuali.rice.coreservice.framework.parameter.ParameterService;
+import org.kuali.rice.krad.service.BusinessObjectService;
+import org.kuali.rice.krad.util.KRADConstants;
+import org.kuali.rice.krad.util.ObjectUtils;
+import org.springframework.cache.annotation.Cacheable;
 
 import edu.cornell.kfs.fp.businessobject.PaymentMethod;
 import edu.cornell.kfs.fp.businessobject.PaymentMethodChart;
 import edu.cornell.kfs.fp.service.CUPaymentMethodGeneralLedgerPendingEntryService;
+import edu.cornell.kfs.module.purap.document.CuPaymentRequestDocument;
 
 @NonTransactional
 public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPaymentMethodGeneralLedgerPendingEntryService {
@@ -80,7 +82,7 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
     protected PurapGeneralLedgerService purapGeneralLedgerService; 
     
 
-    @CacheNoCopy
+    @Cacheable(value=SystemOptions.CACHE_NAME, key="'{isPaymentMethodProcessedUsingPdp}'+#p0")
     public boolean isPaymentMethodProcessedUsingPdp(String paymentMethodCode) {
         if ( StringUtils.isBlank(paymentMethodCode) ) {
             paymentMethodCode = DEFAULT_PAYMENT_METHOD_IF_MISSING;
@@ -178,9 +180,9 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
     protected boolean generateFeeAssessmentEntries(PaymentMethod pm, AccountingDocument document, GeneralLedgerPendingEntry templatePendingEntry, GeneralLedgerPendingEntrySequenceHelper sequenceHelper, boolean reverseEntries) {
         LOG.debug("generateForeignDraftChargeEntries started");
         
-        PaymentMethodChart pmc = pm.getPaymentMethodChartInfo(templatePendingEntry.getChartOfAccountsCode(), new java.sql.Date( document.getDocumentHeader().getWorkflowDocument().getCreateDate().getTime() ) );
+        PaymentMethodChart pmc = pm.getPaymentMethodChartInfo(templatePendingEntry.getChartOfAccountsCode(), new java.sql.Date( document.getDocumentHeader().getWorkflowDocument().getDateCreated().getMillis() ) );
         if ( pmc == null ) {
-            LOG.warn( "No Applicable PaymentMethodChart found for chart: " + templatePendingEntry.getChartOfAccountsCode() + " and date: " + document.getDocumentHeader().getWorkflowDocument().getCreateDate() );
+            LOG.warn( "No Applicable PaymentMethodChart found for chart: " + templatePendingEntry.getChartOfAccountsCode() + " and date: " + document.getDocumentHeader().getWorkflowDocument().getDateCreated() );
             return false;
         }
         // Get all the parameters which control these entries
@@ -305,9 +307,9 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
         for ( String chart : actualTotalsByChart.keySet() ) {
             KualiDecimal offsetAmount = actualTotalsByChart.get(chart);
             if ( !KualiDecimal.ZERO.equals(offsetAmount) ) {
-                PaymentMethodChart pmc = pm.getPaymentMethodChartInfo(chart, new java.sql.Date( document.getDocumentHeader().getWorkflowDocument().getCreateDate().getTime() ) );
+                PaymentMethodChart pmc = pm.getPaymentMethodChartInfo(chart, new java.sql.Date( document.getDocumentHeader().getWorkflowDocument().getDateCreated().getMillis() ) );
                 if ( pmc == null ) {
-                    LOG.warn( "No Applicable PaymentMethodChart found for chart: " + chart + " and date: " + document.getDocumentHeader().getWorkflowDocument().getCreateDate() );
+                    LOG.warn( "No Applicable PaymentMethodChart found for chart: " + chart + " and date: " + document.getDocumentHeader().getWorkflowDocument().getDateCreated() );
                     // skip this line - still attempt for other charts
                     continue;
                 }
@@ -443,14 +445,14 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
         GeneralLedgerPendingEntrySequenceHelper sequenceHelper = new GeneralLedgerPendingEntrySequenceHelper(getNextAvailableSequence(document.getDocumentNumber()));
 
         // generate bank offset
-        if (PaymentMethod.PM_CODE_FOREIGN_DRAFT.equalsIgnoreCase(document.getPaymentMethodCode()) || PaymentMethod.PM_CODE_WIRE.equalsIgnoreCase(document.getPaymentMethodCode())) {
-            generateDocumentBankOffsetEntries((AccountingDocument) document, document.getBankCode(), KNSConstants.DOCUMENT_PROPERTY_NAME + "." + "bankCode", document.DOCUMENT_TYPE_NON_CHECK, sequenceHelper, document.getTotalDollarAmount().negated());
+        if (PaymentMethod.PM_CODE_FOREIGN_DRAFT.equalsIgnoreCase(((CuPaymentRequestDocument)document).getPaymentMethodCode()) || PaymentMethod.PM_CODE_WIRE.equalsIgnoreCase(((CuPaymentRequestDocument)document).getPaymentMethodCode())) {
+            generateDocumentBankOffsetEntries((AccountingDocument) document, document.getBankCode(), KRADConstants.DOCUMENT_PROPERTY_NAME + "." + "bankCode", ((CuPaymentRequestDocument)document).DOCUMENT_TYPE_NON_CHECK, sequenceHelper, document.getTotalDollarAmount().negated());
         }
         
         // KFPTS-3046
         // for internal billing generate entries to clearing accounts
-        if(PaymentMethod.PM_CODE_INTERNAL_BILLING.equalsIgnoreCase(document.getPaymentMethodCode())){
-            PaymentMethod pm = getBusinessObjectService().findBySinglePrimaryKey(PaymentMethod.class, document.getPaymentMethodCode());
+        if(PaymentMethod.PM_CODE_INTERNAL_BILLING.equalsIgnoreCase(((CuPaymentRequestDocument)document).getPaymentMethodCode())){
+            PaymentMethod pm = getBusinessObjectService().findBySinglePrimaryKey(PaymentMethod.class, ((CuPaymentRequestDocument)document).getPaymentMethodCode());
             generateClearingAccountOffsetEntries(pm, document, sequenceHelper, null);
         }
 
@@ -483,7 +485,7 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
         if (accountingLines.size() > 0) {
             for (AccountingLine accountingLine : accountingLines) {
                 if (!chartOffsets.containsKey(accountingLine.getChartOfAccountsCode())) {
-                    OffsetDefinition offsetDefinition = SpringContext.getBean(OffsetDefinitionService.class).getByPrimaryId(accountingLine.getPostingYear(), accountingLine.getChartOfAccountsCode(), document.DOCUMENT_TYPE_NON_CHECK, KFSConstants.BALANCE_TYPE_ACTUAL);
+                    OffsetDefinition offsetDefinition = SpringContext.getBean(OffsetDefinitionService.class).getByPrimaryId(accountingLine.getPostingYear(), accountingLine.getChartOfAccountsCode(), ((CuPaymentRequestDocument)document).DOCUMENT_TYPE_NON_CHECK, KFSConstants.BALANCE_TYPE_ACTUAL);
                     chartOffsets.put(accountingLine.getChartOfAccountsCode(), offsetDefinition.getFinancialObjectCode());
 
                 }
@@ -498,13 +500,13 @@ public class CUPaymentMethodGeneralLedgerPendingEntryServiceImpl implements CUPa
                     GeneralLedgerPendingEntry glpe = new GeneralLedgerPendingEntry();
                     boolean debit = KFSConstants.GL_CREDIT_CODE.equalsIgnoreCase(entry.getTransactionDebitCreditCode());
                     glpe = getGeneralLedgerPendingEntryService().buildGeneralLedgerPendingEntry((GeneralLedgerPostingDocument) document, entry.getAccount(), entry.getFinancialObject(), entry.getSubAccountNumber(), entry.getFinancialSubObjectCode(), entry.getOrganizationReferenceId(), entry.getProjectCode(), entry.getReferenceFinancialDocumentNumber(), entry.getReferenceFinancialDocumentTypeCode(), entry.getReferenceFinancialSystemOriginationCode(), entry.getTransactionLedgerEntryDescription(), debit, entry.getTransactionLedgerEntryAmount(), sequenceHelper);
-                    glpe.setFinancialDocumentTypeCode(document.DOCUMENT_TYPE_NON_CHECK);
+                    glpe.setFinancialDocumentTypeCode(((CuPaymentRequestDocument)document).DOCUMENT_TYPE_NON_CHECK);
                     document.addPendingEntry(glpe);
                     sequenceHelper.increment();
                     // create cash entry
                     GeneralLedgerPendingEntry cashGlpe = new GeneralLedgerPendingEntry();
                     cashGlpe = getGeneralLedgerPendingEntryService().buildGeneralLedgerPendingEntry((GeneralLedgerPostingDocument) document, entry.getAccount(), entry.getChart().getFinancialCashObject(), entry.getSubAccountNumber(), entry.getFinancialSubObjectCode(), entry.getOrganizationReferenceId(), entry.getProjectCode(), entry.getReferenceFinancialDocumentNumber(), entry.getReferenceFinancialDocumentTypeCode(), entry.getReferenceFinancialSystemOriginationCode(), entry.getTransactionLedgerEntryDescription(), !debit, entry.getTransactionLedgerEntryAmount(), sequenceHelper);
-                    cashGlpe.setFinancialDocumentTypeCode(document.DOCUMENT_TYPE_NON_CHECK);
+                    cashGlpe.setFinancialDocumentTypeCode(((CuPaymentRequestDocument)document).DOCUMENT_TYPE_NON_CHECK);
                     document.addPendingEntry(cashGlpe);
                     sequenceHelper.increment();
                 }

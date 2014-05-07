@@ -1,16 +1,13 @@
 package edu.cornell.kfs.module.purap.document;
 
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.kuali.kfs.module.purap.PurapWorkflowConstants;
-import org.kuali.kfs.module.purap.businessobject.PurApItem;
 import org.kuali.kfs.module.purap.document.VendorCreditMemoDocument;
 import org.kuali.kfs.sys.KFSConstants;
+import org.kuali.kfs.sys.businessobject.Bank;
 import org.kuali.kfs.sys.businessobject.GeneralLedgerPendingEntry;
 import org.kuali.kfs.sys.businessobject.GeneralLedgerPendingEntrySourceDetail;
 import org.kuali.kfs.sys.context.SpringContext;
-import org.kuali.rice.kew.util.KEWConstants;
 import org.kuali.rice.kns.service.DocumentHelperService;
 import org.kuali.rice.krad.document.DocumentAuthorizer;
 import org.kuali.rice.krad.rules.rule.event.KualiDocumentEvent;
@@ -18,6 +15,7 @@ import org.kuali.rice.krad.util.GlobalVariables;
 import org.kuali.rice.krad.util.ObjectUtils;
 
 import edu.cornell.kfs.fp.businessobject.PaymentMethod;
+import edu.cornell.kfs.fp.service.CUPaymentMethodGeneralLedgerPendingEntryService;
 import edu.cornell.kfs.module.purap.CUPurapWorkflowConstants;
 import edu.cornell.kfs.module.purap.businessobject.CreditMemoWireTransfer;
 
