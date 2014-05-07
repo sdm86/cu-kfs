@@ -15,6 +15,7 @@ import edu.cornell.kfs.fp.businessobject.PaymentMethod;
 import edu.cornell.kfs.module.purap.CUPurapConstants;
 import edu.cornell.kfs.module.purap.CUPurapPropertyConstants;
 import edu.cornell.kfs.module.purap.businessobject.CreditMemoWireTransfer;
+import edu.cornell.kfs.module.purap.document.CuVendorCreditMemoDocument;
 
 public class CreditMemoWireTransferValidation extends GenericValidation  {
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(CreditMemoWireTransferValidation.class);
@@ -31,9 +32,9 @@ public class CreditMemoWireTransferValidation extends GenericValidation  {
         boolean isValid = true;
         
         VendorCreditMemoDocument document = (VendorCreditMemoDocument) accountingDocumentForValidation;
-        CreditMemoWireTransfer wireTransfer = document.getCmWireTransfer();
+        CreditMemoWireTransfer wireTransfer = ((CuVendorCreditMemoDocument)document).getCmWireTransfer();
 
-        if (!PaymentMethod.PM_CODE_WIRE.equals(document.getPaymentMethodCode())) {
+        if (!PaymentMethod.PM_CODE_WIRE.equals(((CuVendorCreditMemoDocument)document).getPaymentMethodCode())) {
             return isValid;
         }
 

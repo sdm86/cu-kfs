@@ -78,5 +78,12 @@ public class CUKFSConstants {
     
     // KFSUPGRADE-75
     public static final String MAINTAIN_FAVORITE_ACCOUNT = "Maintain Favorite Account";
+    
+    // KFSUPGRADE-779
+    public static final String PREQ_WIRETRANSFER_TAB_ERRORS = "PREQWireTransfersErrors,document.preqWireTransfer.preqBankName,document.preqWireTransfer.preqBankRoutingNumber,document.preqWireTransfer.preqBankCityName,document.preqWireTransfer.preqBankStateCode," + "document.preqWireTransfer.preqBankCountryCode,document.preqWireTransfer.preqAttentionLineText,document.preqWireTransfer.preqAdditionalWireText,document.preqWireTransfer.preqPayeeAccountNumber,document.preqWireTransfer.preqCurrencyTypeName,document.preqWireTransfer.preqCurrencyTypeCode," + "document.preqWireTransfer.preqWireTransferFeeWaiverIndicator,document.preqWireTransfer.preqPayeeAccountName,document.preqWireTransfer.preqPayeeAccountTypeCode,document.preqWireTransfer.preqAutomatedClearingHouseProfileNumber";
+    public static final String CM_WIRETRANSFER_TAB_ERRORS = "CMWireTransfersErrors,document.cmWireTransfer.cmBankName,document.cmWireTransfer.cmBankRoutingNumber,document.cmWireTransfer.cmBankCityName,document.cmWireTransfer.cmBankStateCode," + "document.cmWireTransfer.cmBankCountryCode,document.cmWireTransfer.cmAttentionLineText,document.cmWireTransfer.cmAdditionalWireText,document.cmWireTransfer.cmPayeeAccountNumber,document.cmWireTransfer.cmCurrencyTypeName,document.cmWireTransfer.cmCurrencyTypeCode," + "document.cmWireTransfer.cmWireTransferFeeWaiverIndicator,document.cmWireTransfer.cmPayeeAccountName,document.cmWireTransfer.cmPayeeAccountTypeCode,document.cmWireTransfer.cmAutomatedClearingHouseProfileNumber";
+    public static final String PREQ_FOREIGNDRAFTS_TAB_ERRORS = "PREQForeignDraftErrors,document.preqWireTransfer.preqForeignCurrencyTypeCode,document.preqWireTransfer.preqForeignCurrencyTypeName";
+    public static final String CM_FOREIGNDRAFTS_TAB_ERRORS = "CMForeignDraftErrors,document.cmWireTransfer.cmForeignCurrencyTypeCode,document.cmWireTransfer.cmForeignCurrencyTypeName";
+
         
 }

@@ -12,6 +12,7 @@ import org.kuali.rice.krad.util.MessageMap;
 
 import edu.cornell.kfs.fp.businessobject.PaymentMethod;
 import edu.cornell.kfs.module.purap.CUPurapPropertyConstants;
+import edu.cornell.kfs.module.purap.document.CuPaymentRequestDocument;
 
 public class PaymentRequestForeignDraftValidation extends GenericValidation {
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(PaymentRequestForeignDraftValidation.class);
@@ -28,7 +29,7 @@ public class PaymentRequestForeignDraftValidation extends GenericValidation {
         boolean isValid = true;
         
         PaymentRequestDocument document = (PaymentRequestDocument) accountingDocumentForValidation;
-        if (!PaymentMethod.PM_CODE_FOREIGN_DRAFT.equals(document.getPaymentMethodCode())) {
+        if (!PaymentMethod.PM_CODE_FOREIGN_DRAFT.equals(((CuPaymentRequestDocument)document).getPaymentMethodCode())) {
             return true;
         }
 
@@ -37,13 +38,13 @@ public class PaymentRequestForeignDraftValidation extends GenericValidation {
         errors.addToErrorPath(CUPurapPropertyConstants.PREQ_WIRE_TRANSFER);
 
         /* currency type code required */
-        if (StringUtils.isBlank(document.getPreqWireTransfer().getPreqForeignCurrencyTypeCode())) {
+        if (StringUtils.isBlank(((CuPaymentRequestDocument)document).getPreqWireTransfer().getPreqForeignCurrencyTypeCode())) {
             errors.putError(CUPurapPropertyConstants.PREQ_FD_CURRENCY_TYPE_CODE, KFSKeyConstants.ERROR_DV_CURRENCY_TYPE_CODE);
             isValid = false;
         }
 
         /* currency type name required */
-        if (StringUtils.isBlank(document.getPreqWireTransfer().getPreqForeignCurrencyTypeName())) {
+        if (StringUtils.isBlank(((CuPaymentRequestDocument)document).getPreqWireTransfer().getPreqForeignCurrencyTypeName())) {
             errors.putError(CUPurapPropertyConstants.PREQ_FD_CURRENCY_TYPE_NAME, KFSKeyConstants.ERROR_DV_CURRENCY_TYPE_NAME);
             isValid = false;
         }

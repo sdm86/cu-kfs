@@ -613,6 +613,7 @@ public class PurapConstants {
         public static final String APPDOC_AWAITING_ORG_REVIEW = "Awaiting Chart Approval"; // Waiting for Chart/Org approval
         public static final String APPDOC_AWAITING_TAX_REVIEW = "Awaiting Tax Approval"; // Waiting for Vendor Tax approval
         public static final String APPDOC_PENDING_E_INVOICE = "Pending Route Electronic Invoice";
+        public static final String APPDOC_PAYMENT_METHOD_REVIEW = "Payment Method Review";
 
         public static HashMap<String, String> getAllAppDocStatuses(){
             HashMap<String, String> appDocStatusMap = new HashMap<String, String>();
@@ -640,6 +641,9 @@ public class PurapConstants {
         public static final String NODE_ACCOUNT_REVIEW = "Account";
         public static final String NODE_ORG_REVIEW = "AccountingOrganizationHierarchy";
         public static final String NODE_VENDOR_TAX_REVIEW = "Tax";
+        //KFSUPGRADE-779
+        public static final String NODE_PAYMENT_METHOD_REVIEW = "PaymentMethodReviewer";
+        
         // KFSDUPGRADE-500
         public static final String NODE_RECEIVING = "Receiving";
 
@@ -771,6 +775,7 @@ public class PurapConstants {
 
             returnList.add(NODE_ACCOUNT_REVIEW);
             returnList.add(NODE_VENDOR_TAX_REVIEW);
+            returnList.add(NODE_PAYMENT_METHOD_REVIEW);
 
             return returnList;
         }

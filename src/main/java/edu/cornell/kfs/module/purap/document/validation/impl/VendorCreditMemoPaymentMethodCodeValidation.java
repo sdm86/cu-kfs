@@ -24,6 +24,7 @@ import org.kuali.rice.krad.util.GlobalVariables;
 
 import edu.cornell.kfs.module.purap.CUPurapKeyConstants;
 import edu.cornell.kfs.module.purap.CUPurapPropertyConstants;
+import edu.cornell.kfs.module.purap.document.CuPaymentRequestDocument;
 
 
 /**
@@ -44,8 +45,8 @@ public class VendorCreditMemoPaymentMethodCodeValidation extends GenericValidati
                 // if a UA PREQ, get the PMC
                 if ( preqDoc instanceof PaymentRequestDocument ) {
                     // check if the PMC on this document is the same
-                    String preqPaymentMethodCode = ((PaymentRequestDocument)preqDoc).getPaymentMethodCode();
-                    if ( !StringUtils.equals(preqPaymentMethodCode, doc.getPaymentMethodCode() ) ) {
+                    String preqPaymentMethodCode = ((CuPaymentRequestDocument)preqDoc).getPaymentMethodCode();
+                    if ( !StringUtils.equals(preqPaymentMethodCode, ((CuPaymentRequestDocument)preqDoc).getPaymentMethodCode() ) ) {
                         GlobalVariables.getMessageMap().putError(CUPurapPropertyConstants.DOCUMENT_PAYMENT_METHOD_CODE, CUPurapKeyConstants.ERROR_PAYMENTMETHODCODE_MUSTMATCHPREQ, preqPaymentMethodCode);
                         return false;
                     }

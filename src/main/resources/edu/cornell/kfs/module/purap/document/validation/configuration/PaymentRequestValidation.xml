@@ -1,0 +1,21 @@
+	<bean id="PaymentRequest-routeDocumentValidation" parent="PaymentRequest-routeDocumentValidation-parentBean" scope="prototype" >
+
+  		<property name="validations">
+  			<list merge="true">
+  				<bean parent="PaymentRequest-wireTransferValidation" scope="prototype">
+					<property name="parameterProperties">
+						<list>
+							<bean parent="accountingDocumentFieldConversion" />
+						</list>
+					</property>
+				</bean>
+				<bean parent="PaymentRequest-foreignDraftValidation" scope="prototype">
+					<property name="parameterProperties">
+						<list>
+							<bean parent="accountingDocumentFieldConversion" />
+						</list>
+					</property>
+				</bean>
+  			</list>
+  		</property>
+  	</bean>

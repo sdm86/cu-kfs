@@ -76,6 +76,8 @@ import org.kuali.rice.krad.service.DocumentService;
 import org.kuali.rice.krad.util.ObjectUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.cornell.kfs.fp.service.CUPaymentMethodGeneralLedgerPendingEntryService;
+
 /**
  * This is the default implementation of the DisbursementVoucherExtractService interface.
  */

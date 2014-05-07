@@ -42,6 +42,16 @@
 					p:name="extension.vendorCreditCardMerchants" p:label="Credit Card Merchant" p:elementLabel="Credit Card Merchant" /> 
 			</list>
 		</property>
+		<property name="relationships">
+      		<list>
+      		        <!-- KFSPTS-1891 -->
+       			 <dd:relationship objectAttribute="extension"> 
+ 					<dd:primitiveAttribute source="vendorHeaderGeneratedIdentifier" target="vendorHeaderGeneratedIdentifier" />
+ 					<dd:primitiveAttribute source="vendorDetailAssignedIdentifier" target="vendorDetailAssignedIdentifier" />
+					<dd:supportAttribute source="extension.defaultB2BPaymentMethodCode" target="defaultB2BPaymentMethodCode" />
+        		 </dd:relationship>
+      		</list>
+        </property>
 	</bean>
 
 	<!-- Attribute Definitions -->
@@ -384,6 +394,7 @@
 		<property name="resultFields">
 			<list merge = "true">
 				<bean parent="FieldDefinition" p:attributeName="extension.einvoiceVendorIndicator" />
+				<bean parent="FieldDefinition" p:attributeName="extension.defaultB2BPaymentMethodCode"/>
 			</list>
 		</property>
 	</bean>

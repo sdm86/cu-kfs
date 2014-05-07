@@ -14,6 +14,8 @@ import org.kuali.rice.krad.util.MessageMap;
 import edu.cornell.kfs.fp.businessobject.PaymentMethod;
 import edu.cornell.kfs.module.purap.CUPurapConstants;
 import edu.cornell.kfs.module.purap.CUPurapPropertyConstants;
+import edu.cornell.kfs.module.purap.businessobject.PaymentRequestWireTransfer;
+import edu.cornell.kfs.module.purap.document.CuPaymentRequestDocument;
 
 public class PaymentRequestWireTransferValidation extends GenericValidation  {
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(PaymentRequestWireTransferValidation.class);
@@ -28,9 +30,9 @@ public class PaymentRequestWireTransferValidation extends GenericValidation  {
         boolean isValid = true;
         
         PaymentRequestDocument document = (PaymentRequestDocument) accountingDocumentForValidation;
-        PaymentRequestWireTransfer wireTransfer = document.getPreqWireTransfer();
+        PaymentRequestWireTransfer wireTransfer = ((CuPaymentRequestDocument)document).getPreqWireTransfer();
 
-        if (!PaymentMethod.PM_CODE_WIRE.equals(document.getPaymentMethodCode())) {
+        if (!PaymentMethod.PM_CODE_WIRE.equals(((CuPaymentRequestDocument)document).getPaymentMethodCode())) {
             return isValid;
         }
 
