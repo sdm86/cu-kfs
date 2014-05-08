@@ -25,14 +25,12 @@ import org.apache.struts.action.ActionMapping;
 import org.kuali.kfs.fp.document.DistributionOfIncomeAndExpenseDocument;
 import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.kfs.sys.web.struts.KualiAccountingDocumentActionBase;
-import org.kuali.kfs.sys.web.struts.KualiAccountingDocumentFormBase;
 import org.kuali.rice.core.util.RiceConstants;
 import org.kuali.rice.kns.question.ConfirmationQuestion;
 import org.kuali.rice.kns.util.KNSConstants;
 import org.kuali.rice.kns.util.ObjectUtils;
 import org.kuali.rice.kns.web.struts.form.KualiDocumentFormBase;
 
-import edu.cornell.kfs.fp.document.interfaces.CULegacyTravelIntegrationInterface;
 import edu.cornell.kfs.fp.document.service.CULegacyTravelService;
 
 
@@ -136,16 +134,6 @@ public class DistributionOfIncomeAndExpenseAction extends KualiAccountingDocumen
         	return super.disapprove(mapping, form, request, response);
         }
     }
-    /**
-     * Per KFSPTS-3318 we are overriding this function so we can reset the trip association status code, and the trip ID.
-     */
-    @Override
-    public ActionForward copy(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        ActionForward forward = super.copy(mapping, form, request, response);
-        KualiAccountingDocumentFormBase kualiAccountingDocumentFormBase = (KualiAccountingDocumentFormBase) form;
-        CULegacyTravelIntegrationInterface document = (CULegacyTravelIntegrationInterface) kualiAccountingDocumentFormBase.getFinancialDocument();
-        document.setTripAssociationStatusCode(null);
-        document.setTripId(null);
-        return forward;
-    }	
+    
+	
 }
