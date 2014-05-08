@@ -84,7 +84,6 @@ import org.kuali.rice.kns.util.UrlFactory;
 import org.kuali.rice.kns.web.struts.form.KualiDocumentFormBase;
 
 import edu.cornell.kfs.fp.businessobject.CapitalAssetInformationDetailExtendedAttribute;
-import edu.cornell.kfs.fp.document.interfaces.CULegacyTravelIntegrationInterface;
 import edu.cornell.kfs.sys.document.service.CUFinancialSystemDocumentService;
 
 /**
@@ -1403,11 +1402,6 @@ public class KualiAccountingDocumentActionBase extends FinancialSystemTransactio
 
             CapitalAssetEditable capitalAssetEditable = (CapitalAssetEditable) document;
             resetCapitalAssetInfo(capitalAssetEditable.getCapitalAssetInformation());
-        }
-        if (document instanceof CULegacyTravelIntegrationInterface) {
-        	CULegacyTravelIntegrationInterface travelDoc = (CULegacyTravelIntegrationInterface) document;
-        	travelDoc.setTripAssociationStatusCode(null);
-        	travelDoc.setTripId(null);
         }
 
         return forward;
