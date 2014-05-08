@@ -35,6 +35,7 @@ import org.kuali.kfs.fp.businessobject.DisbursementVoucherNonEmployeeExpense;
 import org.kuali.kfs.fp.businessobject.DisbursementVoucherNonEmployeeTravel;
 import org.kuali.kfs.fp.businessobject.DisbursementVoucherPreConferenceRegistrant;
 import org.kuali.kfs.fp.businessobject.WireCharge;
+import org.kuali.kfs.fp.document.CapitalAssetEditable;
 import org.kuali.kfs.fp.document.DisbursementVoucherConstants;
 import org.kuali.kfs.fp.document.DisbursementVoucherConstants.TabByReasonCode;
 import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
@@ -43,6 +44,7 @@ import org.kuali.kfs.fp.document.service.DisbursementVoucherPayeeService;
 import org.kuali.kfs.fp.document.service.DisbursementVoucherTaxService;
 import org.kuali.kfs.fp.document.service.DisbursementVoucherTravelService;
 
+import edu.cornell.kfs.fp.document.interfaces.CULegacyTravelIntegrationInterface;
 import edu.cornell.kfs.fp.document.service.CULegacyTravelService;
 import edu.cornell.kfs.module.purap.CUPurapKeyConstants;
 import edu.cornell.kfs.module.purap.document.IWantDocument;
@@ -55,8 +57,10 @@ import org.kuali.kfs.sys.KFSConstants;
 import org.kuali.kfs.sys.KFSKeyConstants;
 import org.kuali.kfs.sys.KFSPropertyConstants;
 import org.kuali.kfs.sys.context.SpringContext;
+import org.kuali.kfs.sys.document.AccountingDocument;
 import org.kuali.kfs.sys.service.UniversityDateService;
 import org.kuali.kfs.sys.web.struts.KualiAccountingDocumentActionBase;
+import org.kuali.kfs.sys.web.struts.KualiAccountingDocumentFormBase;
 import org.kuali.kfs.vnd.businessobject.VendorAddress;
 import org.kuali.kfs.vnd.businessobject.VendorDetail;
 import org.kuali.rice.core.util.ClassLoaderUtils;
@@ -855,5 +859,18 @@ public class DisbursementVoucherAction extends KualiAccountingDocumentActionBase
         
         return documentActions.contains(KNSConstants.KUALI_ACTION_CAN_EDIT) && editModes.contains("fullEntry");
     }
-
+    
+    /**
+     * Per KFSPTS-3318 we are overriding this function so we can reset the trip association status code, and the trip ID.
+     * @see org.kuali.rice.kns.web.struts.action.KualiTransactionalDocumentActionBase#copy(org.apache.struts.action.ActionMapping, org.apache.struts.action.ActionForm, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+     */
+    @Override
+    public ActionForward copy(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        ActionForward forward = super.copy(mapping, form, request, response);
+        KualiAccountingDocumentFormBase kualiAccountingDocumentFormBase = (KualiAccountingDocumentFormBase) form;
+        CULegacyTravelIntegrationInterface document = (CULegacyTravelIntegrationInterface) kualiAccountingDocumentFormBase.getFinancialDocument();
+        document.setTripAssociationStatusCode(null);
+        document.setTripId(null);
+        return forward;
+    }
 }
