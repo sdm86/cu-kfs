@@ -10,6 +10,7 @@ import org.kuali.kfs.module.purap.document.PaymentRequestDocument;
 import org.kuali.kfs.module.purap.document.authorization.PaymentRequestDocumentPresentationController;
 import org.kuali.kfs.sys.KfsAuthorizationConstants;
 import org.kuali.rice.krad.document.Document;
+import org.kuali.rice.krad.util.ObjectUtils;
 
 import edu.cornell.kfs.module.purap.CUPurapAuthorizationConstants.CUPaymentRequestEditMode;
 import edu.cornell.kfs.module.purap.CUPurapConstants;
@@ -40,7 +41,7 @@ public class CuPaymentRequestDocumentPresentationController extends PaymentReque
 			editModes.remove(PaymentRequestEditMode.TAX_INFO_VIEWABLE);
 		}
         // KFSPTS-2712 : allow payment method review to view tax info
-		if ((PaymentRequestStatuses.APPDOC_DEPARTMENT_APPROVED.equals(paymentRequestDocument.getStatusCode()) || PaymentRequestStatuses.APPDOC_PAYMENT_METHOD_REVIEW.equals(paymentRequestDocument.getStatusCode()))&&
+		if ((PaymentRequestStatuses.APPDOC_DEPARTMENT_APPROVED.equals(paymentRequestDocument.getApplicationDocumentStatus()) || PaymentRequestStatuses.APPDOC_PAYMENT_METHOD_REVIEW.equals(paymentRequestDocument.getApplicationDocumentStatus()))&&
                // if and only if the preq has gone through tax review would TaxClassificationCode be non-empty
 				!StringUtils.isEmpty(paymentRequestDocument.getTaxClassificationCode())) {
 			editModes.add(PaymentRequestEditMode.TAX_INFO_VIEWABLE);
@@ -48,10 +49,14 @@ public class CuPaymentRequestDocumentPresentationController extends PaymentReque
 		
 		return editModes;
 	}
-	
-    // KFSPTS-1891
+
+	// KFSPTS-1891
 	private boolean canEditAmount(PaymentRequestDocument paymentRequestDocument) {
-		return  PaymentRequestStatuses.APPDOC_PAYMENT_METHOD_REVIEW.contains(paymentRequestDocument.getStatusCode());
+		if (ObjectUtils.isNotNull(paymentRequestDocument.getApplicationDocumentStatus())) {
+			return PaymentRequestStatuses.APPDOC_PAYMENT_METHOD_REVIEW.contains(paymentRequestDocument.getApplicationDocumentStatus());
+		} else {
+			return false;
+		}
 	}
 
 }

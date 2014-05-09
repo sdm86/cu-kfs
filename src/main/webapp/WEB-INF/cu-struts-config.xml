@@ -34,9 +34,9 @@
             
         <form-bean name="PdpFormatForm" 
             type="edu.cornell.kfs.pdp.web.struts.CuFormatForm" />    
-        <form-bean name="PaymentRequestFormForm" 
+        <form-bean name="CuPaymentRequestForm" 
             type="edu.cornell.kfs.module.purap.document.web.struts.CuPaymentRequestForm" />  
-		<form-bean name="VendorCreditMemoForm"
+		<form-bean name="CuVendorCreditMemoForm"
 			type="edu.cornell.kfs.module.purap.document.web.struts.CuVendorCreditMemoForm" /> 
     </form-beans>
     
@@ -114,7 +114,7 @@
 			<forward name="basic" path="/jsp/module/purap/PurchaseOrder.jsp" />	
 		</action>
 
-	   <action path="/purapPaymentRequest" name="PaymentRequestForm"
+	   <action path="/purapPaymentRequest" name="CuPaymentRequestForm"
 			input="/jsp/module/purap/PaymentRequest.jsp"
 			type="edu.cornell.kfs.module.purap.document.web.struts.CuPaymentRequestAction"
 			scope="request" parameter="methodToCall" validate="true"
