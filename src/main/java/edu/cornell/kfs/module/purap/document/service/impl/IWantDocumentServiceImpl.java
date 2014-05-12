@@ -77,18 +77,7 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
 
     private static final String CMP_ADDRESS_TYPE = "CMP";
 
-    private AttachmentService attachmentService;
-    private MailService mailService;
-    private NoteService noteService;
-    private PersonService personService;
-    private ParameterService parameterService;
-    private PurapService purapService;
-    private PurchasingService purchasingService;
-    private PersistenceService persistenceService;
-    private BusinessObjectService businessObjectService;
-    private DocumentTypeService documentTypeService;
-    private DocumentService documentService;
-    private FinancialSystemUserService financialSystemUserService;
+    
     
     private LevelOrganizationDao collegeLevelOrganizationDao;
 
@@ -560,6 +549,7 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
      */
     private void copyIWantDocAttachments(AccountingDocument document, IWantDocument iWantDocument) throws Exception {
         
+        PurapService purapService = SpringContext.getBean(PurapService.class);
         purapService.saveDocumentNoValidation(document);
         if (iWantDocument.getNotes() != null
               && iWantDocument.getNotes().size() > 0) {
@@ -593,6 +583,9 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
     
 private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument, DisbursementVoucherForm disbursementVoucherForm, IWantDocument iWantDocument) {
         
+        PurapService purapService = SpringContext.getBean(PurapService.class);
+        NoteService noteService = SpringContext.getBean(NoteService.class);
+        AttachmentService attachmentService = SpringContext.getBean(AttachmentService.class);
         purapService.saveDocumentNoValidation(dvDocument);
         if (iWantDocument.getNotes() != null && iWantDocument.getNotes().size() > 0) {
 
@@ -600,6 +593,8 @@ private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument
                 Note note = (Note) iterator.next();
 
                 Note copyNote;
+                
+                
                 try {
                     copyNote = noteService.createNote(new Note(), dvDocument.getDocumentHeader(), GlobalVariables.getUserSession().getPrincipalId());
 
@@ -618,7 +613,7 @@ private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument
 
                             if (copyAttachment != null) {
                                 copyNote.addAttachment(copyAttachment);
-                                getNoteService().save(copyNote);
+                                noteService.save(copyNote);
                                 dvDocument.addNote(copyNote);
                                 purapService.saveDocumentNoValidation(dvDocument);
                                 
@@ -689,6 +684,7 @@ private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument
      */
     public CuDisbursementVoucherDocument setUpDVDetailsFromIWantDoc(IWantDocument iWantDocument, CuDisbursementVoucherDocument disbursementVoucherDocument, DisbursementVoucherForm disbursementVoucherForm) throws Exception {
         
+        PurapService purapService = SpringContext.getBean(PurapService.class);
         // DV explanation = I Want Doc business purpose
         disbursementVoucherDocument.getDocumentHeader().setExplanation(iWantDocument.getDocumentHeader().getExplanation());
         // DV desc = IWantDoc desc
@@ -763,6 +759,8 @@ private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument
      * @see edu.cornell.kfs.module.purap.document.service.IWantDocumentService#getIWantDocIDByDVId(java.lang.String)
      */
     public String getIWantDocIDByDVId(String dvID) {
+        
+        BusinessObjectService businessObjectService = SpringContext.getBean(BusinessObjectService.class);
         String iWantDocID = StringUtils.EMPTY;
         Map<String,String> fieldValues = new HashMap<String, String>();
         fieldValues.put("dvDocId", dvID);
@@ -779,6 +777,7 @@ private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument
      * @see edu.cornell.kfs.module.purap.document.service.IWantDocumentService#isDVgeneratedByIWantDoc(java.lang.String)
      */
     public boolean isDVgeneratedByIWantDoc(String dvID) {
+        BusinessObjectService businessObjectService = SpringContext.getBean(BusinessObjectService.class);
         String iWantDocID = StringUtils.EMPTY;
         Map<String,String> fieldValues = new HashMap<String, String>();
         fieldValues.put("dvDocId", dvID);
@@ -793,130 +792,6 @@ private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument
     }
 
 
-    /**
-     * Gets the mailService.
-     * 
-     * @return mailService
-     */
-    public MailService getMailService() {
-        return mailService;
-    }
-
-    /**
-     * Sets the mailService.
-     * 
-     * @param mailService
-     */
-    public void setMailService(MailService mailService) {
-        this.mailService = mailService;
-    }
-
-    /**
-     * Gets the personService.
-     * 
-     * @return personService
-     */
-    public PersonService getPersonService() {
-        return personService;
-    }
-
-    /**
-     * Sets the personService.
-     * 
-     * @param personService
-     */
-    public void setPersonService(PersonService personService) {
-        this.personService = personService;
-    }
-
-    /**
-     * Gets the documentTypeService.
-     * 
-     * @return documentTypeService
-     */
-    public DocumentTypeService getDocumentTypeService() {
-        return documentTypeService;
-    }
-
-    /**
-     * Sets the documentTypeService.
-     * 
-     * @param documentTypeService
-     */
-    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
-        this.documentTypeService = documentTypeService;
-    }
-
-    public DocumentService getDocumentService() {
-        return documentService;
-    }
-
-    public void setDocumentService(DocumentService documentService) {
-        this.documentService = documentService;
-    }
-
-    public ParameterService getParameterService() {
-        return parameterService;
-    }
-
-    public void setParameterService(ParameterService parameterService) {
-        this.parameterService = parameterService;
-    }
-
-    public PurchasingService getPurchasingService() {
-        return purchasingService;
-    }
-
-    public void setPurchasingService(PurchasingService purchasingService) {
-        this.purchasingService = purchasingService;
-    }
-
-    public FinancialSystemUserService getFinancialSystemUserService() {
-        return financialSystemUserService;
-    }
-
-    public void setFinancialSystemUserService(FinancialSystemUserService financialSystemUserService) {
-        this.financialSystemUserService = financialSystemUserService;
-    }
-
-    public PurapService getPurapService() {
-        return purapService;
-    }
-
-    public void setPurapService(PurapService purapService) {
-        this.purapService = purapService;
-    }
-
-    public BusinessObjectService getBusinessObjectService() {
-        return businessObjectService;
-    }
-
-    public void setBusinessObjectService(BusinessObjectService businessObjectService) {
-        this.businessObjectService = businessObjectService;
-    }
-
-    public PersistenceService getPersistenceService() {
-        return persistenceService;
-    }
-
-    public void setPersistenceService(PersistenceService persistenceService) {
-        this.persistenceService = persistenceService;
-    }
-
-    public AttachmentService getAttachmentService() {
-        return attachmentService;
-    }
-
-    public void setAttachmentService(AttachmentService attachmentService) {
-        this.attachmentService = attachmentService;
-    }
-
-    public NoteService getNoteService() {
-        return noteService;
-    }
-
-    public void setNoteService(NoteService noteService) {
-        this.noteService = noteService;
-    }
+    
 
 }

@@ -342,7 +342,9 @@ ExtraButton clearButton = new ExtraButton();
         clearButton.setExtraButtonProperty("methodToCall.createDV");
         clearButton.setExtraButtonSource("${" + KFSConstants.EXTERNALIZABLE_IMAGES_URL_KEY + "}buttonsmall_create_DV.gif");
         clearButton.setExtraButtonAltText("Create DV");
-        clearButton.setExtraButtonOnclick("window.open();");
+        clearButton.setExtraButtonOnclick("window.open('" + ConfigContext.getCurrentContextConfig().getProperty(KRADConstants.APPLICATION_URL_KEY)
+                + "/financialDisbursementVoucher.do?methodToCall=createDVFromIWantDoc&docId=" + getDocument().getDocumentNumber()
+                + "');return false;");
         clearButton.setExtraButtonParams("_blank");
         return clearButton;
     }
