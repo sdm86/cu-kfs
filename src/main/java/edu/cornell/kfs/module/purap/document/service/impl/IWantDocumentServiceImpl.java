@@ -28,6 +28,7 @@ import org.kuali.kfs.sys.businessobject.Bank;
 import org.kuali.kfs.sys.businessobject.ChartOrgHolder;
 import org.kuali.kfs.sys.businessobject.SourceAccountingLine;
 import org.kuali.kfs.sys.context.SpringContext;
+
 import org.kuali.kfs.sys.document.AccountingDocument;
 import org.kuali.kfs.sys.service.BankService;
 import org.kuali.kfs.sys.service.FinancialSystemUserService;
@@ -80,6 +81,16 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
     
     
     private LevelOrganizationDao collegeLevelOrganizationDao;
+    private AttachmentService attachmentService;
+    private NoteService noteService;
+    private ParameterService parameterService;
+    private PurapService purapService;
+    private BusinessObjectService businessObjectService;
+    private PersonService personService;
+    private FinancialSystemUserService financialSystemUserService;
+    private MailService mailService;
+    private PersistenceService persistenceService;
+    private DocumentService documentService;
 
     /**
      * @see edu.cornell.kfs.module.purap.document.service.IWantDocumentService#getPersonCampusAddress(java.lang.String)
@@ -178,7 +189,7 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
 
         PersonData personData = new PersonData();
 
-        Person person = SpringContext.getBean(PersonService.class).getPersonByPrincipalName(principalName);
+        Person person = personService.getPersonByPrincipalName(principalName);
         personData.setPersonName(person.getNameUnmasked());
         personData.setNetID(principalName);
         personData.setEmailAddress(person.getEmailAddressUnmasked());
@@ -195,7 +206,7 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
         MailMessage message = buildDocumentFinalizedMessage(iWantDocument);
 
         try {
-            SpringContext.getBean(MailService.class).sendMessage(message);
+            mailService.sendMessage(message);
         } catch (InvalidAddressException e) {
             // Don't stop the show if the email has problem, log it and continue.
             LOG.error("iWantDocumentService: email address problem. Message not sent.", e);
@@ -216,7 +227,7 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
         WorkflowDocument workflowDocument = iWantDocument.getDocumentHeader().getWorkflowDocument();
         String initiator = workflowDocument.getInitiatorPrincipalId();
         String documentNumber = iWantDocument.getDocumentNumber();
-        Person initiatorPerson = SpringContext.getBean(PersonService.class).getPerson(initiator);
+        Person initiatorPerson = personService.getPerson(initiator);
         String initiatorEmail = initiatorPerson.getEmailAddressUnmasked();
 
         MailMessage message = new MailMessage();
@@ -280,8 +291,7 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
     public RequisitionDocument setUpRequisitionDetailsFromIWantDoc(IWantDocument iWantDocument,
             RequisitionDocument requisitionDocument, RequisitionForm requisitionForm) throws Exception {
 
-        ParameterService parameterService = SpringContext.getBean(ParameterService.class);
-        PurapService purapService = SpringContext.getBean(PurapService.class);
+        
 
         requisitionDocument.getDocumentHeader().setDocumentDescription(iWantDocument.getDocumentHeader().getDocumentDescription());
 
@@ -332,10 +342,7 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
       */
     private void setUpDeliverToSectionOfReqDoc(RequisitionDocument requisitionDocument, IWantDocument iWantDocument, PurapService purapService) {
 
-        Person deliverTo = null;
-        PersistenceService persistenceService = SpringContext.getBean(PersistenceService.class);
-        FinancialSystemUserService financialSystemUserService = SpringContext.getBean(FinancialSystemUserService.class);
-        PersonService personService = SpringContext.getBean(PersonService.class);
+        Person deliverTo = null;          
 
         if (StringUtils.isNotBlank(iWantDocument.getDeliverToNetID())) {
 
@@ -371,7 +378,7 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
                 billingAddress.setBillingCampusCode(requisitionDocument.getDeliveryCampusCode());
                 @SuppressWarnings("unchecked")
                 Map<String,?> keys = persistenceService.getPrimaryKeyFieldValues(billingAddress);
-                billingAddress = SpringContext.getBean(BusinessObjectService.class).findByPrimaryKey(BillingAddress.class, keys);
+                billingAddress = businessObjectService.findByPrimaryKey(BillingAddress.class, keys);
                 requisitionDocument.templateBillingAddress(billingAddress);
             }
         }
@@ -407,7 +414,7 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
                 @SuppressWarnings("unchecked")
                 Map<String,?> addressKeys = persistenceService.getPrimaryKeyFieldValues(
                         defaultPrincipalAddress);
-                defaultPrincipalAddress = (DefaultPrincipalAddress) SpringContext.getBean(BusinessObjectService.class)
+                defaultPrincipalAddress = (DefaultPrincipalAddress) businessObjectService
                         .findByPrimaryKey(DefaultPrincipalAddress.class, addressKeys);
 
                 if (ObjectUtils.isNotNull(defaultPrincipalAddress)
@@ -419,13 +426,13 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
                                 .getBuildingRoomNumber());
                     } else {
                         //since building is now inactive, delete default building record
-                        SpringContext.getBean(BusinessObjectService.class).delete(defaultPrincipalAddress);
+                        businessObjectService.delete(defaultPrincipalAddress);
                     }
                 }
 
                 // set the APO limit
                 requisitionDocument
-                        .setOrganizationAutomaticPurchaseOrderLimit(SpringContext.getBean(PurapService.class)
+                        .setOrganizationAutomaticPurchaseOrderLimit(purapService
                                 .getApoLimit(requisitionDocument.getVendorContractGeneratedIdentifier(),
                                         requisitionDocument.getChartOfAccountsCode(),
                                         requisitionDocument.getOrganizationCode()));
@@ -435,7 +442,7 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
                 billingAddress.setBillingCampusCode(requisitionDocument.getDeliveryCampusCode());
                 @SuppressWarnings("unchecked")
                 Map<String,?> keys = persistenceService.getPrimaryKeyFieldValues(billingAddress);
-                billingAddress = (BillingAddress) SpringContext.getBean(BusinessObjectService.class).findByPrimaryKey(
+                billingAddress = (BillingAddress) businessObjectService.findByPrimaryKey(
                         BillingAddress.class, keys);
                 requisitionDocument.templateBillingAddress(billingAddress);
 
@@ -549,7 +556,6 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
      */
     private void copyIWantDocAttachments(AccountingDocument document, IWantDocument iWantDocument) throws Exception {
         
-        PurapService purapService = SpringContext.getBean(PurapService.class);
         purapService.saveDocumentNoValidation(document);
         if (iWantDocument.getNotes() != null
               && iWantDocument.getNotes().size() > 0) {
@@ -557,14 +563,14 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
           for (Iterator iterator = iWantDocument.getNotes().iterator(); iterator.hasNext();) {
               Note note = (Note) iterator.next();
                 try {
-                    Note copyingNote = SpringContext.getBean(DocumentService.class).createNoteFromDocument(document, note.getNoteText());
+                    Note copyingNote = documentService.createNoteFromDocument(document, note.getNoteText());
                     purapService.saveDocumentNoValidation(document);
                     copyingNote.setNotePostedTimestamp(note.getNotePostedTimestamp());
                     copyingNote.setAuthorUniversalIdentifier(note.getAuthorUniversalIdentifier());
                     copyingNote.setNoteTopicText(note.getNoteTopicText());
-                    Attachment originalAttachment = SpringContext.getBean(AttachmentService.class).getAttachmentByNoteId(note.getNoteIdentifier());
+                    Attachment originalAttachment = attachmentService.getAttachmentByNoteId(note.getNoteIdentifier());
                     if (originalAttachment != null) {
-                        Attachment newAttachment = SpringContext.getBean(AttachmentService.class).createAttachment((PersistableBusinessObject)copyingNote, originalAttachment.getAttachmentFileName(), originalAttachment.getAttachmentMimeTypeCode(), originalAttachment.getAttachmentFileSize().intValue(), originalAttachment.getAttachmentContents(), originalAttachment.getAttachmentTypeCode());//new Attachment();
+                        Attachment newAttachment = attachmentService.createAttachment((PersistableBusinessObject)copyingNote, originalAttachment.getAttachmentFileName(), originalAttachment.getAttachmentMimeTypeCode(), originalAttachment.getAttachmentFileSize().intValue(), originalAttachment.getAttachmentContents(), originalAttachment.getAttachmentTypeCode());//new Attachment();
 
                         if (ObjectUtils.isNotNull(originalAttachment) && ObjectUtils.isNotNull(newAttachment)) {
                             copyingNote.addAttachment(newAttachment);
@@ -583,9 +589,7 @@ public class IWantDocumentServiceImpl implements IWantDocumentService {
     
 private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument, DisbursementVoucherForm disbursementVoucherForm, IWantDocument iWantDocument) {
         
-        PurapService purapService = SpringContext.getBean(PurapService.class);
-        NoteService noteService = SpringContext.getBean(NoteService.class);
-        AttachmentService attachmentService = SpringContext.getBean(AttachmentService.class);
+        
         purapService.saveDocumentNoValidation(dvDocument);
         if (iWantDocument.getNotes() != null && iWantDocument.getNotes().size() > 0) {
 
@@ -684,7 +688,7 @@ private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument
      */
     public CuDisbursementVoucherDocument setUpDVDetailsFromIWantDoc(IWantDocument iWantDocument, CuDisbursementVoucherDocument disbursementVoucherDocument, DisbursementVoucherForm disbursementVoucherForm) throws Exception {
         
-        PurapService purapService = SpringContext.getBean(PurapService.class);
+        
         // DV explanation = I Want Doc business purpose
         disbursementVoucherDocument.getDocumentHeader().setExplanation(iWantDocument.getDocumentHeader().getExplanation());
         // DV desc = IWantDoc desc
@@ -760,7 +764,7 @@ private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument
      */
     public String getIWantDocIDByDVId(String dvID) {
         
-        BusinessObjectService businessObjectService = SpringContext.getBean(BusinessObjectService.class);
+        
         String iWantDocID = StringUtils.EMPTY;
         Map<String,String> fieldValues = new HashMap<String, String>();
         fieldValues.put("dvDocId", dvID);
@@ -777,7 +781,6 @@ private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument
      * @see edu.cornell.kfs.module.purap.document.service.IWantDocumentService#isDVgeneratedByIWantDoc(java.lang.String)
      */
     public boolean isDVgeneratedByIWantDoc(String dvID) {
-        BusinessObjectService businessObjectService = SpringContext.getBean(BusinessObjectService.class);
         String iWantDocID = StringUtils.EMPTY;
         Map<String,String> fieldValues = new HashMap<String, String>();
         fieldValues.put("dvDocId", dvID);
@@ -790,8 +793,102 @@ private void copyIWantdDocAttachmentsToDV(DisbursementVoucherDocument dvDocument
             return false;
         
     }
+    
+    public AttachmentService getAttachmentService() {
+        return attachmentService;
+    }
 
+    public void setAttachmentService(AttachmentService attachmentService) {
+        this.attachmentService = attachmentService;
+    }
 
+    public NoteService getNoteService() {
+        return noteService;
+    }
+
+    public void setNoteService(NoteService noteService) {
+        this.noteService = noteService;
+    }
+    
+    public PurapService getPurapService() {
+        return purapService;
+    }
+    
+    public void setPurapService(PurapService purapService) {
+        this.purapService = purapService;
+    }
+    
+    public BusinessObjectService getBusinessObjectService() {
+        return businessObjectService;
+    }
+
+    public void setBusinessObjectService(BusinessObjectService businessObjectService) {
+        this.businessObjectService = businessObjectService;
+    }
+    
+    public PersonService getPersonService() {
+        return personService;
+    }
+
+    /**
+     * Sets the personService.
+     * 
+     * @param personService
+     */
+    public void setPersonService(PersonService personService) {
+        this.personService = personService;
+    }
+    
+    public FinancialSystemUserService getFinancialSystemUserService() {
+        return financialSystemUserService;
+    }
+
+    public void setFinancialSystemUserService(FinancialSystemUserService financialSystemUserService) {
+        this.financialSystemUserService = financialSystemUserService;
+    }
+
+    
+    /**
+     * Gets the mailService.
+     * 
+     * @return mailService
+     */
+    public MailService getMailService() {
+        return mailService;
+    }
+
+    /**
+     * Sets the mailService.
+     * 
+     * @param mailService
+     */
+    public void setMailService(MailService mailService) {
+        this.mailService = mailService;
+    }
+    
+    public PersistenceService getPersistenceService() {
+        return persistenceService;
+    }
+
+    public void setPersistenceService(PersistenceService persistenceService) {
+        this.persistenceService = persistenceService;
+    }
+    
+    public DocumentService getDocumentService() {
+        return documentService;
+    }
+
+    public void setDocumentService(DocumentService documentService) {
+        this.documentService = documentService;
+    }
+
+    public ParameterService getParameterService() {
+        return parameterService;
+    }
+
+    public void setParameterService(ParameterService parameterService) {
+        this.parameterService = parameterService;
+    }
     
 
 }
