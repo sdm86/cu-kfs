@@ -155,9 +155,16 @@
 	</bean>
     <bean id="PaymentRequest-lineItemQuantityNotZero" class="edu.cornell.kfs.module.purap.document.validation.impl.CuLineItemQuantityNotZero" abstract="true" />
     
-    <bean id="PurchasingAccountsPayable-objectCodeOverrideBranchingValidation" class="edu.cornell.kfs.module.purap.document.validation.impl.CuPurchasingAccountsPayableObjectCodeOverrideBranchingValidation" abstract="true"/>
+    <bean id="PurchasingAccountsPayable-objectCodeOverrideBranchingValidation" class="edu.cornell.kfs.module.purap.document.validation.impl.CuPurchasingAccountsPayableObjectCodeOverrideBranchingValidation" abstract="true">
+    	<property name="parameterService" ref="parameterService" />
+		<property name="responsibleProperty" value="financialObjectCode" />
+		<property name="propertyPath" value="financialObjectCode" />
+		<property name="parameterToCheckAgainst" value="OBJECT_CODES_OVERRIDING_RESTRICTIONS" />		
+	</bean>
     
-    <bean id="PaymentRequest-taxAreaValidation" class="edu.cornell.kfs.module.purap.document.validation.impl.CuPaymentRequestTaxAreaValidation" abstract="true"/>
+    <bean id="PaymentRequest-taxAreaValidation" class="edu.cornell.kfs.module.purap.document.validation.impl.CuPaymentRequestTaxAreaValidation" >
+    <property name="businessObjectService" ref="businessObjectService" />
+    </bean>
     
     <bean id="PurchasingAccountsPayable-bankCodeValidation" class="edu.cornell.kfs.module.purap.document.validation.impl.CuAccountsPayableBankCodeValidation" abstract="true"/>
     

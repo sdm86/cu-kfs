@@ -38,7 +38,7 @@ public class CuVendorCreditMemoDocumentPresentationController extends VendorCred
 	
     // KFSPTS-1891, KFSPTS-2851
     private boolean canEditAmount(VendorCreditMemoDocument vendorCreditMemoDocument) {
-    		return  CUPurapConstants.PAYMENT_METHODL_REVIEW.contains(vendorCreditMemoDocument.getStatusCode());
+    		return  PurapConstants.PaymentRequestStatuses.APPDOC_PAYMENT_METHOD_REVIEW.contains(vendorCreditMemoDocument.getApplicationDocumentStatus());
     }
 
 }

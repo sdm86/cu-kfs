@@ -30,7 +30,7 @@ public class CuPurchasingAccountsPayableObjectCodeOverrideBranchingValidation ex
             if (StringUtils.equals(PaymentRequestStatuses.APPDOC_AWAITING_TAX_REVIEW, preq.getApplicationDocumentStatus())){                
                 isTaxApproval = true;
             }
-            else if(StringUtils.equals(PaymentRequestStatuses.APPDOC_PAYMENT_METHOD_REVIEW, preq.getStatusCode())) {
+            else if(StringUtils.equals(PaymentRequestStatuses.APPDOC_PAYMENT_METHOD_REVIEW, preq.getApplicationDocumentStatus())) {
             	isTreasuryApproval = true;
            }
             else if(StringUtils.equals(PaymentRequestStatuses.APPDOC_DEPARTMENT_APPROVED, preq.getApplicationDocumentStatus()) &&

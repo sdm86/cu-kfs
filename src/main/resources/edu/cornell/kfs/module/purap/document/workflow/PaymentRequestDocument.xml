@@ -37,6 +37,7 @@
    				<status>Awaiting Fiscal Officer Approval</status>
    				<status>Awaiting Chart Approval</status>
    				<status>Awaiting Tax Approval</status>
+   				<status>Awaiting Treasury Manager Approval</status>
    				<status>Pending Route Electronic Invoice</status>
    			</validApplicationStatuses>
          <policies>
@@ -72,10 +73,10 @@
    					<role name="AccountingOrganizationHierarchy" nextNode="VendorIsEmployeeOrNonResidentAlien" nextAppDocStatus="Awaiting Tax Approval" />
    					 <split name="VendorIsEmployeeOrNonResidentAlien" nextNode="TreasuryManager">
    						<branch name="True">
-   							<role name="Tax" nextNode="JoinVendorIsEmployeeOrNonResidentAlien" />
+   							<role name="Tax" nextNode="JoinVendorIsEmployeeOrNonResidentAlien" nextAppDocStatus="Awaiting Treasury Manager Approval"/>
    						</branch>
    						<branch name="False">
-   							<simple name="NoOpVendorIsEmployeeOrNonResidentAlien" nextNode="JoinVendorIsEmployeeOrNonResidentAlien" />
+   							<simple name="NoOpVendorIsEmployeeOrNonResidentAlien" nextNode="JoinVendorIsEmployeeOrNonResidentAlien" nextAppDocStatus="Awaiting Treasury Manager Approval"/>
    						</branch>
    						<join name="JoinVendorIsEmployeeOrNonResidentAlien" />
    					</split>

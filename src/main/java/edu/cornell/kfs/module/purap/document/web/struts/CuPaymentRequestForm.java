@@ -7,6 +7,10 @@ public class CuPaymentRequestForm extends PaymentRequestForm {
     // KFSPTS-1891
     protected String wireChargeMessage;
     
+    public CuPaymentRequestForm() {
+		super();
+	}
+    
 
 	public String getWireChargeMessage() {
 		return wireChargeMessage;
