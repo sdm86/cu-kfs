@@ -82,7 +82,7 @@
    					</split>
    				    <split name="TreasuryManager">
                         <branch name="True">
-                            <requests name="PaymentMethodReviewer" nextNode="JoinTreasury"/>
+                            <role name="PaymentMethodReviewer" nextNode="JoinTreasury"/>
                         </branch>
                         <branch name="False">
                             <simple name="NoOpTreasury" nextNode="JoinTreasury"/>
@@ -137,7 +137,7 @@
            </role>
                    <!-- KFSPTS-1891 -->
            <role name="PaymentMethodReviewer">
-            <qualifierResolverClass>org.kuali.rice.kns.workflow.attribute.DataDictionaryQualifierResolver</qualifierResolverClass>
+            <qualifierResolverClass>org.kuali.rice.krad.workflow.attribute.DataDictionaryQualifierResolver</qualifierResolverClass>
             <activationType>P</activationType>
            </role>
            <split name="TreasuryManager">
@@ -156,4 +156,3 @@
        </documentType>
   </documentTypes>
 </data>
-
