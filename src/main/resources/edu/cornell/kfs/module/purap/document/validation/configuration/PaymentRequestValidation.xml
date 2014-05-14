@@ -41,4 +41,13 @@
   			</list>
   		</property>
   	</bean>
+  	
+    <bean id="PaymentRequest-routeDocument-fullDocumentEntryCompletedBranchingValidation-fullDocumentEntryBranchCompositeValidation" abstract="true" parent="CompositeValidation" scope="prototype">
+		<property name="validations">
+			<list>
+				<bean parent="PaymentRequest-newProcessItemValidation-parentBean" scope="prototype" />
+				<!-- KFSUPGRADE-779 <bean parent="PurchasingAccountsPayable-processAccountValidation-parentBean" scope="prototype" />	-->			
+			</list>
+		</property>
+	</bean>
  </beans>
