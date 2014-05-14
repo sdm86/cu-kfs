@@ -16,8 +16,7 @@ public class CuPaymentRequestItemExtension extends PersistableBusinessObjectExte
     // TODO : probably need to do more when add an item, the extension should be set this preqItem
     private PaymentRequestItem preqItem; 
     
-    // KFSPTS-1891
-    private List<PaymentRequestAccountRevision> preqAccounRevisions;
+
     
 
     public KualiDecimal getPoOutstandingAmountForDisplay() {
@@ -79,15 +78,6 @@ public class CuPaymentRequestItemExtension extends PersistableBusinessObjectExte
 
 	public void setPreqItem(PaymentRequestItem preqItem) {
 		this.preqItem = preqItem;
-	}
-	
-	public List<PaymentRequestAccountRevision> getPreqAccounRevisions() {
-		return preqAccounRevisions;
-	}
-
-	public void setPreqAccounRevisions(
-			List<PaymentRequestAccountRevision> preqAccounRevisions) {
-		this.preqAccounRevisions = preqAccounRevisions;
 	}
 
 }
