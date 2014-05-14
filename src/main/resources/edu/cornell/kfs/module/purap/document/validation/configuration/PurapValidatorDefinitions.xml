@@ -172,10 +172,6 @@
 	<bean id="PaymentRequest-wireTransferValidation" class="edu.cornell.kfs.module.purap.document.validation.impl.PaymentRequestWireTransferValidation" abstract="true" />
 	<bean id="PaymentRequest-foreignDraftValidation" class="edu.cornell.kfs.module.purap.document.validation.impl.PaymentRequestForeignDraftValidation" abstract="true" />
 	
-	<bean id="PaymentRequest-accountingLineAccessibleValidation" class="edu.cornell.kfs.module.purap.document.validation.impl.CuPaymentRequestAccountingLineAccessibleValidation" abstract="true">
-        <property name="dataDictionaryService" ref="dataDictionaryService" />
-    </bean>
-	
 	<bean id="VendorCreditMemo-wireTransferValidation" class="edu.cornell.kfs.module.purap.document.validation.impl.CreditMemoWireTransferValidation" abstract="true" />
 	<bean id="VendorCreditMemo-foreignDraftValidation" class="edu.cornell.kfs.module.purap.document.validation.impl.CreditMemoForeignDraftValidation" abstract="true" />
 

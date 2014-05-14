@@ -34,7 +34,7 @@ public class CuPaymentRequestDocumentPresentationController extends PaymentReque
 			editModes.add(CUPaymentRequestEditMode.EDIT_AMOUNT);
 		}	
 		
-		if (paymentRequestDocument.isDocumentStoppedInRouteNode(PaymentRequestStatuses.APPDOC_PAYMENT_METHOD_REVIEW)) {
+		if (paymentRequestDocument.isDocumentStoppedInRouteNode(PaymentRequestStatuses.NODE_PAYMENT_METHOD_REVIEW)) {
 			editModes.add(CUPaymentRequestEditMode.WAIVE_WIRE_FEE_EDITABLE);
 		}
 		if(editModes.contains(PaymentRequestEditMode.TAX_INFO_VIEWABLE)){

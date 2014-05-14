@@ -29,7 +29,7 @@ public class CuVendorCreditMemoDocumentPresentationController extends VendorCred
         if (canApprove(vendorCreditMemoDocument) && canEditAmount(vendorCreditMemoDocument)) {
             editModes.add(CUPaymentRequestEditMode.EDIT_AMOUNT);
         }
-        if (vendorCreditMemoDocument.isDocumentStoppedInRouteNode(CUPurapConstants.PAYMENT_METHODL_REVIEW)) {
+        if (vendorCreditMemoDocument.isDocumentStoppedInRouteNode(PurapConstants.PaymentRequestStatuses.NODE_PAYMENT_METHOD_REVIEW)) {
             editModes.add(CUPaymentRequestEditMode.WAIVE_WIRE_FEE_EDITABLE);
         }
         
