@@ -2,13 +2,17 @@ package edu.cornell.kfs.module.purap.document;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.kuali.kfs.module.purap.PurapConstants;
 import org.kuali.kfs.module.purap.PurapWorkflowConstants;
+import org.kuali.kfs.module.purap.PurapConstants.PaymentRequestStatuses;
 import org.kuali.kfs.module.purap.businessobject.PaymentRequestItem;
 import org.kuali.kfs.module.purap.document.PaymentRequestDocument;
 import org.kuali.kfs.module.purap.document.PurchaseOrderDocument;
+import org.kuali.kfs.module.purap.service.PurapGeneralLedgerService;
 import org.kuali.kfs.module.purap.util.ExpiredOrClosedAccountEntry;
 import org.kuali.kfs.sys.KFSConstants;
 import org.kuali.kfs.sys.businessobject.Bank;
@@ -18,6 +22,8 @@ import org.kuali.kfs.sys.businessobject.GeneralLedgerPendingEntrySourceDetail;
 import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.kfs.sys.document.AccountingDocument;
 import org.kuali.kfs.sys.service.GeneralLedgerPendingEntryService;
+import org.kuali.rice.kew.api.WorkflowDocument;
+import org.kuali.rice.kew.framework.postprocessor.ActionTakenEvent;
 import org.kuali.rice.kew.framework.postprocessor.DocumentRouteStatusChange;
 import org.kuali.rice.kns.document.authorization.DocumentAuthorizer;
 import org.kuali.rice.kns.service.DocumentHelperService;
@@ -209,6 +215,28 @@ public class CuPaymentRequestDocument extends PaymentRequestDocument {
             explicitEntry.setFinancialDocumentTypeCode(DOCUMENT_TYPE_NON_CHECK);
         }
     }
+    
+    public void doActionTaken(ActionTakenEvent event) {
+        super.doActionTaken(event);
+        WorkflowDocument workflowDocument = getDocumentHeader().getWorkflowDocument();
+        String currentNode = null;
+        Set<String> currentNodes = workflowDocument.getCurrentNodeNames();
+        if (CollectionUtils.isNotEmpty(currentNodes)) {
+            Object[] names = currentNodes.toArray();
+            if (names.length > 0) {
+                currentNode = (String)names[0];
+            }
+        }
+
+        // everything in the below list requires correcting entries to be written to the GL
+            if (PaymentRequestStatuses.getNodesRequiringCorrectingGeneralLedgerEntries().contains(currentNode)) {
+            	// KFSPTS-2598 : Treasury also can 'calculate'
+                if (PurapConstants.PaymentRequestStatuses.NODE_ACCOUNT_REVIEW.equals(currentNode) || PurapConstants.PaymentRequestStatuses.NODE_VENDOR_TAX_REVIEW.equals(currentNode)
+                		|| PurapConstants.PaymentRequestStatuses.NODE_PAYMENT_METHOD_REVIEW.equals(currentNode)) {
+                    SpringContext.getBean(PurapGeneralLedgerService.class).generateEntriesModifyPaymentRequest(this);
+                }
+            }
+        }
 
 	public String getPaymentMethodCode() {
 		return paymentMethodCode;
