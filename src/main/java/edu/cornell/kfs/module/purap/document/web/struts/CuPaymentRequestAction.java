@@ -121,9 +121,6 @@ public class CuPaymentRequestAction extends PaymentRequestAction {
         // other wise there will be a loophole, because the taxCalculated indicator is already set upon first calculation
         // and thus system wouldn't know it's not re-calculated after tax data are changed
         if (SpringContext.getBean(KualiRuleService.class).applyRules(new AttributedPreCalculateAccountsPayableEvent(preq))) {
-            // pre-calculation rules succeed, calculate tax again and go ahead with approval
-            customCalculate(preq);
-            SpringContext.getBean(PurapAccountingService.class).updateAccountAmounts(preq);
             
             ActionForward forward =  super.approve(mapping, form, request, response);
             // need to wait after new item generated itemid
