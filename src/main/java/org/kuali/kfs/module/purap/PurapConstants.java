@@ -613,6 +613,7 @@ public class PurapConstants {
         public static final String APPDOC_AWAITING_ORG_REVIEW = "Awaiting Chart Approval"; // Waiting for Chart/Org approval
         public static final String APPDOC_AWAITING_TAX_REVIEW = "Awaiting Tax Approval"; // Waiting for Vendor Tax approval
         public static final String APPDOC_PENDING_E_INVOICE = "Pending Route Electronic Invoice";
+        public static final String APPDOC_PAYMENT_METHOD_REVIEW = "Awaiting Treasury Manager Approval";
 
         public static HashMap<String, String> getAllAppDocStatuses(){
             HashMap<String, String> appDocStatusMap = new HashMap<String, String>();
@@ -629,6 +630,7 @@ public class PurapConstants {
             appDocStatusMap.put(APPDOC_AWAITING_FISCAL_REVIEW, APPDOC_AWAITING_FISCAL_REVIEW);
             appDocStatusMap.put(APPDOC_AWAITING_ORG_REVIEW, APPDOC_AWAITING_ORG_REVIEW);
             appDocStatusMap.put(APPDOC_AWAITING_TAX_REVIEW, APPDOC_AWAITING_TAX_REVIEW);
+            appDocStatusMap.put(APPDOC_PAYMENT_METHOD_REVIEW, APPDOC_PAYMENT_METHOD_REVIEW);
             appDocStatusMap.put(APPDOC_PENDING_E_INVOICE, APPDOC_PENDING_E_INVOICE);
 
             return appDocStatusMap;
@@ -640,6 +642,9 @@ public class PurapConstants {
         public static final String NODE_ACCOUNT_REVIEW = "Account";
         public static final String NODE_ORG_REVIEW = "AccountingOrganizationHierarchy";
         public static final String NODE_VENDOR_TAX_REVIEW = "Tax";
+        //KFSUPGRADE-779
+        public static final String NODE_PAYMENT_METHOD_REVIEW = "PaymentMethodReviewer";
+        
         // KFSDUPGRADE-500
         public static final String NODE_RECEIVING = "Receiving";
 
@@ -658,6 +663,7 @@ public class PurapConstants {
             AWAITING_ORG_REVIEW(PurapConstants.PaymentRequestStatuses.APPDOC_AWAITING_ORG_REVIEW, false),
             AWAITING_TAX_REVIEW(PurapConstants.PaymentRequestStatuses.APPDOC_AWAITING_TAX_REVIEW, false),
             DEPARTMENT_APPROVED(PurapConstants.PaymentRequestStatuses.APPDOC_DEPARTMENT_APPROVED, false),
+            PAYMENT_METHOD_REVIEW(PurapConstants.PaymentRequestStatuses.APPDOC_PAYMENT_METHOD_REVIEW, false),
             AUTO_APPROVED(PurapConstants.PaymentRequestStatuses.APPDOC_AUTO_APPROVED, false), ;
 
             private String statusCode = new String();
@@ -771,6 +777,7 @@ public class PurapConstants {
 
             returnList.add(NODE_ACCOUNT_REVIEW);
             returnList.add(NODE_VENDOR_TAX_REVIEW);
+            returnList.add(NODE_PAYMENT_METHOD_REVIEW);
 
             return returnList;
         }

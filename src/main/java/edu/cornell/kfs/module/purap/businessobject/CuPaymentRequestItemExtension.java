@@ -1,5 +1,8 @@
 package edu.cornell.kfs.module.purap.businessobject;
 
+import java.util.List;
+
+import org.kuali.kfs.module.purap.businessobject.PaymentRequestAccountRevision;
 import org.kuali.kfs.module.purap.businessobject.PaymentRequestItem;
 import org.kuali.kfs.module.purap.businessobject.PurchaseOrderItem;
 import org.kuali.rice.core.api.util.type.KualiDecimal;
@@ -12,6 +15,8 @@ public class CuPaymentRequestItemExtension extends PersistableBusinessObjectExte
     private Integer invLineNumber;
     // TODO : probably need to do more when add an item, the extension should be set this preqItem
     private PaymentRequestItem preqItem; 
+    
+
     
 
     public KualiDecimal getPoOutstandingAmountForDisplay() {
