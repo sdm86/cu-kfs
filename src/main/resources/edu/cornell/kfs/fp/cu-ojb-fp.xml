@@ -406,7 +406,7 @@
     <field-descriptor name="postingYear" column="FDOC_POST_YR" jdbc-type="INTEGER" />
     <field-descriptor name="nextSourceLineNumber" column="FDOC_NXT_FRM_NBR" jdbc-type="INTEGER" />
     <field-descriptor name="nextTargetLineNumber" column="FDOC_NXT_TO_NBR" jdbc-type="INTEGER" />
-    <field-descriptor name="tripAssociationStatusCode" column="DV_TRIP_ASSC_CD" jdbc-type="VARCHAR" />
+    <field-descriptor name="tripAssociationStatusCode" column="DI_TRIP_ASSC_CD" jdbc-type="VARCHAR" />
     <field-descriptor name="tripId" column="TRIP_ID" jdbc-type="VARCHAR" />
     
     <!-- CSU 6702 BEGIN -->
