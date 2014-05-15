@@ -4,7 +4,7 @@ import javax.jws.WebService;
 
 import org.apache.commons.lang.StringUtils;
 import org.kuali.kfs.fp.document.DisbursementVoucherDocument;
-import edu.cornell.kfs.fp.document.CuDistributionOfIncomeAndExpenseDocument;
+import org.kuali.kfs.fp.document.DistributionOfIncomeAndExpenseDocument;
 import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.rice.core.api.util.type.KualiDecimal;
 import org.kuali.rice.kew.api.exception.WorkflowException;
@@ -23,6 +23,7 @@ import org.kuali.rice.krad.util.MessageMap;
 
 import edu.cornell.kfs.fp.document.CuDisbursementVoucherConstants;
 import edu.cornell.kfs.fp.document.CuDisbursementVoucherDocument;
+import edu.cornell.kfs.fp.document.CuDistributionOfIncomeAndExpenseDocument;
 import edu.cornell.kfs.fp.document.service.impl.CULegacyTravelServiceImpl;
 
 /**
@@ -206,7 +207,7 @@ public class SubmitTripWebServiceImpl implements SubmitTripWebService {
 		CuDistributionOfIncomeAndExpenseDocument diDoc = null;
 		
         try {
-            diDoc = (CuDistributionOfIncomeAndExpenseDocument) SpringContext.getBean(DocumentService.class).getNewDocument(CuDistributionOfIncomeAndExpenseDocument.class);
+            diDoc = (CuDistributionOfIncomeAndExpenseDocument) SpringContext.getBean(DocumentService.class).getNewDocument(DistributionOfIncomeAndExpenseDocument.class);
         }
         catch (WorkflowException e) {
             throw new RuntimeException("Error creating new disbursement voucher document: " + e.getMessage(), e);
