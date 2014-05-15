@@ -13,8 +13,6 @@
 		and limitations under the License. -->
 
 	<bean id="VendorDetail" parent="VendorDetail-parentBean" >
-	    <property name="businessObjectClass"
-			value="edu.cornell.kfs.vnd.businessobject.CuVendorDetail" />
 		<property name="attributes">
 			<list merge="true">
 				<ref bean="VendorDetail-vendorHeader.vendorW9ReceivedDate" /> 
