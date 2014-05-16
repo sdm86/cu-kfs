@@ -149,7 +149,7 @@
 			<forward name="basic" path="/jsp/module/purap/PaymentRequest.jsp" />	
 		</action>
 		
-	    <action path="/purapVendorCreditMemo" name="VendorCreditMemoForm"
+	    <action path="/purapVendorCreditMemo" name="CuVendorCreditMemoForm"
 			input="/jsp/module/purap/VendorCreditMemo.jsp"
 			type="edu.cornell.kfs.module.purap.document.web.struts.CuVendorCreditMemoAction"
 			scope="request" parameter="methodToCall" validate="true"
