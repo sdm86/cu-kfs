@@ -153,23 +153,16 @@
                 		readOnly="${not taxAreaEditable}" tabindexOverride="${tabindexOverrideBase + 3}"/>
                 </td>
             </tr>
+            <c:if test="${taxAreaEditable}">
 			<tr>
 				<td class="infoline" colspan="4">
 					<center>	
 						<html:image src="${ConfigProperties.externalizable.images.url}tinybutton-clearall.gif" styleClass="tinybutton" property="methodToCall.clearTaxInfo" title="Clear All Info From NRA Tax Entries" alt="Clear All Info From NRA Tax Entries"/>
 	    			</center>
    				</td>
-    		</tr>
-    		
-    		<c:if test="${taxAreaEditable}">
-			<tr>
-				<td class="infoline" colspan="4">
-					<center>	
-						<html:image src="${ConfigProperties.externalizable.images.url}tinybutton-clearall.gif" styleClass="tinybutton" property="methodToCall.clearTaxInfo" title="Clear All Info From NRA Tax Entries" alt="Clear All Info From NRA Tax Entries"/>
-	    			</center>
-   				</td>
-    		</tr>
-            </c:if>
+    		    </tr>
+    		    </c:if>
+            
 		</table> 				
 
     </div>
