@@ -224,6 +224,7 @@
 	<bean id="PurchaseOrderActionListAttribute" class="edu.cornell.kfs.module.purap.document.workflow.CuPurchaseOrderActionListAttribute" />
 
    <import resource="document/validation/configuration/CuPaymentRequestValidation.xml" />
+   <import resource="document/validation/configuration/VendorCreditMemoValidation.xml" />
    <import resource="document/validation/configuration/RequisitionValidation.xml" />
    <import resource="document/validation/configuration/PurapValidatorDefinitions.xml" />
    <import resource="document/validation/configuration/PurchaseOrderAmendmentValidation.xml" />
