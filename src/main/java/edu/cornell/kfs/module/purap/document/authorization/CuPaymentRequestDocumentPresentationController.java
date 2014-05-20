@@ -9,6 +9,7 @@ import org.kuali.kfs.module.purap.PurapConstants.PaymentRequestStatuses;
 import org.kuali.kfs.module.purap.document.PaymentRequestDocument;
 import org.kuali.kfs.module.purap.document.authorization.PaymentRequestDocumentPresentationController;
 import org.kuali.kfs.sys.KfsAuthorizationConstants;
+import org.kuali.rice.kew.api.WorkflowDocument;
 import org.kuali.rice.krad.document.Document;
 import org.kuali.rice.krad.util.ObjectUtils;
 
@@ -23,11 +24,14 @@ public class CuPaymentRequestDocumentPresentationController extends PaymentReque
 	public Set<String> getEditModes(Document document) {
 		Set<String> editModes = super.getEditModes(document);
 		
+		WorkflowDocument workflowDocument = document.getDocumentHeader().getWorkflowDocument();
 		PaymentRequestDocument paymentRequestDocument = (PaymentRequestDocument)document;
 		
-	      // KFSPTS-1891
-		editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.FRN_ENTRY);
-		editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.WIRE_ENTRY);
+        if(workflowDocument.isInitiated() || workflowDocument.isSaved()){
+            // KFSPTS-1891
+            editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.FRN_ENTRY);
+            editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.WIRE_ENTRY);
+        }
 		
         // KFSPTS-1891
 		if (canApprove(paymentRequestDocument) && canEditAmount(paymentRequestDocument)) {
@@ -35,7 +39,12 @@ public class CuPaymentRequestDocumentPresentationController extends PaymentReque
 		}	
 		
 		if (paymentRequestDocument.isDocumentStoppedInRouteNode(PaymentRequestStatuses.NODE_PAYMENT_METHOD_REVIEW)) {
-			editModes.add(CUPaymentRequestEditMode.WAIVE_WIRE_FEE_EDITABLE);
+            editModes.add(CUPaymentRequestEditMode.WAIVE_WIRE_FEE_EDITABLE);
+            // KFSPTS-1891
+            editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.FRN_ENTRY);
+            editModes.add(KfsAuthorizationConstants.DisbursementVoucherEditMode.WIRE_ENTRY);
+            // KFSPTS-2968 allows DM to edit additional charge amount
+            editModes.add(CUPaymentRequestEditMode.ADDITONAL_CHARGE_AMOUNT_EDITABLE);
 		}
 		if(editModes.contains(PaymentRequestEditMode.TAX_INFO_VIEWABLE)){
 			editModes.remove(PaymentRequestEditMode.TAX_INFO_VIEWABLE);
