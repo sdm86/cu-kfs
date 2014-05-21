@@ -1504,7 +1504,9 @@ public class CuElectronicInvoiceHelperServiceImpl extends ElectronicInvoiceHelpe
          * with the payment request document identifier.  This identifier is used to associate the reject document with the payment request.
          */
         PaymentRequestDocument preqDocument = createPaymentRequest(rejectDocHolder);
-        rejectDocument.setPaymentRequestIdentifier(preqDocument.getPurapDocumentIdentifier());
+        if(ObjectUtils.isNotNull(preqDocument)){
+        	rejectDocument.setPaymentRequestIdentifier(preqDocument.getPurapDocumentIdentifier());
+        }
 
         return !rejectDocHolder.isInvoiceRejected();
 
