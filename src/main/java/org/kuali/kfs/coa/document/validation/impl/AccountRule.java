@@ -59,6 +59,8 @@ import org.kuali.rice.krad.util.GlobalVariables;
 import org.kuali.rice.krad.util.MessageMap;
 import org.kuali.rice.krad.util.ObjectUtils;
 
+import edu.cornell.kfs.sys.CUKFSConstants;
+
 /**
  * Business rule(s) applicable to AccountMaintenance documents.
  */
@@ -935,9 +937,14 @@ public class AccountRule extends IndirectCostRecoveryAccountsRule {
         // If creating a new account if acct_expiration_dt is set then
         // the acct_expiration_dt must be changed to a date that is today or later
         if (maintenanceDocument.isNew() && ObjectUtils.isNotNull(newExpDate)) {
-            if (!newExpDate.after(today) && !newExpDate.equals(today)) {
-                putFieldError("accountExpirationDate", KFSKeyConstants.ERROR_DOCUMENT_ACCMAINT_EXP_DATE_TODAY_LATER);
-                success &= false;
+        	// KFSUPGRADE-925 check parameter to see if back date is allowed
+        	Collection<String> fundGroups = SpringContext.getBean(ParameterService.class).getParameterValuesAsString(Account.class, CUKFSConstants.ChartApcParms.EXPIRATION_DATE_BACKDATING_FUND_GROUPS);
+            if (fundGroups == null || ObjectUtils.isNull(newAccount.getSubFundGroup()) || !fundGroups.contains(newAccount.getSubFundGroup().getFundGroupCode())) {
+
+            	if (!newExpDate.after(today) && !newExpDate.equals(today)) {
+            		putFieldError("accountExpirationDate", KFSKeyConstants.ERROR_DOCUMENT_ACCMAINT_EXP_DATE_TODAY_LATER);
+            		success &= false;
+            	}
             }
         }
 
@@ -1012,14 +1019,16 @@ public class AccountRule extends IndirectCostRecoveryAccountsRule {
 
         // make a shortcut to the newAccount
         Account newAccount = (Account) maintDoc.getNewMaintainableObject().getBusinessObject();
-
+        
+        // KFSUPGRADE-925
+        Collection<String> fundGroups = SpringContext.getBean(ParameterService.class).getParameterValuesAsString(Account.class, CUKFSConstants.ChartApcParms.EXPIRATION_DATE_BACKDATING_FUND_GROUPS);
+        if (fundGroups != null && !ObjectUtils.isNull(newAccount.getSubFundGroup()) && fundGroups.contains(newAccount.getSubFundGroup().getFundGroupCode())) {
+        		return false;
+        }
+        
         // expirationDate must be today or later than today (cannot be before today)
-        if (newExpDate.equals(today) || newExpDate.after(today)) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return newExpDate.before(today); 
+ 
     }
 
     /**
