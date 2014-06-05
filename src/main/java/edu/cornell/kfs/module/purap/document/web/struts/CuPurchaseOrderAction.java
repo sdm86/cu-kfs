@@ -1,14 +1,22 @@
 package edu.cornell.kfs.module.purap.document.web.struts;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.kuali.kfs.module.purap.PurapConstants;
 import org.kuali.kfs.module.purap.PurapConstants.PurchaseOrderStatuses;
+import org.kuali.kfs.module.purap.businessobject.PurchaseOrderSensitiveData;
+import org.kuali.kfs.module.purap.businessobject.PurchasingItemBase;
 import org.kuali.kfs.module.purap.document.PurchaseOrderDocument;
 import org.kuali.kfs.module.purap.document.service.PurapService;
 import org.kuali.kfs.module.purap.document.web.struts.PurchaseOrderAction;
@@ -23,8 +31,8 @@ import org.kuali.rice.kns.web.struts.form.KualiDocumentFormBase;
 import org.kuali.rice.krad.bo.Note;
 import org.kuali.rice.krad.exception.AuthorizationException;
 import org.kuali.rice.krad.util.GlobalVariables;
+import org.kuali.rice.krad.util.KRADConstants;
 import org.kuali.rice.krad.util.ObjectUtils;
-
 
 public class CuPurchaseOrderAction extends PurchaseOrderAction {
 	// ==== CU Customization (KFSPTS-1457): Added some new constants and variables. ====
@@ -42,6 +50,7 @@ public class CuPurchaseOrderAction extends PurchaseOrderAction {
 		ActionForward forward =  super.save(mapping, form, request, response);
         //reindex the document to pick up the changes.
         PurchaseOrderDocument document = (PurchaseOrderDocument) ((PurchaseOrderForm)form).getDocument();
+        updateSensitiveData(document);
         this.reIndexDocument(document);
         return forward;
 	}
@@ -158,6 +167,76 @@ public class CuPurchaseOrderAction extends PurchaseOrderAction {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        }
+        return forward;
+    }
+
+    private void updateSensitiveData(PurchaseOrderDocument po) {
+        List<PurchaseOrderSensitiveData> savedSensitiveData = new ArrayList<PurchaseOrderSensitiveData>();
+        Set<String> savedSensitiveDataCodes = new HashSet<String>();
+        if (po.getPurchaseOrderSensitiveData() != null) {
+            for (PurchaseOrderSensitiveData sensitiveData : po.getPurchaseOrderSensitiveData()) {
+                savedSensitiveData.add(sensitiveData);
+                savedSensitiveDataCodes.add(sensitiveData.getSensitiveDataCode());
+            }
+        }
+        Set<String> currentSensitiveDataCodes = new HashSet<String>();
+        for (PurchasingItemBase item : (List<PurchasingItemBase>)po.getItems()) {
+            if (item.getCommodityCode() != null 
+                    && item.getCommodityCode().getSensitiveDataCode() != null 
+                    && item.getCommodityCode().getSensitiveDataCode().length() != 0) {
+                currentSensitiveDataCodes.add(item.getCommodityCode().getSensitiveDataCode());
+            }
+        }
+        if (CollectionUtils.isNotEmpty(savedSensitiveData)) {
+            List<PurchaseOrderSensitiveData> removeSensitiveData = new ArrayList<PurchaseOrderSensitiveData>();
+            for (PurchaseOrderSensitiveData sensitiveData : savedSensitiveData) {
+                if (!currentSensitiveDataCodes.contains(sensitiveData.getSensitiveDataCode())) {
+                    removeSensitiveData.add(sensitiveData);
+                }
+            }
+            if (CollectionUtils.isNotEmpty(removeSensitiveData)) {
+                getBusinessObjectService().delete(removeSensitiveData);
+                
+            }
+        }
+        // TODO : 'add' is not in jira scope.  so comment out for now
+        if (CollectionUtils.isNotEmpty(currentSensitiveDataCodes)) {
+            List<PurchaseOrderSensitiveData> addedSensitiveData = new ArrayList<PurchaseOrderSensitiveData>();            
+            for (String code : currentSensitiveDataCodes) {
+                if (!savedSensitiveDataCodes.contains(code)) {
+                    addedSensitiveData.add(new PurchaseOrderSensitiveData(po.getPurapDocumentIdentifier(),po.getRequisitionIdentifier(), code));                   
+                }
+            }
+            if (CollectionUtils.isNotEmpty(addedSensitiveData)) {
+                getBusinessObjectService().save(addedSensitiveData);
+                
+            }
+        }
+
+    }
+ 
+    @Override
+    public ActionForward close(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        KualiDocumentFormBase docForm = (KualiDocumentFormBase) form;
+        ActionForward forward = super.close(mapping, docForm, request, response);
+        // only want to prompt them to save if they already can save
+        if (canSave(docForm)) {
+            Object question = getQuestion(request);
+            Object buttonClicked = request.getParameter(KRADConstants.QUESTION_CLICKED_BUTTON);
+           if ((KRADConstants.DOCUMENT_SAVE_BEFORE_CLOSE_QUESTION.equals(question)) && ConfirmationQuestion.YES.equals(buttonClicked)) {
+                updateSensitiveData((PurchaseOrderDocument) ((PurchaseOrderForm)form).getDocument());
+           }
+        }
+
+        return forward;
+    }
+
+    @Override
+    public ActionForward route(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        ActionForward forward = super.route(mapping, form, request, response);
+        if (GlobalVariables.getMessageMap().hasNoErrors()) {
+            updateSensitiveData((PurchaseOrderDocument) ((PurchaseOrderForm)form).getDocument());
         }
         return forward;
     }
