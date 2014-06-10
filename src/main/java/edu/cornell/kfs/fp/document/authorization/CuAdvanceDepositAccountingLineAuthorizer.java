@@ -98,9 +98,13 @@ public class CuAdvanceDepositAccountingLineAuthorizer extends AdvanceDepositAcco
         String roleId = getRoleService().getRoleIdByNamespaceCodeAndName(KFSConstants.ParameterNamespaces.FINANCIAL, CUKFSConstants.SysKimApiConstants.ADVANCE_DEPOSIT_ORGANIZATION_REVIEWER_ROLE_NAME);
         List<String> roleIds = new ArrayList<String>();
         roleIds.add(roleId);
-
-        List<Map<String, String>> qualifiers = getRoleService().getRoleQualifersForPrincipalByRoleIds(currentUser.getPrincipalId(), roleIds, new HashMap<String, String>());
-
+        
+        List<Map<String, String>> qualifiers = new ArrayList<Map<String, String>>();
+        qualifiers.addAll(getRoleService().getRoleQualifersForPrincipalByRoleIds(currentUser.getPrincipalId(), roleIds, new HashMap<String, String>()));
+        
+        if (qualifiers == null || qualifiers.isEmpty()) {
+        	 qualifiers.addAll(getRoleService().getNestedRoleQualifiersForPrincipalByRoleIds(currentUser.getPrincipalId(), roleIds, new HashMap<String, String>()));
+        }
         // getRoleQualifiersForPrincipalIncludingNested does not work for simple principal members so we try
         // RoleMembershipInfo for principals
         if (qualifiers == null || qualifiers.isEmpty()) {
