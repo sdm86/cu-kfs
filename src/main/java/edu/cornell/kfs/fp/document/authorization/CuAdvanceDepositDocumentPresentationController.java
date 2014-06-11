@@ -3,9 +3,10 @@ package edu.cornell.kfs.fp.document.authorization;
 import java.util.Set;
 
 import org.kuali.kfs.fp.document.authorization.AdvanceDepositDocumentPresentationController;
+import org.kuali.kfs.sys.KFSConstants;
 import org.kuali.kfs.sys.businessobject.FinancialSystemDocumentHeader;
 import org.kuali.kfs.sys.document.AccountingDocument;
-import org.kuali.rice.kew.api.WorkflowDocument;
+import org.kuali.kfs.sys.document.AmountTotaling;
 import org.kuali.rice.krad.document.Document;
 
 
@@ -35,17 +36,26 @@ public class CuAdvanceDepositDocumentPresentationController extends
 
 	        return canEdit;
 	    }
-
+	    
 	    @Override
 	    public Set<String> getEditModes(Document document) {
+
 	        Set<String> editModes = super.getEditModes(document);
+	        if (document instanceof AmountTotaling) {
+	            editModes.add(KFSConstants.AMOUNT_TOTALING_EDITING_MODE);
+	        }
+
+	        editModes.add(KFSConstants.BANK_ENTRY_VIEWABLE_EDITING_MODE);
+	        
 	        AccountingDocument accountingDocument = (AccountingDocument) document;
 	        WorkflowDocument workflowDocument = accountingDocument.getDocumentHeader().getWorkflowDocument();
 
 	        if (workflowDocument.isInitiated() || workflowDocument.isSaved()) {
 	            editModes.add(CUKFSAuthorizationConstants.AdvanceDepositEditMode.EDITABLE_ADVANCE_DEPOSITS);
 	        }
+
 	        return editModes;
+
 	    }
 
 }
