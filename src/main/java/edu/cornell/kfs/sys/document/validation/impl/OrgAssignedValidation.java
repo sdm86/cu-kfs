@@ -3,11 +3,13 @@
  */
 package edu.cornell.kfs.sys.document.validation.impl;
 
+import static org.kuali.rice.core.api.criteria.PredicateFactory.equal;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.kuali.kfs.coa.businessobject.Account;
 import org.kuali.kfs.coa.businessobject.Organization;
 import org.kuali.kfs.sys.KFSConstants;
@@ -16,7 +18,11 @@ import org.kuali.kfs.sys.businessobject.TargetAccountingLine;
 import org.kuali.kfs.sys.document.AccountingDocument;
 import org.kuali.kfs.sys.document.validation.GenericValidation;
 import org.kuali.kfs.sys.document.validation.event.AttributedDocumentEvent;
+import org.kuali.rice.core.api.criteria.PredicateUtils;
+import org.kuali.rice.core.api.criteria.QueryByCriteria;
+import org.kuali.rice.kim.api.KimConstants;
 import org.kuali.rice.kim.api.role.Role;
+import org.kuali.rice.kim.api.role.RoleMemberQueryResults;
 import org.kuali.rice.kim.api.role.RoleMembership;
 import org.kuali.rice.kim.api.role.RoleService;
 import org.kuali.rice.kim.api.services.KimApiServiceLocator;
@@ -87,12 +93,18 @@ public class OrgAssignedValidation extends GenericValidation {
 		Role role = roleService.getRole(documentTypeRoleID);
 		
 		// or roleservice.getRoleByName(namespaceCode, roleName)
-		List<RoleMembership> roleMembers = roleService.getRoleMembers(Collections.singletonList(role.getId()), new HashMap<String,String>());		
+		List<RoleMembership> roleMembers = roleService.findRoleMemberships(QueryByCriteria.Builder.fromPredicates(equal("ROLE_ID", role.getId()))).getResults();   		
 		
 		boolean hasReviewer = false;
 		for(RoleMembership member : roleMembers) {
-			String memberOrg = member.getQualifier().get(KFSConstants.ORGANIZATION_CODE_PROPERTY_NAME);
-			if(org.getOrganizationCode().equalsIgnoreCase(memberOrg)) {
+	        RoleMemberQueryResults members = KimApiServiceLocator.getRoleService().findRoleMembers(QueryByCriteria.Builder.fromPredicates( PredicateUtils.convertMapToPredicate(Collections.singletonMap(KimConstants.PrimaryKeyConstants.ID, member.getId()))));
+            boolean isActiveMember = true;
+            if ( members != null && CollectionUtils.isNotEmpty(members.getResults())) {
+                isActiveMember = members.getResults().get(0).isActive();
+            }
+
+	        String memberOrg = member.getQualifier().get(KFSConstants.ORGANIZATION_CODE_PROPERTY_NAME);
+			if(isActiveMember && org.getOrganizationCode().equalsIgnoreCase(memberOrg)) {
 				hasReviewer = true;
 				break;
 			}
