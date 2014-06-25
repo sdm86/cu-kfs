@@ -307,6 +307,22 @@
                   <property name="propertyName" value="inquiryFields" />
                   <property name="propertyNameForElementCompare" value="attributeName" />
                   <property name="element">
+                      <bean parent="FieldDefinition" p:attributeName="vendorHeader.vendorW8BenReceivedIndicator" />
+                  </property>
+                  <property name="insertAfter">
+                      <list>
+                          <bean parent="FieldDefinition" p:attributeName="vendorHeader.extension.vendorW8BenReceivedDate" />
+                          <bean parent="FieldDefinition" p:attributeName="vendorHeader.extension.vendorChapter4StatusCode" />
+                          <bean parent="FieldDefinition" p:attributeName="vendorHeader.extension.vendorForeignTaxNumber" />
+                          <bean parent="FieldDefinition" p:attributeName="vendorHeader.extension.vendorGIIN" />
+                          <bean parent="FieldDefinition" p:attributeName="vendorHeader.extension.vendorForeignRecipientBirthDate" />
+                      </list>
+                  </property>
+              </bean>
+              <bean parent="FieldOverrideForListElementInsert">
+                  <property name="propertyName" value="inquiryFields" />
+                  <property name="propertyNameForElementCompare" value="attributeName" />
+                  <property name="element">
                       <bean parent="FieldDefinition" p:attributeName="vendorInactiveReasonCode" />
                   </property>
                   <property name="insertAfter">
