@@ -199,11 +199,7 @@
     </bean>
     
     <bean id="disbursementVoucherPayeeService" parent="disbursementVoucherPayeeService-parentBean" class="edu.cornell.kfs.fp.document.service.impl.CuDisbursementVoucherPayeeServiceImpl" />
-    
-    <!-- UPGRADE-911 
-        <bean id="disbursementVoucherExtractService" parent="disbursementVoucherExtractService-parentBean" class="edu.cornell.kfs.fp.batch.service.impl.CuDisbursementVoucherExtractServiceImpl" /> 	
- 	-->
- 	
+     	
  	<bean id="disbursementVoucherPaymentReasonService" parent="disbursementVoucherPaymentReasonService-parentBean" class="edu.cornell.kfs.fp.document.service.impl.CuDisbursementVoucherPaymentReasonServiceImpl" >
  	
 		<property name="disbursementVoucherPayeeService">
