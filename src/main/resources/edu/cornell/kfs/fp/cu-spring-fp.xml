@@ -252,4 +252,9 @@
      
     </bean>
 
+    <!-- KFSUPGRADE-973 -->
+	<bean id="disbursementVoucherExtractionHelperService" parent="disbursementVoucherExtractionHelperService-parentBean" class="edu.cornell.kfs.fp.document.service.impl.CuDisbursementVoucherExtractionHelperServiceImpl">
+        <property name="paymentMethodGeneralLedgerPendingEntryService" ref="cUPaymentMethodGeneralLedgerPendingEntryService" />
+    </bean>
+
 </beans>
