@@ -31,14 +31,8 @@
     	<property name="label" value="Chapter 4 Status Code"/>
     	<property name="shortLabel" value="Chptr4 Stat Code"/>
     	<property name="maxLength" value="2"/>
-    	<property name="forceUppercase" value="true"/>
- <!--    	<property name="control">
-            <bean parent="TextControlDefinition" p:size="3"/>
-        </property>
-    	<property name="validationPattern">
-      		<bean parent="NumericValidationPattern" p:exactLength="2"/>
-    	</property>   --> 
-       <property name="validationPattern" >
+    	<property name="forceUppercase" value="true"/> 
+        <property name="validationPattern" >
       		<ref bean="AnyCharacterValidation" />
    	    </property>
     	<property name="control" >

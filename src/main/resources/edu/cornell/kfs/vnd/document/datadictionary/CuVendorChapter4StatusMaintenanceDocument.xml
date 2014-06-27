@@ -27,7 +27,7 @@
     </property>
     
     
-    <property name="documentTypeName" value="MAC"/>
+    <property name="documentTypeName" value="VC4S"/>
     <property name="documentAuthorizerClass" value="org.kuali.kfs.sys.document.authorization.FinancialSystemMaintenanceDocumentAuthorizerBase"/>
    
    
