@@ -189,7 +189,8 @@ public class CuRequisitionDocument extends RequisitionDocument {
         this.setPurapDocumentIdentifier(null);
 
         // Set req status to INPR.
-        this.setStatusCode(PurapConstants.RequisitionStatuses.APPDOC_IN_PROCESS);
+        //for app doc status
+        updateAndSaveAppDocStatus(PurapConstants.RequisitionStatuses.APPDOC_IN_PROCESS);
 
         // Set fields from the user.
         if (ObjectUtils.isNotNull(purapChartOrg)) {
