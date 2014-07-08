@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import edu.cornell.kfs.vnd.businessobject.VendorBatch;
+import edu.cornell.kfs.vnd.businessobject.VendorBatchDetail;
 
 /**
  * 
@@ -35,8 +35,8 @@ public class VendorBatchCsvBuilder {
      * @param parseDataList
      * @return
      */
-    public static List<VendorBatch> buildVendorBatch(List<Map<String, String>> parseDataList) {
-        List<VendorBatch> vendors = new ArrayList<VendorBatch>();
+    public static List<VendorBatchDetail> buildVendorBatch(List<Map<String, String>> parseDataList) {
+        List<VendorBatchDetail> vendors = new ArrayList<VendorBatchDetail>();
         for (Map<String, String> rowDataMap : parseDataList) {
             vendors.add(buildVendorsFromDataMap(rowDataMap));
         }
@@ -50,9 +50,10 @@ public class VendorBatchCsvBuilder {
      * @param rowDataMap
      * @return
      */
-    private static VendorBatch buildVendorsFromDataMap(Map<String, String> rowDataMap) {
+    private static VendorBatchDetail buildVendorsFromDataMap(Map<String, String> rowDataMap) {
 
-    	VendorBatch vendor = new VendorBatch();
+    	VendorBatchDetail vendor = new VendorBatchDetail();
+        vendor.setVendorNumber(rowDataMap.get(VendorBatchCsv.vendorNumber.name()));        
         vendor.setVendorName(rowDataMap.get(VendorBatchCsv.vendorName.name()));        
         vendor.setVendorTypeCode(rowDataMap.get(VendorBatchCsv.vendorTypeCode.name()));        
         vendor.setForeignVendor(rowDataMap.get(VendorBatchCsv.foreignVendor.name()));        
@@ -63,6 +64,7 @@ public class VendorBatchCsvBuilder {
         vendor.setTaxable(rowDataMap.get(VendorBatchCsv.taxable.name()));        
         vendor.seteInvoice(rowDataMap.get(VendorBatchCsv.eInvoice.name()));        
         vendor.setAddresses(rowDataMap.get(VendorBatchCsv.addresses.name()));        
+        vendor.setContacts(rowDataMap.get(VendorBatchCsv.contacts.name()));        
         return vendor;
     }
 

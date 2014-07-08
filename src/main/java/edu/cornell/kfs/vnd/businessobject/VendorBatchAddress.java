@@ -3,8 +3,9 @@ package edu.cornell.kfs.vnd.businessobject;
 /**
  *  non-persistable to hold vendor address converted from input data file
  **/
-public class VendorAddressBatch {
+public class VendorBatchAddress {
 
+	private String vendorAddressGeneratedIdentifier;
     private String vendorAddressTypeCode;
     private String vendorLine1Address;
     private String vendorLine2Address;
@@ -21,22 +22,23 @@ public class VendorAddressBatch {
     private String purchaseOrderTransmissionMethodCode;
     private String active;
     
-    public VendorAddressBatch(String[] address) {
-    	vendorAddressTypeCode = address[0];
-        vendorLine1Address = address[1];
-        vendorLine2Address = address[2];
-        vendorCityName = address[3];
-        vendorStateCode = address[4];
-        vendorZipCode = address[5];
-        vendorCountryCode = address[6];
-        vendorAttentionName = address[7];
-        vendorAddressInternationalProvinceName = address[8];
-        vendorAddressEmailAddress = address[9];
-        vendorBusinessToBusinessUrlAddress = address[10];
-        vendorFaxNumber = address[11];
-        vendorDefaultAddressIndicator = address[12];
-        purchaseOrderTransmissionMethodCode = address[13];
-        active = address[14];
+    public VendorBatchAddress(String[] address) {
+    	vendorAddressGeneratedIdentifier = address[0];
+	    vendorAddressTypeCode = address[1];
+        vendorLine1Address = address[2];
+        vendorLine2Address = address[3];
+        vendorCityName = address[4];
+        vendorStateCode = address[5];
+        vendorZipCode = address[6];
+        vendorCountryCode = address[7];
+        vendorAttentionName = address[8];
+        vendorAddressInternationalProvinceName = address[9];
+        vendorAddressEmailAddress = address[10];
+        vendorBusinessToBusinessUrlAddress = address[11];
+        vendorFaxNumber = address[12];
+        vendorDefaultAddressIndicator = address[13];
+        purchaseOrderTransmissionMethodCode = address[14];
+        active = address[15];
     }
     
 	public String getVendorAddressTypeCode() {
@@ -132,6 +134,15 @@ public class VendorAddressBatch {
 	}
 	public void setActive(String active) {
 		this.active = active;
+	}
+
+	public String getVendorAddressGeneratedIdentifier() {
+		return vendorAddressGeneratedIdentifier;
+	}
+
+	public void setVendorAddressGeneratedIdentifier(
+			String vendorAddressGeneratedIdentifier) {
+		this.vendorAddressGeneratedIdentifier = vendorAddressGeneratedIdentifier;
 	}
     
     

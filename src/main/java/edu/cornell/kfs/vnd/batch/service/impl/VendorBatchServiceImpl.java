@@ -13,25 +13,31 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.kuali.kfs.sys.KFSConstants;
 import org.kuali.kfs.sys.batch.BatchInputFileType;
 import org.kuali.kfs.sys.batch.service.BatchInputFileService;
 import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.kfs.sys.exception.ParseException;
 import org.kuali.kfs.vnd.businessobject.VendorAddress;
+import org.kuali.kfs.vnd.businessobject.VendorContact;
 import org.kuali.kfs.vnd.businessobject.VendorDetail;
 import org.kuali.kfs.vnd.businessobject.VendorHeader;
 import org.kuali.kfs.vnd.document.VendorMaintainableImpl;
 import org.kuali.rice.krad.UserSession;
+import org.kuali.rice.krad.exception.ValidationException;
 import org.kuali.rice.krad.maintenance.MaintenanceDocument;
 import org.kuali.rice.krad.service.DocumentService;
 import org.kuali.rice.krad.util.GlobalVariables;
 import org.kuali.rice.krad.util.MessageMap;
+import org.kuali.rice.krad.util.ObjectUtils;
 
 import edu.cornell.kfs.vnd.batch.service.VendorBatchService;
 import edu.cornell.kfs.vnd.businessobject.CuVendorAddressExtension;
-import edu.cornell.kfs.vnd.businessobject.VendorAddressBatch;
-import edu.cornell.kfs.vnd.businessobject.VendorBatch;
+import edu.cornell.kfs.vnd.businessobject.VendorBatchAddress;
+import edu.cornell.kfs.vnd.businessobject.VendorBatchContact;
+import edu.cornell.kfs.vnd.businessobject.VendorBatchDetail;
 import edu.cornell.kfs.vnd.businessobject.VendorDetailExtension;
+import edu.cornell.kfs.vnd.document.service.CUVendorService;
 
 public class VendorBatchServiceImpl implements VendorBatchService{
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(VendorBatchServiceImpl.class);
@@ -153,14 +159,22 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         
         
        
-        List<VendorBatch> vendors =  ((List<VendorBatch>) parsedObject);
+        List<VendorBatchDetail> vendors =  ((List<VendorBatchDetail>) parsedObject);
         
-        for (VendorBatch vendorBatch  : vendors) {                                   
-        // process each line to add/update vendor accordingly            
-            String returnVal = addVendor(vendorBatch);
+        for (VendorBatchDetail vendorBatch  : vendors) {                                   
+        // process each line to add/update vendor accordingly 
+        	String returnVal = "";
+        	if (StringUtils.isBlank(vendorBatch.getVendorNumber())) {
+                returnVal = addVendor(vendorBatch);
+        	} else {
+                returnVal = changeVendor(vendorBatch);
+        	}
             if (StringUtils.startsWith(returnVal, "Failed request")) {
             	// TODO : there is error.  need to handle here or before exit
+            	LOG.error(returnVal);
             	result = false;
+            } else {
+            	LOG.info("Document " + returnVal + " routed.");
             }
         }        
                 
@@ -213,14 +227,14 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 	/*
 	 * create vendor document and route
 	 */
-	protected String addVendor(VendorBatch vendorBatch) {
+	protected String addVendor(VendorBatchDetail vendorBatch) {
 //        UserSession actualUserSession = GlobalVariables.getUserSession();
 //        MessageMap globalErrorMap = GlobalVariables.getMessageMap();
         GlobalVariables.setMessageMap(new MessageMap());
     	     
         // create and route doc as system user
         GlobalVariables.setUserSession(new UserSession("kfs"));
-        LOG.info("addVendor "+vendorBatch.getVendorName());       
+        LOG.info("addVendor "+vendorBatch.getLogData());       
         try {
         	DocumentService docService = SpringContext.getBean(DocumentService.class);
         	
@@ -241,7 +255,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 
         	vDetail.setVendorAddresses(getVendorAddresses(vendorBatch.getVendorAddresses(), vDetail));
 
-//        	vDetail.setVendorContacts(getVendorContacts(contacts));
+        	vDetail.setVendorContacts(getVendorContacts(vendorBatch.getVendorContacts()));
 
         	
 //        	vDetail.setVendorPhoneNumbers(getVendorPhoneNumbers(phoneNumbers));
@@ -264,7 +278,11 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         	
             return vendorDoc.getDocumentNumber();
         } catch (Exception e) {
-        	return "Failed request : "+ e.getMessage();
+        	if (e instanceof ValidationException) {
+        		return "Failed request : "+ e.getMessage() + " - " + GlobalVariables.getMessageMap().getErrorMessages();
+        	} else {
+        	    return "Failed request : "+ e.getMessage();
+        	}
         } finally {
 //            GlobalVariables.setUserSession(actualUserSession);
 //            GlobalVariables.setMessageMap(globalErrorMap);
@@ -274,10 +292,10 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 	/*
 	 * convert list of vendor address batch data to list of vendor address
 	 */
-	private List<VendorAddress> getVendorAddresses(List<VendorAddressBatch> addresses, VendorDetail vDetail) {
+	private List<VendorAddress> getVendorAddresses(List<VendorBatchAddress> addresses, VendorDetail vDetail) {
     	List<VendorAddress> vAddrs = new ArrayList<VendorAddress>();
     	if (CollectionUtils.isNotEmpty(addresses)) {
-			for (VendorAddressBatch address : addresses) {
+			for (VendorBatchAddress address : addresses) {
 				LOG.info("addVendor address " + address);
 				VendorAddress vendorAddr = new VendorAddress();
 				setVendorAddress(address, vendorAddr, vDetail);
@@ -290,7 +308,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 	/*
 	 * convert one vendor address batch data from vendor address
 	 */
-	private void setVendorAddress(VendorAddressBatch address,VendorAddress vendorAddr, VendorDetail vDetail) {
+	private void setVendorAddress(VendorBatchAddress address,VendorAddress vendorAddr, VendorDetail vDetail) {
 		vendorAddr.setVendorAddressTypeCode(address.getVendorAddressTypeCode());
 		vendorAddr.setVendorLine1Address(address.getVendorLine1Address());
 		vendorAddr.setVendorCityName(address.getVendorCityName());
@@ -313,5 +331,190 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 		vendorAddr.setVendorFaxNumber(address.getVendorFaxNumber());
 		vendorAddr.setActive(StringUtils.equalsIgnoreCase("Y", address.getActive()));
 	}
+
+	private String changeVendor(VendorBatchDetail vendorBatch) {
+//		UserSession actualUserSession = GlobalVariables.getUserSession();
+//		MessageMap globalErrorMap = GlobalVariables.getMessageMap();
+        GlobalVariables.setMessageMap(new MessageMap());
+
+		// create and route doc as system user
+		GlobalVariables.setUserSession(new UserSession("kfs"));
+
+		try {
+			DocumentService docService = SpringContext.getBean(DocumentService.class);
+
+			MaintenanceDocument vendorDoc = (MaintenanceDocument) docService.getNewDocument("PVEN");
+
+			vendorDoc.getDocumentHeader().setDocumentDescription("Update vendor from Procurement tool");
+
+			LOG.info("updateVendor " + vendorBatch.getLogData());
+			VendorDetail vendor = retrieveVendor(vendorBatch.getVendorNumber(), "VENDORID");
+			if (vendor != null) {
+				// Vendor does not eist
+				VendorMaintainableImpl oldVendorImpl = (VendorMaintainableImpl) vendorDoc.getOldMaintainableObject();
+				oldVendorImpl.setBusinessObject(vendor);
+
+			} else {
+				// Vendor does not eist
+				return "Vendor " + vendorBatch.getVendorNumber() + " Not Found.";
+			}
+				
+			VendorMaintainableImpl vImpl = (VendorMaintainableImpl) vendorDoc.getNewMaintainableObject();
+
+			vImpl.setMaintenanceAction(KFSConstants.MAINTENANCE_EDIT_ACTION);
+//			VendorDetail vendorCopy = (VendorDetail)ObjectUtils.deepCopy(vendor);
+			vImpl.setBusinessObject((VendorDetail)ObjectUtils.deepCopy(vendor));
+			VendorDetail vDetail = (VendorDetail) vImpl.getBusinessObject();
+
+        	vDetail.setVendorName(vendorBatch.getVendorName());
+        	vDetail.setActiveIndicator(true);
+        	vDetail.setTaxableIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.getTaxable()));
+
+			((VendorDetailExtension) vDetail.getExtension()).setEinvoiceVendorIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.geteInvoice()));
+
+			
+        	updateVendorAddresses(vendorBatch.getVendorAddresses(), vendor, vDetail);
+//			vDetail.setVendorAddresses(vAddrs);
+
+            updateVendorContacts(vendorBatch.getVendorContacts(), vendor, vDetail);
+//        	updateVendorPhoneNumbers(phoneNumbers, vendor, vDetail);
+//
+//        	updateVendorSupplierDiversitys(supplierDiversitys, vendor, vDetail);
+
+			VendorHeader vHeader = vDetail.getVendorHeader();
+
+        	vHeader.setVendorTypeCode(vendorBatch.getVendorTypeCode());
+        	vHeader.setVendorForeignIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.getForeignVendor()));
+        	vHeader.setVendorOwnershipCode(vendorBatch.getOwnershipTypeCode());
+
+			vDetail.setVendorHeader(vHeader);
+			vImpl.setBusinessObject(vDetail);
+			vendorDoc.setNewMaintainableObject(vImpl);
+
+			docService.routeDocument(vendorDoc, "", null);
+
+			return vendorDoc.getDocumentNumber();
+        } catch (Exception e) {
+        	LOG.info("updateVendor STE " + e.getStackTrace()+e.toString());
+        	if (e instanceof ValidationException) {
+        		return "Failed request : "+ e.getMessage() + " - " + GlobalVariables.getMessageMap().getErrorMessages();
+        	} else {
+        	    return "Failed request : "+ e.getMessage();
+        	}
+		} finally {
+//			GlobalVariables.setUserSession(actualUserSession);
+//			GlobalVariables.setMessageMap(globalErrorMap);
+		}
+	}	
+
+	private void updateVendorAddresses(List<VendorBatchAddress> addresses, VendorDetail vendor, VendorDetail vDetail) {
+    	if (CollectionUtils.isNotEmpty(addresses)) {
+			for (VendorBatchAddress address : addresses) {
+				VendorAddress vendorAddr = new VendorAddress();
+				LOG.info("updateVendor ADDRESS " + address +  "~"  + address.getVendorAddressTypeCode() + "~" + address.getVendorAddressGeneratedIdentifier());
+				if (StringUtils.isNotBlank(address.getVendorAddressGeneratedIdentifier())) {
+					vendorAddr = getVendorAddress(vDetail, Integer.valueOf(address.getVendorAddressGeneratedIdentifier()));
+				}
+				setVendorAddress(address, vendorAddr, vDetail);
+				
+				if (vendorAddr.getVendorAddressGeneratedIdentifier() == null) {
+					vDetail.getVendorAddresses().add(vendorAddr);
+					vendor.getVendorAddresses().add(new VendorAddress()); 
+				}
+				// TODO : how about those existing addr, but not passed from request, should they be 'inactivated' ?
+			}        	
+    	}
+	}
+
+	private VendorAddress getVendorAddress(VendorDetail vDetail, Integer vendorAddressGeneratedIdentifier) {
+		for (VendorAddress vAddress : vDetail.getVendorAddresses()) {
+			if (vendorAddressGeneratedIdentifier.equals(vAddress.getVendorAddressGeneratedIdentifier())) {
+				return vAddress;
+			}
+		}
+		return new VendorAddress();
+	}
+
+	/**
+	 * 
+	 * @param vendorId
+	 * @param vendorIdType
+	 * @return
+	 * @throws Exception
+	 */
+	private VendorDetail retrieveVendor(String vendorId, String vendorIdType) throws Exception {
+		VendorDetail vendor = null;
+		CUVendorService vendorService = SpringContext.getBean(CUVendorService.class);
+		if (StringUtils.equalsIgnoreCase(vendorIdType, "DUNS")) {
+			vendor = vendorService.getVendorByDunsNumber(vendorId);
+		} else if (StringUtils.equalsIgnoreCase(vendorIdType, "VENDORID")) {
+			vendor = vendorService.getByVendorNumber(vendorId);
+		} else if (StringUtils.equalsIgnoreCase(vendorIdType, "VENDORNAME")) {
+			vendor = vendorService.getVendorByVendorName(vendorId);
+		}
+		return vendor;
+	}
+
+	private void updateVendorContacts(List<VendorBatchContact> contacts, VendorDetail vendor, VendorDetail vDetail) {
+    	if (CollectionUtils.isNotEmpty(contacts)) {
+	    	for (VendorBatchContact contact : contacts) {
+				LOG.info("updateVendor contact " + contact +  "~" + contact.getVendorContactGeneratedIdentifier() + "~" + contact.getVendorContactName());
+	        	VendorContact vContact = new VendorContact();
+	        	if (StringUtils.isNotBlank(contact.getVendorContactGeneratedIdentifier())) {
+	        		vContact = getVendorContact(vDetail, Integer.valueOf(contact.getVendorContactGeneratedIdentifier()));
+	        	}
+				setVendorContact(contact, vContact);
+	        	if (vContact.getVendorContactGeneratedIdentifier() == null) {
+	            	vDetail.getVendorContacts().add(vContact);
+				     vendor.getVendorContacts().add(new VendorContact());
+	      		
+	        	}
+	        	// TODO : what to do with those existing contacts, but not passed from request
+	   		
+	    	}
+    	}
+	}
+
+	private VendorContact getVendorContact(VendorDetail vDetail, Integer vendorContactGeneratedIdentifier) {
+    	if (CollectionUtils.isNotEmpty(vDetail.getVendorContacts())) {
+			for (VendorContact vContact : vDetail.getVendorContacts()) {
+				if (vendorContactGeneratedIdentifier.equals(vContact.getVendorContactGeneratedIdentifier())) {
+					return vContact;
+				}
+			}
+		}
+		return new VendorContact();
+	}
+	
+	private void setVendorContact(VendorBatchContact contact,VendorContact vContact) {
+    	vContact.setVendorContactTypeCode(contact.getVendorContactTypeCode());
+    	vContact.setVendorContactName(contact.getVendorContactName());
+    	vContact.setVendorContactEmailAddress(contact.getVendorContactEmailAddress());
+    	vContact.setVendorContactCommentText(contact.getVendorContactCommentText());
+    	vContact.setVendorLine1Address(contact.getVendorLine1Address());
+    	vContact.setVendorLine2Address(contact.getVendorLine2Address());
+    	vContact.setVendorCityName(contact.getVendorCityName());
+    	vContact.setVendorCountryCode(contact.getVendorCountryCode());
+    	vContact.setVendorStateCode(contact.getVendorStateCode());
+    	vContact.setVendorZipCode(contact.getVendorZipCode());
+    	vContact.setVendorAttentionName(contact.getVendorAttentionName());
+    	vContact.setVendorAddressInternationalProvinceName(contact.getVendorAddressInternationalProvinceName());    	
+    	vContact.setActive(StringUtils.equalsIgnoreCase("Y", contact.getActive()));
+
+	}
+	
+	private List<VendorContact> getVendorContacts(List<VendorBatchContact> contacts) {
+    	ArrayList<VendorContact> vendorContacts = new ArrayList<VendorContact>();
+    	if (CollectionUtils.isNotEmpty(contacts)) {
+			for (VendorBatchContact contact : contacts) {
+				LOG.info("addVendor contact " + contact);
+				VendorContact vContact = new VendorContact();
+				setVendorContact(contact, vContact);
+				vendorContacts.add(vContact);
+			}
+    	}
+    	return vendorContacts;
+	}
+	
 
 }

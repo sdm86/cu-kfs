@@ -25,7 +25,7 @@ import org.kuali.kfs.sys.batch.CsvBatchInputFileTypeBase;
 import org.kuali.kfs.sys.exception.ParseException;
 
 import edu.cornell.kfs.vnd.batch.service.VendorBatchService;
-import edu.cornell.kfs.vnd.businessobject.VendorBatch;
+import edu.cornell.kfs.vnd.businessobject.VendorBatchDetail;
 
 public class VendorBatchCsvInputFileType  extends CsvBatchInputFileTypeBase<VendorBatchCsv> {
 
@@ -68,7 +68,7 @@ public class VendorBatchCsvInputFileType  extends CsvBatchInputFileTypeBase<Vend
         
         //super class should have already defined a way to parse the content
         Object parsedContents = super.parse(fileByteContent);        
-        List<VendorBatch> vendors = (List<VendorBatch>)convertParsedObjectToVO(parsedContents);
+        List<VendorBatchDetail> vendors = (List<VendorBatchDetail>)convertParsedObjectToVO(parsedContents);
         return vendors;    
     }
     
@@ -89,7 +89,7 @@ public class VendorBatchCsvInputFileType  extends CsvBatchInputFileTypeBase<Vend
      */
     @Override
     protected Object convertParsedObjectToVO(Object parsedContent) {
-        List<VendorBatch> vendors = new ArrayList<VendorBatch>();
+        List<VendorBatchDetail> vendors = new ArrayList<VendorBatchDetail>();
         try {
             //  attempt to cast the parsedFileContents into the expected type
             List<Map<String, String>> parseDataList = (List<Map<String, String>>) parsedContent; 

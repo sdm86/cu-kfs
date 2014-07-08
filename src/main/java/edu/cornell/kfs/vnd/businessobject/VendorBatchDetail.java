@@ -3,6 +3,8 @@ package edu.cornell.kfs.vnd.businessobject;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import sun.misc.Regexp;
 
 /**
@@ -10,7 +12,8 @@ import sun.misc.Regexp;
  * Non-persistable BO to hold data loaded from vendor batch csv file.
  *
  */
-public class VendorBatch {
+public class VendorBatchDetail {
+	private String vendorNumber;
 	private String vendorName;
 	private String vendorTypeCode;
 	private String foreignVendor;
@@ -21,7 +24,9 @@ public class VendorBatch {
 	private String taxable;
 	private String eInvoice;
 	private String addresses;
+	private String contacts;
 	
+	private static final String DATA_DELIMITER = ";";
 	public String getVendorName() {
 		return vendorName;
 	}
@@ -78,11 +83,11 @@ public class VendorBatch {
 		this.addresses = addresses;
 	}
 	
-	public List<VendorAddressBatch> getVendorAddresses() {
-		List<VendorAddressBatch> vendorAddresses = new ArrayList<VendorAddressBatch>();
+	public List<VendorBatchAddress> getVendorAddresses() {
+		List<VendorBatchAddress> vendorAddresses = new ArrayList<VendorBatchAddress>();
 		String[] addressLines = getAddresses().split("::");
 		for (String addressLine : addressLines) {
-			vendorAddresses.add(new VendorAddressBatch(addressLine.split("\\|")));
+			vendorAddresses.add(new VendorBatchAddress(addressLine.split("\\|")));
 		}
 		return vendorAddresses;
 	}
@@ -92,6 +97,39 @@ public class VendorBatch {
 	}
 	public void setDefaultB2BPaymentMethodCode(String defaultB2BPaymentMethodCode) {
 		this.defaultB2BPaymentMethodCode = defaultB2BPaymentMethodCode;
+	}
+	public String getVendorNumber() {
+		return vendorNumber;
+	}
+	public void setVendorNumber(String vendorNumber) {
+		this.vendorNumber = vendorNumber;
+	}
+
+	public String getLogData() {
+	    StringBuilder sb = new StringBuilder();
+	    if (StringUtils.isNotBlank(getVendorNumber())) {
+	        sb.append(getVendorNumber()).append(DATA_DELIMITER);
+	    }
+	    sb.append(getVendorName()).append(DATA_DELIMITER)
+        .append(getVendorTypeCode()).append(DATA_DELIMITER)
+        .append(getOwnershipTypeCode()).append(DATA_DELIMITER)
+        .append(getTaxNumberType());
+	    return sb.toString();
+	}
+	public String getContacts() {
+		return contacts;
+	}
+	public void setContacts(String contacts) {
+		this.contacts = contacts;
+	}
+	
+	public List<VendorBatchContact> getVendorContacts() {
+		List<VendorBatchContact> vendorContacts = new ArrayList<VendorBatchContact>();
+		String[] contactLines = getContacts().split("::");
+		for (String contactLine : contactLines) {
+			vendorContacts.add(new VendorBatchContact(contactLine.split("\\|")));
+		}
+		return vendorContacts;
 	}
 
 }
