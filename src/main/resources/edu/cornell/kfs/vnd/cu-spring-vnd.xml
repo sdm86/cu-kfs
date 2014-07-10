@@ -174,7 +174,24 @@
 		<property name="batchInputFileService">
 			<ref bean="batchInputFileService" />
 		</property>
-
+		<property name="attachmentService">
+			<ref bean="attachmentService" />
+		</property>
+		<property name="personService">
+			<ref bean="personService" />
+		</property>
+		<property name="dateTimeService">
+			<ref bean="dateTimeService" />
+		</property>
+		<property name="configurationService">
+			<ref bean="kualiConfigurationService" />
+		</property>
+		<property name="documentService">
+			<ref bean="documentService" />
+		</property>
+		<property name="maintenanceDocumentService">
+			<ref bean="maintenanceDocumentService" />
+		</property>
 		<property name="batchInputFileTypes">
 			<list>
 				<ref bean="vendorBatchCsvInputFileType" />

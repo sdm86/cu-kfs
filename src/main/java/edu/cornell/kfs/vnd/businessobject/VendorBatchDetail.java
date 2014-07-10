@@ -25,6 +25,9 @@ public class VendorBatchDetail {
 	private String eInvoice;
 	private String addresses;
 	private String contacts;
+	private String phoneNumbers;
+	private String supplierDiversities;
+	private String attachmentFiles;
 	
 	private static final String DATA_DELIMITER = ";";
 	public String getVendorName() {
@@ -87,7 +90,9 @@ public class VendorBatchDetail {
 		List<VendorBatchAddress> vendorAddresses = new ArrayList<VendorBatchAddress>();
 		String[] addressLines = getAddresses().split("::");
 		for (String addressLine : addressLines) {
-			vendorAddresses.add(new VendorBatchAddress(addressLine.split("\\|")));
+			if (StringUtils.isNotBlank(addressLine)) {
+		    	vendorAddresses.add(new VendorBatchAddress(addressLine.split("\\|")));
+			}
 		}
 		return vendorAddresses;
 	}
@@ -127,9 +132,50 @@ public class VendorBatchDetail {
 		List<VendorBatchContact> vendorContacts = new ArrayList<VendorBatchContact>();
 		String[] contactLines = getContacts().split("::");
 		for (String contactLine : contactLines) {
-			vendorContacts.add(new VendorBatchContact(contactLine.split("\\|")));
+			if (StringUtils.isNotBlank(contactLine)) {
+			    vendorContacts.add(new VendorBatchContact(contactLine.split("\\|")));
+			}
 		}
 		return vendorContacts;
+	}
+	public String getPhoneNumbers() {
+		return phoneNumbers;
+	}
+	public void setPhoneNumbers(String phoneNumbers) {
+		this.phoneNumbers = phoneNumbers;
+	}
+	public String getSupplierDiversities() {
+		return supplierDiversities;
+	}
+	public void setSupplierDiversities(String supplierDiversities) {
+		this.supplierDiversities = supplierDiversities;
+	}
+	public List<VendorBatchPhoneNumber> getVendorPhoneNumbers() {
+		List<VendorBatchPhoneNumber> phoneNumbers = new ArrayList<VendorBatchPhoneNumber>();
+		String[] phoneNumberLines = getPhoneNumbers().split("::");
+		for (String phoneNumberLine : phoneNumberLines) {
+			if (StringUtils.isNotBlank(phoneNumberLine)) {
+				phoneNumbers.add(new VendorBatchPhoneNumber(phoneNumberLine.split("\\|")));
+			}
+		}
+		return phoneNumbers;
+	}
+
+	public List<VendorBatchSupplierDiversity> getVendorSupplierDiversities() {
+		List<VendorBatchSupplierDiversity> supplierDiversities = new ArrayList<VendorBatchSupplierDiversity>();
+		String[] supplierDiversityLines = getSupplierDiversities().split("::");
+		for (String supplierDiversityLine : supplierDiversityLines) {
+			if (StringUtils.isNotBlank(supplierDiversityLine)) {
+				supplierDiversities.add(new VendorBatchSupplierDiversity(supplierDiversityLine.split("\\|")));
+			}
+		}
+		return supplierDiversities;
+	}
+	public String getAttachmentFiles() {
+		return attachmentFiles;
+	}
+	public void setAttachmentFiles(String attachmentFiles) {
+		this.attachmentFiles = attachmentFiles;
 	}
 
 }
