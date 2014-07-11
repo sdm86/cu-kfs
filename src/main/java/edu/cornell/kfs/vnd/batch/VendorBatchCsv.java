@@ -8,5 +8,5 @@ package edu.cornell.kfs.vnd.batch;
 public enum VendorBatchCsv {
 	vendorNumber, vendorName, vendorTypeCode, foreignVendor, taxNumber, taxNumberType, ownershipTypeCode, 
 	defaultB2BPaymentMethodCode, taxable, eInvoice, addresses, contacts, phoneNumbers, supplierDiversities,
-	attachmentFiles
+	insuranceTracking, notes, attachmentFiles
 }

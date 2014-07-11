@@ -67,6 +67,8 @@ public class VendorBatchCsvBuilder {
         vendor.setContacts(rowDataMap.get(VendorBatchCsv.contacts.name()));        
         vendor.setPhoneNumbers(rowDataMap.get(VendorBatchCsv.phoneNumbers.name()));        
         vendor.setSupplierDiversities(rowDataMap.get(VendorBatchCsv.supplierDiversities.name()));        
+        vendor.setInsuranceTracking(rowDataMap.get(VendorBatchCsv.insuranceTracking.name()));        
+        vendor.setNotes(rowDataMap.get(VendorBatchCsv.notes.name()));        
         vendor.setAttachmentFiles(rowDataMap.get(VendorBatchCsv.attachmentFiles.name()));        
         return vendor;
     }

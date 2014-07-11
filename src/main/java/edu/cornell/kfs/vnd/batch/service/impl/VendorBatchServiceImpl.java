@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.text.MessageFormat;
@@ -55,9 +54,11 @@ import org.kuali.rice.krad.util.ObjectUtils;
 import edu.cornell.kfs.vnd.batch.service.VendorBatchService;
 import edu.cornell.kfs.vnd.businessobject.CuVendorAddressExtension;
 import edu.cornell.kfs.vnd.businessobject.CuVendorSupplierDiversityExtension;
+import edu.cornell.kfs.vnd.businessobject.VendorBatchAdditionalNote;
 import edu.cornell.kfs.vnd.businessobject.VendorBatchAddress;
 import edu.cornell.kfs.vnd.businessobject.VendorBatchContact;
 import edu.cornell.kfs.vnd.businessobject.VendorBatchDetail;
+import edu.cornell.kfs.vnd.businessobject.VendorBatchInsuranceTracking;
 import edu.cornell.kfs.vnd.businessobject.VendorBatchPhoneNumber;
 import edu.cornell.kfs.vnd.businessobject.VendorBatchSupplierDiversity;
 import edu.cornell.kfs.vnd.businessobject.VendorDetailExtension;
@@ -296,13 +297,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 
         	VendorDetail vDetail = (VendorDetail)vImpl.getBusinessObject();
         	
-        	vDetail.setVendorName(vendorBatch.getVendorName());
-        	vDetail.setActiveIndicator(true);
-        	vDetail.setTaxableIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.getTaxable()));
-
-        	((VendorDetailExtension)vDetail.getExtension()).setEinvoiceVendorIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.geteInvoice()));
-        	((VendorDetailExtension)vDetail.getExtension()).setDefaultB2BPaymentMethodCode( vendorBatch.getDefaultB2BPaymentMethodCode());
-
+        	setupVendorDetailFields(vDetail, vendorBatch);
         	vDetail.setVendorAddresses(getVendorAddresses(vendorBatch.getVendorAddresses(), vDetail));
 
         	vDetail.setVendorContacts(getVendorContacts(vendorBatch.getVendorContacts()));
@@ -312,17 +307,12 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 
         	
         	VendorHeader vHeader = vDetail.getVendorHeader();
-        	
-        	vHeader.setVendorTypeCode(vendorBatch.getVendorTypeCode());
-        	vHeader.setVendorTaxNumber(vendorBatch.getTaxNumber());
-        	vHeader.setVendorTaxTypeCode(vendorBatch.getTaxNumberType());
-        	vHeader.setVendorForeignIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.getForeignVendor()));
-        	vHeader.setVendorOwnershipCode(vendorBatch.getOwnershipTypeCode());
-
+        	setupVendorHeaderFields(vHeader, vendorBatch);
         	vHeader.setVendorSupplierDiversities(getVendorSupplierDiversities(vendorBatch.getVendorSupplierDiversities()));
         	vDetail.setVendorHeader(vHeader);
         	vImpl.setBusinessObject(vDetail);
         	vendorDoc.setNewMaintainableObject(vImpl);
+        	addNotes(vendorDoc, vendorBatch);
 			if (StringUtils.isNotBlank(vendorBatch.getAttachmentFiles())) {
 			    loadDocumentAttachments(vendorDoc, Arrays.asList(vendorBatch.getAttachmentFiles().split("\\|")));
 			}
@@ -339,6 +329,33 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         }      
 	}    
 
+	private void setupVendorHeaderFields (VendorHeader vHeader, VendorBatchDetail vendorBatch) {
+		
+    	vHeader.setVendorTypeCode(vendorBatch.getVendorTypeCode());
+    	if (StringUtils.isNotBlank(vendorBatch.getTaxNumber())) {
+    		// if this is not included in update vendor data
+    	    vHeader.setVendorTaxNumber(vendorBatch.getTaxNumber());
+    	}
+    	if (StringUtils.isNotBlank(vendorBatch.getTaxNumberType())) {
+    	   	vHeader.setVendorTaxTypeCode(vendorBatch.getTaxNumberType());
+    	}
+    	vHeader.setVendorForeignIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.getForeignVendor()));
+    	vHeader.setVendorOwnershipCode(vendorBatch.getOwnershipTypeCode());
+
+	}
+	
+	private void setupVendorDetailFields (VendorDetail vDetail, VendorBatchDetail vendorBatch) {
+		vDetail.setVendorName(vendorBatch.getVendorName());
+		vDetail.setActiveIndicator(true);
+		vDetail.setTaxableIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.getTaxable()));
+
+		((VendorDetailExtension)vDetail.getExtension()).setEinvoiceVendorIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.geteInvoice()));
+		if (StringUtils.isNotBlank(vendorBatch.getDefaultB2BPaymentMethodCode())) {
+			// if update vendor does not include this
+		    ((VendorDetailExtension)vDetail.getExtension()).setDefaultB2BPaymentMethodCode( vendorBatch.getDefaultB2BPaymentMethodCode());
+		}
+    }
+	
 	/*
 	 * convert list of vendor address batch data to list of vendor address
 	 */
@@ -376,7 +393,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 
 	}
 	/*
-	 * convert one vendor address batch data from vendor address
+	 * convert one vendor address batch data to vendor address
 	 */
 	private void setVendorAddress(VendorBatchAddress address,VendorAddress vendorAddr, VendorDetail vDetail) {
 		vendorAddr.setVendorAddressTypeCode(address.getVendorAddressTypeCode());
@@ -429,34 +446,24 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 			VendorMaintainableImpl vImpl = (VendorMaintainableImpl) vendorDoc.getNewMaintainableObject();
 
 			vImpl.setMaintenanceAction(KFSConstants.MAINTENANCE_EDIT_ACTION);
-			vImpl.setBusinessObject((VendorDetail)ObjectUtils.deepCopy(vendor));
+			vendorDoc.getNewMaintainableObject().setDocumentNumber(vendorDoc.getDocumentNumber());
+     		vImpl.setBusinessObject((VendorDetail)ObjectUtils.deepCopy(vendor));
 			VendorDetail vDetail = (VendorDetail) vImpl.getBusinessObject();
 
-        	vDetail.setVendorName(vendorBatch.getVendorName());
-        	vDetail.setActiveIndicator(true);
-        	vDetail.setTaxableIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.getTaxable()));
-
-			((VendorDetailExtension) vDetail.getExtension()).setEinvoiceVendorIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.geteInvoice()));
-
+        	setupVendorDetailFields(vDetail, vendorBatch);
+			setupInsuranceTracking((VendorDetailExtension)vDetail.getExtension(), vendorBatch);
 			
         	updateVendorAddresses(vendorBatch.getVendorAddresses(), vendor, vDetail);
-//			vDetail.setVendorAddresses(vAddrs);
 
             updateVendorContacts(vendorBatch.getVendorContacts(), vendor, vDetail);
         	updateVendorPhoneNumbers(vendorBatch.getVendorPhoneNumbers(), vendor, vDetail);
 //
         	updateVendorSupplierDiversitys(vendorBatch.getVendorSupplierDiversities(), vendor, vDetail);
 
-			VendorHeader vHeader = vDetail.getVendorHeader();
-
-        	vHeader.setVendorTypeCode(vendorBatch.getVendorTypeCode());
-        	vHeader.setVendorForeignIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.getForeignVendor()));
-        	vHeader.setVendorOwnershipCode(vendorBatch.getOwnershipTypeCode());
-
-			vDetail.setVendorHeader(vHeader);
+        	setupVendorHeaderFields(vDetail.getVendorHeader(), vendorBatch);
 			vImpl.setBusinessObject(vDetail);
 			vendorDoc.setNewMaintainableObject(vImpl);
-
+        	addNotes(vendorDoc, vendorBatch);
 			// attachment
 			if (StringUtils.isNotBlank(vendorBatch.getAttachmentFiles())) {
 			    loadDocumentAttachments(vendorDoc, Arrays.asList(vendorBatch.getAttachmentFiles().split("\\|")));
@@ -520,6 +527,54 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         }
     }
 
+    private void setupInsuranceTracking(VendorDetailExtension vendorDetailExtension, VendorBatchDetail vendorBatch) {
+       if (StringUtils.isNotBlank(vendorBatch.getInsuranceTracking())) {
+    	   VendorBatchInsuranceTracking insuranceTracking = vendorBatch.getVendorInsuranceTracking();
+    	   vendorDetailExtension.setInsuranceRequiredIndicator(insuranceTracking.isInsuranceRequiredIndicator());
+    	   vendorDetailExtension.setInsuranceRequirementsCompleteIndicator(insuranceTracking.getInsuranceRequirementsCompleteIndicator());
+    	   vendorDetailExtension.setCornellAdditionalInsuredIndicator(insuranceTracking.getCornellAdditionalInsuredIndicator());
+    	   vendorDetailExtension.setGeneralLiabilityCoverageAmount(insuranceTracking.getGeneralLiabilityCoverageAmount());
+    	   vendorDetailExtension.setGeneralLiabilityExpiration(insuranceTracking.getGeneralLiabilityExpiration());
+    	   vendorDetailExtension.setAutomobileLiabilityCoverageAmount(insuranceTracking.getAutomobileLiabilityCoverageAmount());
+    	   vendorDetailExtension.setAutomobileLiabilityExpiration(insuranceTracking.getAutomobileLiabilityExpiration());
+    	   vendorDetailExtension.setWorkmansCompCoverageAmount(insuranceTracking.getWorkmansCompCoverageAmount());
+    	   vendorDetailExtension.setWorkmansCompExpiration(insuranceTracking.getWorkmansCompExpiration());
+    	   vendorDetailExtension.setExcessLiabilityUmbExpiration(insuranceTracking.getExcessLiabilityUmbExpiration());
+    	   vendorDetailExtension.setExcessLiabilityUmbrellaAmount(insuranceTracking.getExcessLiabilityUmbrellaAmount());
+    	   vendorDetailExtension.setHealthOffSiteCateringLicenseReq(insuranceTracking.getHealthOffSiteCateringLicenseReq());
+    	   vendorDetailExtension.setHealthOffSiteLicenseExpirationDate(insuranceTracking.getHealthOffSiteLicenseExpirationDate());
+    	   vendorDetailExtension.setInsuranceNotes(insuranceTracking.getInsuranceNotes());
+       }
+    }
+    
+    private void addNotes(Document document, VendorBatchDetail vendorBatch) {
+        if (StringUtils.isNotBlank(vendorBatch.getNotes())) {
+        	VendorBatchAdditionalNote additionalNote = vendorBatch.getVendorAdditionalNote();
+        	if (additionalNote != null) {
+        		if (StringUtils.isNotBlank(additionalNote.getInitiator())) {
+        			addNote(document, "Initiator : " + additionalNote.getInitiator());
+        		} 
+        		if (StringUtils.isNotBlank(additionalNote.getDvReason())) {
+        			addNote(document, "DV Reason : " + additionalNote.getDvReason());
+        		} 
+        		if (StringUtils.isNotBlank(additionalNote.getDoBusinessAs())) {
+        			addNote(document, "Doing Business As : " + additionalNote.getDoBusinessAs());
+        		}
+        	}
+        }
+    }
+
+    private void addNote (Document document, String noteText) {
+        Note note = new Note();
+
+        note.setNoteText(noteText);
+        note.setRemoteObjectIdentifier(document.getObjectId());
+        note.setAuthorUniversalIdentifier(getSystemUser().getPrincipalId());
+        note.setNoteTypeCode(KFSConstants.NoteTypeEnum.BUSINESS_OBJECT_NOTE_TYPE.getCode());
+        note.setNotePostedTimestampToCurrent();
+        document.addNote(note);
+    }
+    
     private Person getSystemUser() {
         return personService.getPersonByPrincipalName(KFSConstants.SYSTEM_USER);
     }
@@ -703,7 +758,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 	}
 	
 	private Date getFormatDate(String stringDate) {
-        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("MM.dd.yyyy");
         Date date = null;
         try {
             date = format.parse(stringDate);

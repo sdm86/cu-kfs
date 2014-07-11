@@ -27,6 +27,8 @@ public class VendorBatchDetail {
 	private String contacts;
 	private String phoneNumbers;
 	private String supplierDiversities;
+	private String insuranceTracking;
+	private String notes;
 	private String attachmentFiles;
 	
 	private static final String DATA_DELIMITER = ";";
@@ -91,7 +93,7 @@ public class VendorBatchDetail {
 		String[] addressLines = getAddresses().split("::");
 		for (String addressLine : addressLines) {
 			if (StringUtils.isNotBlank(addressLine)) {
-		    	vendorAddresses.add(new VendorBatchAddress(addressLine.split("\\|")));
+		    	vendorAddresses.add(new VendorBatchAddress(addressLine.split("\\|", -1)));
 			}
 		}
 		return vendorAddresses;
@@ -133,7 +135,7 @@ public class VendorBatchDetail {
 		String[] contactLines = getContacts().split("::");
 		for (String contactLine : contactLines) {
 			if (StringUtils.isNotBlank(contactLine)) {
-			    vendorContacts.add(new VendorBatchContact(contactLine.split("\\|")));
+			    vendorContacts.add(new VendorBatchContact(contactLine.split("\\|", -1)));
 			}
 		}
 		return vendorContacts;
@@ -155,7 +157,7 @@ public class VendorBatchDetail {
 		String[] phoneNumberLines = getPhoneNumbers().split("::");
 		for (String phoneNumberLine : phoneNumberLines) {
 			if (StringUtils.isNotBlank(phoneNumberLine)) {
-				phoneNumbers.add(new VendorBatchPhoneNumber(phoneNumberLine.split("\\|")));
+				phoneNumbers.add(new VendorBatchPhoneNumber(phoneNumberLine.split("\\|", -1)));
 			}
 		}
 		return phoneNumbers;
@@ -166,7 +168,7 @@ public class VendorBatchDetail {
 		String[] supplierDiversityLines = getSupplierDiversities().split("::");
 		for (String supplierDiversityLine : supplierDiversityLines) {
 			if (StringUtils.isNotBlank(supplierDiversityLine)) {
-				supplierDiversities.add(new VendorBatchSupplierDiversity(supplierDiversityLine.split("\\|")));
+				supplierDiversities.add(new VendorBatchSupplierDiversity(supplierDiversityLine.split("\\|", -1)));
 			}
 		}
 		return supplierDiversities;
@@ -176,6 +178,34 @@ public class VendorBatchDetail {
 	}
 	public void setAttachmentFiles(String attachmentFiles) {
 		this.attachmentFiles = attachmentFiles;
+	}
+	public String getInsuranceTracking() {
+		return insuranceTracking;
+	}
+	public void setInsuranceTracking(String insuranceTracking) {
+		this.insuranceTracking = insuranceTracking;
+	}
+
+	public VendorBatchInsuranceTracking getVendorInsuranceTracking() {
+		insuranceTracking = insuranceTracking.replaceAll("\"", "");
+		if (StringUtils.isNotBlank(insuranceTracking)) {
+			return new VendorBatchInsuranceTracking(insuranceTracking.split("\\|", -1));
+		}
+		return null;
+	}
+	public String getNotes() {
+		return notes;
+	}
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+	public VendorBatchAdditionalNote getVendorAdditionalNote() {
+		notes = notes.replaceAll("\"", "");
+		if (StringUtils.isNotBlank(notes)) {
+			return new VendorBatchAdditionalNote(notes.split("\\|", -1));
+		}
+		return null;
 	}
 
 }

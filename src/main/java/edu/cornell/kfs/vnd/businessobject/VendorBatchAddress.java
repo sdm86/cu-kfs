@@ -1,5 +1,7 @@
 package edu.cornell.kfs.vnd.businessobject;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  *  non-persistable to hold vendor address converted from input data file
  **/
@@ -35,7 +37,9 @@ public class VendorBatchAddress {
         vendorAddressInternationalProvinceName = address[9];
         vendorAddressEmailAddress = address[10];
         vendorBusinessToBusinessUrlAddress = address[11];
-        vendorFaxNumber = address[12];
+        if (StringUtils.isNotBlank(address[12])) {
+            vendorFaxNumber = address[12];
+        }
         vendorDefaultAddressIndicator = address[13];
         purchaseOrderTransmissionMethodCode = address[14];
         active = address[15];
