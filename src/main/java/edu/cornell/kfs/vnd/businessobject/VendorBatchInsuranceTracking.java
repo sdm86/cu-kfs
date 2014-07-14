@@ -147,6 +147,9 @@ public class VendorBatchInsuranceTracking {
 	
 	private Date getFormatDate(String stringDate) {
         SimpleDateFormat format = new SimpleDateFormat("MM.dd.yyyy");
+        if (stringDate.contains("/")) {
+        	format = new SimpleDateFormat("MM/dd/yyyy");
+        }
         Date date = null;
         if (StringUtils.isNotBlank(stringDate)) {
             try {

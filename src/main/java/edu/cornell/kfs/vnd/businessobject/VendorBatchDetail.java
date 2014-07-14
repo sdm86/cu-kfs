@@ -15,6 +15,8 @@ import sun.misc.Regexp;
 public class VendorBatchDetail {
 	private String vendorNumber;
 	private String vendorName;
+	private String legalFirstName;
+	private String legalLastName;
 	private String vendorTypeCode;
 	private String foreignVendor;
 	private String taxNumber;
@@ -206,6 +208,18 @@ public class VendorBatchDetail {
 			return new VendorBatchAdditionalNote(notes.split("\\|", -1));
 		}
 		return null;
+	}
+	public String getLegalFirstName() {
+		return legalFirstName;
+	}
+	public void setLegalFirstName(String legalFirstName) {
+		this.legalFirstName = legalFirstName;
+	}
+	public String getLegalLastName() {
+		return legalLastName;
+	}
+	public void setLegalLastName(String legalLastName) {
+		this.legalLastName = legalLastName;
 	}
 
 }

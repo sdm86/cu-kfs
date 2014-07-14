@@ -285,7 +285,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         GlobalVariables.setMessageMap(new MessageMap());
     	     
         // create and route doc as system user
-        GlobalVariables.setUserSession(new UserSession("kfs"));
+//        GlobalVariables.setUserSession(new UserSession("kfs"));
         LOG.info("addVendor "+vendorBatch.getLogData());       
         try {
         	
@@ -345,7 +345,16 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 	}
 	
 	private void setupVendorDetailFields (VendorDetail vDetail, VendorBatchDetail vendorBatch) {
-		vDetail.setVendorName(vendorBatch.getVendorName());
+		if (StringUtils.isNotBlank(vendorBatch.getVendorName())) {
+		    vDetail.setVendorName(vendorBatch.getVendorName());
+			vDetail.setVendorLastName("");
+			vDetail.setVendorFirstName("");
+		} else {
+		    vDetail.setVendorName("");
+		    vDetail.setVendorFirstLastNameIndicator(true);
+			vDetail.setVendorLastName(vendorBatch.getLegalLastName());
+			vDetail.setVendorFirstName(vendorBatch.getLegalFirstName());
+		}
 		vDetail.setActiveIndicator(true);
 		vDetail.setTaxableIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.getTaxable()));
 
@@ -759,6 +768,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 	
 	private Date getFormatDate(String stringDate) {
         SimpleDateFormat format = new SimpleDateFormat("MM.dd.yyyy");
+        if (stringDate.contains("/")) {
+        	format = new SimpleDateFormat("MM/dd/yyyy");
+        }
         Date date = null;
         try {
             date = format.parse(stringDate);

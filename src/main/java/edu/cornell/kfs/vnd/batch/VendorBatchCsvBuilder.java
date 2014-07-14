@@ -54,7 +54,9 @@ public class VendorBatchCsvBuilder {
 
     	VendorBatchDetail vendor = new VendorBatchDetail();
         vendor.setVendorNumber(rowDataMap.get(VendorBatchCsv.vendorNumber.name()));        
-        vendor.setVendorName(rowDataMap.get(VendorBatchCsv.vendorName.name()));        
+        vendor.setVendorName((rowDataMap.get(VendorBatchCsv.vendorName.name())));        
+        vendor.setLegalFirstName(rowDataMap.get(VendorBatchCsv.legalFirstName.name()));        
+        vendor.setLegalLastName(rowDataMap.get(VendorBatchCsv.legalLastName.name()));        
         vendor.setVendorTypeCode(rowDataMap.get(VendorBatchCsv.vendorTypeCode.name()));        
         vendor.setForeignVendor(rowDataMap.get(VendorBatchCsv.foreignVendor.name()));        
         vendor.setTaxNumber(rowDataMap.get(VendorBatchCsv.taxNumber.name()));        
@@ -63,15 +65,22 @@ public class VendorBatchCsvBuilder {
         vendor.setDefaultB2BPaymentMethodCode(rowDataMap.get(VendorBatchCsv.defaultB2BPaymentMethodCode.name()));        
         vendor.setTaxable(rowDataMap.get(VendorBatchCsv.taxable.name()));        
         vendor.seteInvoice(rowDataMap.get(VendorBatchCsv.eInvoice.name()));        
-        vendor.setAddresses(rowDataMap.get(VendorBatchCsv.addresses.name()));        
-        vendor.setContacts(rowDataMap.get(VendorBatchCsv.contacts.name()));        
-        vendor.setPhoneNumbers(rowDataMap.get(VendorBatchCsv.phoneNumbers.name()));        
-        vendor.setSupplierDiversities(rowDataMap.get(VendorBatchCsv.supplierDiversities.name()));        
-        vendor.setInsuranceTracking(rowDataMap.get(VendorBatchCsv.insuranceTracking.name()));        
-        vendor.setNotes(rowDataMap.get(VendorBatchCsv.notes.name()));        
-        vendor.setAttachmentFiles(rowDataMap.get(VendorBatchCsv.attachmentFiles.name()));        
+        vendor.setAddresses(filterQuote(rowDataMap.get(VendorBatchCsv.addresses.name())));        
+        vendor.setContacts(filterQuote(rowDataMap.get(VendorBatchCsv.contacts.name())));        
+        vendor.setPhoneNumbers(filterQuote(rowDataMap.get(VendorBatchCsv.phoneNumbers.name())));        
+        vendor.setSupplierDiversities(filterQuote(rowDataMap.get(VendorBatchCsv.supplierDiversities.name())));        
+        vendor.setInsuranceTracking(filterQuote(rowDataMap.get(VendorBatchCsv.insuranceTracking.name())));        
+        vendor.setNotes(filterQuote(rowDataMap.get(VendorBatchCsv.notes.name())));        
+        vendor.setAttachmentFiles(filterQuote(rowDataMap.get(VendorBatchCsv.attachmentFiles.name())));        
         return vendor;
     }
 
 
+    private static String filterQuote(String fieldData) {
+    	if (fieldData.startsWith("\"")) {
+    	    fieldData = fieldData.replaceAll("\"", "");
+    	} 
+    	return fieldData;
+
+    }
 }
