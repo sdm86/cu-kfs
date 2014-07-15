@@ -5,14 +5,16 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import sun.misc.Regexp;
-
 /**
  * 
  * Non-persistable BO to hold data loaded from vendor batch csv file.
  *
  */
 public class VendorBatchDetail {
+
+    private static final String DATA_DELIMITER = ";";
+	private static final String COLLECTION_ITEM_DELIMITER = "::";
+	private static final String COLLECTION_FIELD_DELIMITER = "\\|";
 	private String vendorNumber;
 	private String vendorName;
 	private String legalFirstName;
@@ -33,7 +35,6 @@ public class VendorBatchDetail {
 	private String notes;
 	private String attachmentFiles;
 	
-	private static final String DATA_DELIMITER = ";";
 	public String getVendorName() {
 		return vendorName;
 	}
@@ -92,10 +93,10 @@ public class VendorBatchDetail {
 	
 	public List<VendorBatchAddress> getVendorAddresses() {
 		List<VendorBatchAddress> vendorAddresses = new ArrayList<VendorBatchAddress>();
-		String[] addressLines = getAddresses().split("::");
+		String[] addressLines = getAddresses().split(COLLECTION_ITEM_DELIMITER);
 		for (String addressLine : addressLines) {
 			if (StringUtils.isNotBlank(addressLine)) {
-		    	vendorAddresses.add(new VendorBatchAddress(addressLine.split("\\|", -1)));
+		    	vendorAddresses.add(new VendorBatchAddress(addressLine.split(COLLECTION_FIELD_DELIMITER, -1)));
 			}
 		}
 		return vendorAddresses;
@@ -120,6 +121,8 @@ public class VendorBatchDetail {
 	        sb.append(getVendorNumber()).append(DATA_DELIMITER);
 	    }
 	    sb.append(getVendorName()).append(DATA_DELIMITER)
+        .append(getLegalFirstName()).append(DATA_DELIMITER)
+        .append(getLegalLastName()).append(DATA_DELIMITER)
         .append(getVendorTypeCode()).append(DATA_DELIMITER)
         .append(getOwnershipTypeCode()).append(DATA_DELIMITER)
         .append(getTaxNumberType());
@@ -134,10 +137,10 @@ public class VendorBatchDetail {
 	
 	public List<VendorBatchContact> getVendorContacts() {
 		List<VendorBatchContact> vendorContacts = new ArrayList<VendorBatchContact>();
-		String[] contactLines = getContacts().split("::");
+		String[] contactLines = getContacts().split(COLLECTION_ITEM_DELIMITER);
 		for (String contactLine : contactLines) {
 			if (StringUtils.isNotBlank(contactLine)) {
-			    vendorContacts.add(new VendorBatchContact(contactLine.split("\\|", -1)));
+			    vendorContacts.add(new VendorBatchContact(contactLine.split(COLLECTION_FIELD_DELIMITER, -1)));
 			}
 		}
 		return vendorContacts;
@@ -155,25 +158,25 @@ public class VendorBatchDetail {
 		this.supplierDiversities = supplierDiversities;
 	}
 	public List<VendorBatchPhoneNumber> getVendorPhoneNumbers() {
-		List<VendorBatchPhoneNumber> phoneNumbers = new ArrayList<VendorBatchPhoneNumber>();
-		String[] phoneNumberLines = getPhoneNumbers().split("::");
+		List<VendorBatchPhoneNumber> vendorPhoneNumbers = new ArrayList<VendorBatchPhoneNumber>();
+		String[] phoneNumberLines = getPhoneNumbers().split(COLLECTION_ITEM_DELIMITER);
 		for (String phoneNumberLine : phoneNumberLines) {
 			if (StringUtils.isNotBlank(phoneNumberLine)) {
-				phoneNumbers.add(new VendorBatchPhoneNumber(phoneNumberLine.split("\\|", -1)));
+				vendorPhoneNumbers.add(new VendorBatchPhoneNumber(phoneNumberLine.split(COLLECTION_FIELD_DELIMITER, -1)));
 			}
 		}
-		return phoneNumbers;
+		return vendorPhoneNumbers;
 	}
 
 	public List<VendorBatchSupplierDiversity> getVendorSupplierDiversities() {
-		List<VendorBatchSupplierDiversity> supplierDiversities = new ArrayList<VendorBatchSupplierDiversity>();
-		String[] supplierDiversityLines = getSupplierDiversities().split("::");
+		List<VendorBatchSupplierDiversity> vendorSupplierDiversities = new ArrayList<VendorBatchSupplierDiversity>();
+		String[] supplierDiversityLines = getSupplierDiversities().split(COLLECTION_ITEM_DELIMITER);
 		for (String supplierDiversityLine : supplierDiversityLines) {
 			if (StringUtils.isNotBlank(supplierDiversityLine)) {
-				supplierDiversities.add(new VendorBatchSupplierDiversity(supplierDiversityLine.split("\\|", -1)));
+				vendorSupplierDiversities.add(new VendorBatchSupplierDiversity(supplierDiversityLine.split(COLLECTION_FIELD_DELIMITER, -1)));
 			}
 		}
-		return supplierDiversities;
+		return vendorSupplierDiversities;
 	}
 	public String getAttachmentFiles() {
 		return attachmentFiles;
@@ -189,9 +192,8 @@ public class VendorBatchDetail {
 	}
 
 	public VendorBatchInsuranceTracking getVendorInsuranceTracking() {
-		insuranceTracking = insuranceTracking.replaceAll("\"", "");
 		if (StringUtils.isNotBlank(insuranceTracking)) {
-			return new VendorBatchInsuranceTracking(insuranceTracking.split("\\|", -1));
+			return new VendorBatchInsuranceTracking(insuranceTracking.split(COLLECTION_FIELD_DELIMITER, -1));
 		}
 		return null;
 	}
@@ -203,9 +205,8 @@ public class VendorBatchDetail {
 	}
 
 	public VendorBatchAdditionalNote getVendorAdditionalNote() {
-		notes = notes.replaceAll("\"", "");
 		if (StringUtils.isNotBlank(notes)) {
-			return new VendorBatchAdditionalNote(notes.split("\\|", -1));
+			return new VendorBatchAdditionalNote(notes.split(COLLECTION_FIELD_DELIMITER, -1));
 		}
 		return null;
 	}

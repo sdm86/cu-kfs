@@ -1,5 +1,8 @@
 package edu.cornell.kfs.vnd.businessobject;
 
+/**
+ *  non-persistable to hold vendor phone number converted from input data file
+ **/
 public class VendorBatchPhoneNumber {
     private String vendorPhoneGeneratedIdentifier;
     private String vendorPhoneTypeCode;

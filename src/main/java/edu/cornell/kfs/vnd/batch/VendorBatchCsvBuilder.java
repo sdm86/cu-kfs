@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.kuali.kfs.sys.KFSConstants;
+
 import edu.cornell.kfs.vnd.businessobject.VendorBatchDetail;
 
 /**
@@ -29,6 +31,7 @@ import edu.cornell.kfs.vnd.businessobject.VendorBatchDetail;
 public class VendorBatchCsvBuilder {
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(VendorBatchCsvBuilder.class);
 
+    private static final String DOUBLE_QUOTE = "\"";
     /**
      * Convert the parseData object into VendorBatch BO 
      * 
@@ -77,8 +80,8 @@ public class VendorBatchCsvBuilder {
 
 
     private static String filterQuote(String fieldData) {
-    	if (fieldData.startsWith("\"")) {
-    	    fieldData = fieldData.replaceAll("\"", "");
+    	if (fieldData.startsWith(DOUBLE_QUOTE)) {
+    	    fieldData = fieldData.replaceAll(DOUBLE_QUOTE, KFSConstants.EMPTY_STRING);
     	} 
     	return fieldData;
 

@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.kuali.kfs.sys.batch.CsvBatchInputFileTypeBase;
 import org.kuali.kfs.sys.exception.ParseException;
 
-import edu.cornell.kfs.vnd.batch.service.VendorBatchService;
 import edu.cornell.kfs.vnd.businessobject.VendorBatchDetail;
 
 public class VendorBatchCsvInputFileType  extends CsvBatchInputFileTypeBase<VendorBatchCsv> {

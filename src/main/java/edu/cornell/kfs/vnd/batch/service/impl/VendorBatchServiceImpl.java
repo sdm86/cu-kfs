@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -24,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.kuali.kfs.sys.KFSConstants;
 import org.kuali.kfs.sys.batch.BatchInputFileType;
 import org.kuali.kfs.sys.batch.service.BatchInputFileService;
-import org.kuali.kfs.sys.context.SpringContext;
 import org.kuali.kfs.sys.exception.ParseException;
 import org.kuali.kfs.vnd.businessobject.VendorAddress;
 import org.kuali.kfs.vnd.businessobject.VendorContact;
@@ -37,7 +35,6 @@ import org.kuali.rice.core.api.config.property.ConfigurationService;
 import org.kuali.rice.core.api.datetime.DateTimeService;
 import org.kuali.rice.kim.api.identity.Person;
 import org.kuali.rice.kim.api.identity.PersonService;
-import org.kuali.rice.krad.UserSession;
 import org.kuali.rice.krad.bo.Attachment;
 import org.kuali.rice.krad.bo.Note;
 import org.kuali.rice.krad.document.Document;
@@ -45,7 +42,6 @@ import org.kuali.rice.krad.exception.ValidationException;
 import org.kuali.rice.krad.maintenance.MaintenanceDocument;
 import org.kuali.rice.krad.service.AttachmentService;
 import org.kuali.rice.krad.service.DocumentService;
-import org.kuali.rice.krad.service.MaintenanceDocumentService;
 import org.kuali.rice.krad.util.ErrorMessage;
 import org.kuali.rice.krad.util.GlobalVariables;
 import org.kuali.rice.krad.util.MessageMap;
@@ -66,7 +62,11 @@ import edu.cornell.kfs.vnd.document.service.CUVendorService;
 
 public class VendorBatchServiceImpl implements VendorBatchService{
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(VendorBatchServiceImpl.class);
-    
+    private static final String NEW_LINE = "\n";
+    private static final String YES = "Y";
+    private static final String VENDOR_DOCUMENT_TYPE_NAME = "PVEN";
+    private static final String TILDA_DELIMITER = "~";
+    private static final String COLLECTION_FIELD_DELIMITER = "\\|";
     private BatchInputFileService batchInputFileService;    
     private List<BatchInputFileType> batchInputFileTypes;
     private AttachmentService attachmentService;
@@ -74,7 +74,8 @@ public class VendorBatchServiceImpl implements VendorBatchService{
     private DateTimeService dateTimeService; 
     private ConfigurationService configurationService;
     private DocumentService documentService;
-    private MaintenanceDocumentService maintenanceDocumentService;
+    private String reportsDirectoryPath;
+    private CUVendorService cuVendorService;
     
     public VendorBatchServiceImpl() {
     }
@@ -115,25 +116,26 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         return result;
     }
 
+    /*
+     * write to a summary report file in "reports.directory"/vnd
+     */
     protected void getReportWriter(String reportLog) {
         
-       String reportDropFolder = new File(batchInputFileTypes.get(0).getDirectoryPath()) + "/report/";
-        String fileName = "VENDORBATCH_OUT_" +
+        String fileName = "VENDORBATCH_SUMMARY_" +
             new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(dateTimeService.getCurrentDate()) + ".txt";
         
          //  setup the writer
-         File reportFile = new File(reportDropFolder + fileName);
-         BufferedWriter writer = null;
-         try {
-             writer = new BufferedWriter(new FileWriter(reportFile));
-             writer.write(reportLog);
-             writer.close();
-         } catch (IOException e1) {
-             LOG.error("IOException when trying to write report file");
-             e1.printStackTrace();
-         }
-         
-                         
+        File reportFile = new File(reportsDirectoryPath + fileName);
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(reportFile));
+            writer.write(reportLog);
+            writer.close();
+        } catch (IOException e1) {
+            LOG.error("IOException when trying to write report file");
+            e1.printStackTrace();
+        }
+                                  
      }
 
     /**
@@ -194,10 +196,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         LOG.info("Attempting to parse the file");
         Object parsedObject = null;
         try {
-             parsedObject =  batchInputFileService.parse(batchInputFileType, fileByteContent);
-        }
-        catch (ParseException e) {
-            String errorMessage ="Error parsing batch file: " + e.getMessage();
+            parsedObject =  batchInputFileService.parse(batchInputFileType, fileByteContent);
+        } catch (ParseException e) {
+            String errorMessage = "Error parsing batch file: " + e.getMessage();
             LOG.error(errorMessage, e);
             throw new RuntimeException(errorMessage);
         }
@@ -209,26 +210,26 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         }
                
        
-        List<VendorBatchDetail> vendors =  ((List<VendorBatchDetail>) parsedObject);
+        List<VendorBatchDetail> vendors =  (List<VendorBatchDetail>) parsedObject;
         
         for (VendorBatchDetail vendorBatch  : vendors) {                                   
         // process each line to add/update vendor accordingly 
-        	String returnVal = "";
+        	String returnVal = KFSConstants.EMPTY_STRING;
         	if (StringUtils.isBlank(vendorBatch.getVendorNumber())) {
-        		processResults.append("add vendor : " + vendorBatch.getLogData() +"\n");
+        		processResults.append("add vendor : " + vendorBatch.getLogData() +NEW_LINE);
                 returnVal = addVendor(vendorBatch);
         	} else {
-        		processResults.append("update vendor : " + vendorBatch.getLogData() +"\n");
+        		processResults.append("update vendor : " + vendorBatch.getLogData() +NEW_LINE);
                 returnVal = updateVendor(vendorBatch);
         	}
             if (StringUtils.startsWith(returnVal, "Failed request")) {
             	// TODO : there is error.  need to handle here or before exit
             	LOG.error(returnVal);
             	result = false;
-        		processResults.append(returnVal +"\n");
-           } else {
+        		processResults.append(returnVal + NEW_LINE);
+            } else {
             	LOG.info("Document " + returnVal + " routed.");
-        		processResults.append("Document " + returnVal + " routed." +"\n");
+        		processResults.append("Document " + returnVal + " routed." + NEW_LINE);
             }
         }        
                 
@@ -236,14 +237,22 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 	}
 	
 	
+    /**
+    *
+    * Accepts a file name and returns a byte-array of the file name contents, if possible.
+    *
+    * Throws RuntimeExceptions if FileNotFound or IOExceptions occur.
+    *
+    * @param fileName String containing valid path & filename (relative or absolute) of file to load.
+    * @return A Byte Array of the contents of the file.
+    */
     protected byte[] safelyLoadFileBytes(String fileName) {
     // TODO : several classes have this same method.  Should re-factor to a util class for sharing.    
         InputStream fileContents;
         byte[] fileByteContent;
         try {
             fileContents = new FileInputStream(fileName);
-        }
-        catch (FileNotFoundException e1) {
+        } catch (FileNotFoundException e1) {
             LOG.error("Batch file not found [" + fileName + "]. " + e1.getMessage());
             throw new RuntimeException("Batch File not found [" + fileName + "]. " + e1.getMessage());
         }
@@ -289,7 +298,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         LOG.info("addVendor "+vendorBatch.getLogData());       
         try {
         	
-            MaintenanceDocument vendorDoc = (MaintenanceDocument)documentService.getNewDocument("PVEN");
+            MaintenanceDocument vendorDoc = (MaintenanceDocument)documentService.getNewDocument(VENDOR_DOCUMENT_TYPE_NAME);
             
             vendorDoc.getDocumentHeader().setDocumentDescription("New vendor from Procurement tool");
                         
@@ -314,10 +323,10 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         	vendorDoc.setNewMaintainableObject(vImpl);
         	addNotes(vendorDoc, vendorBatch);
 			if (StringUtils.isNotBlank(vendorBatch.getAttachmentFiles())) {
-			    loadDocumentAttachments(vendorDoc, Arrays.asList(vendorBatch.getAttachmentFiles().split("\\|")));
+			    loadDocumentAttachments(vendorDoc, Arrays.asList(vendorBatch.getAttachmentFiles().split(COLLECTION_FIELD_DELIMITER)));
 			}
 
-			documentService.routeDocument(vendorDoc, "", null);
+			documentService.routeDocument(vendorDoc, KFSConstants.EMPTY_STRING, null);
         	
             return vendorDoc.getDocumentNumber();
         } catch (Exception e) {
@@ -339,7 +348,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
     	if (StringUtils.isNotBlank(vendorBatch.getTaxNumberType())) {
     	   	vHeader.setVendorTaxTypeCode(vendorBatch.getTaxNumberType());
     	}
-    	vHeader.setVendorForeignIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.getForeignVendor()));
+    	vHeader.setVendorForeignIndicator(StringUtils.equalsIgnoreCase(YES, vendorBatch.getForeignVendor()));
     	vHeader.setVendorOwnershipCode(vendorBatch.getOwnershipTypeCode());
 
 	}
@@ -347,18 +356,18 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 	private void setupVendorDetailFields (VendorDetail vDetail, VendorBatchDetail vendorBatch) {
 		if (StringUtils.isNotBlank(vendorBatch.getVendorName())) {
 		    vDetail.setVendorName(vendorBatch.getVendorName());
-			vDetail.setVendorLastName("");
-			vDetail.setVendorFirstName("");
+			vDetail.setVendorLastName(KFSConstants.EMPTY_STRING);
+			vDetail.setVendorFirstName(KFSConstants.EMPTY_STRING);
 		} else {
-		    vDetail.setVendorName("");
+		    vDetail.setVendorName(KFSConstants.EMPTY_STRING);
 		    vDetail.setVendorFirstLastNameIndicator(true);
 			vDetail.setVendorLastName(vendorBatch.getLegalLastName());
 			vDetail.setVendorFirstName(vendorBatch.getLegalFirstName());
 		}
 		vDetail.setActiveIndicator(true);
-		vDetail.setTaxableIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.getTaxable()));
+		vDetail.setTaxableIndicator(StringUtils.equalsIgnoreCase(YES, vendorBatch.getTaxable()));
 
-		((VendorDetailExtension)vDetail.getExtension()).setEinvoiceVendorIndicator(StringUtils.equalsIgnoreCase("Y", vendorBatch.geteInvoice()));
+		((VendorDetailExtension)vDetail.getExtension()).setEinvoiceVendorIndicator(StringUtils.equalsIgnoreCase(YES, vendorBatch.geteInvoice()));
 		if (StringUtils.isNotBlank(vendorBatch.getDefaultB2BPaymentMethodCode())) {
 			// if update vendor does not include this
 		    ((VendorDetailExtension)vDetail.getExtension()).setDefaultB2BPaymentMethodCode( vendorBatch.getDefaultB2BPaymentMethodCode());
@@ -381,6 +390,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
     	return vAddrs;
 	}
 
+	/*
+	 * get error message from property file based on error key
+	 */
 	private String getValidationErrorMessage() {
 		StringBuilder validationError = new StringBuilder();
         for (String errorProperty : GlobalVariables.getMessageMap().getAllPropertiesWithErrors()) {
@@ -395,7 +407,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
                         errorMsg = MessageFormat.format(errorMsg, arguments);
                     }
                 }
-                validationError.append(errorMsg + "\n");;
+                validationError.append(errorMsg + NEW_LINE);;
             }
         }
         return validationError.toString();
@@ -412,7 +424,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 		vendorAddr.setVendorZipCode(address.getVendorZipCode());
 		vendorAddr.setVendorCountryCode(address.getVendorCountryCode());
 		vendorAddr.setVendorDefaultAddressIndicator(true);
-		vendorAddr.setVendorDefaultAddressIndicator(StringUtils.equalsIgnoreCase("Y", address.getVendorDefaultAddressIndicator()));
+		vendorAddr.setVendorDefaultAddressIndicator(StringUtils.equalsIgnoreCase(YES, address.getVendorDefaultAddressIndicator()));
 		if (vendorAddr.isVendorDefaultAddressIndicator()) {
 			// TODO : which one should be the vdetail's default address because there are different type address ???
         	vDetail.setDefaultAddressLine1(address.getVendorLine1Address());
@@ -425,9 +437,12 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 		((CuVendorAddressExtension)vendorAddr.getExtension()).setPurchaseOrderTransmissionMethodCode(address.getPurchaseOrderTransmissionMethodCode());
 		vendorAddr.setVendorAddressEmailAddress(address.getVendorAddressEmailAddress());						
 		vendorAddr.setVendorFaxNumber(address.getVendorFaxNumber());
-		vendorAddr.setActive(StringUtils.equalsIgnoreCase("Y", address.getActive()));
+		vendorAddr.setActive(StringUtils.equalsIgnoreCase(YES, address.getActive()));
 	}
 
+	/*
+	 * update vendor record.  vendor number must be valid.
+	 */
 	private String updateVendor(VendorBatchDetail vendorBatch) {
         GlobalVariables.setMessageMap(new MessageMap());
 
@@ -436,12 +451,12 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 
 		try {
 
-			MaintenanceDocument vendorDoc = (MaintenanceDocument) documentService.getNewDocument("PVEN");
+			MaintenanceDocument vendorDoc = (MaintenanceDocument) documentService.getNewDocument(VENDOR_DOCUMENT_TYPE_NAME);
 
 			vendorDoc.getDocumentHeader().setDocumentDescription("Update vendor from Procurement tool");
 
 			LOG.info("updateVendor " + vendorBatch.getLogData());
-			VendorDetail vendor = retrieveVendor(vendorBatch.getVendorNumber(), "VENDORID");
+			VendorDetail vendor = cuVendorService.getByVendorNumber(vendorBatch.getVendorNumber());
 			if (vendor != null) {
 				// Vendor does not eist
 				VendorMaintainableImpl oldVendorImpl = (VendorMaintainableImpl) vendorDoc.getOldMaintainableObject();
@@ -475,13 +490,13 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         	addNotes(vendorDoc, vendorBatch);
 			// attachment
 			if (StringUtils.isNotBlank(vendorBatch.getAttachmentFiles())) {
-			    loadDocumentAttachments(vendorDoc, Arrays.asList(vendorBatch.getAttachmentFiles().split("\\|")));
+			    loadDocumentAttachments(vendorDoc, Arrays.asList(vendorBatch.getAttachmentFiles().split(COLLECTION_FIELD_DELIMITER)));
 			}
 			// end attachment
-			documentService.routeDocument(vendorDoc, "", null);
+			documentService.routeDocument(vendorDoc, KFSConstants.EMPTY_STRING, null);
 			return vendorDoc.getDocumentNumber();
         } catch (Exception e) {
-        	LOG.info("updateVendor STE " + e.getStackTrace()+e.toString());
+        	LOG.info("updateVendor STE " + e.getStackTrace() + e.toString());
         	if (e instanceof ValidationException) {
         		return "Failed request : "+ e.getMessage() + " - " +  getValidationErrorMessage();
         	} else {
@@ -490,6 +505,10 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 		}
 	}	
 
+	/*
+	 * add 'attachments' to vendor document.  attachment file names is in input csv file.
+	 * Attachment files are upload to "staging.directory"/vendorBatch/attachment folder
+	 */
     private void loadDocumentAttachments(Document document, List<String> attachments) {
     	String attachmentsPath = new File(batchInputFileTypes.get(0).getDirectoryPath()).toString() + "/attachment";
         
@@ -506,7 +525,6 @@ public class VendorBatchServiceImpl implements VendorBatchService{
             String fileName = attachmentsPath + "/" + attachment;
             File attachmentFile = new File(fileName);
             if (!attachmentFile.exists()) {
-//                errorMap.putError(KFSConstants.GLOBAL_ERRORS, KFSKeyConstants.ERROR_BATCH_FEED_ATTACHMENT, new String[] { attachment, attachmentsPath });
                 continue;
             }
 
@@ -517,45 +535,48 @@ public class VendorBatchServiceImpl implements VendorBatchService{
                 // TODO : Files.probeContentType is supported by java 7.  Not sure if this will be an issue
                 String mimeTypeCode = Files.probeContentType(attachmentFile.toPath());
                 // TODO : urlconnection is working for java 7 and under, but it return null for 'docx/pptx/xslx' 
-                String type = URLConnection.guessContentTypeFromName(attachmentFile.getAbsolutePath());
+//                String type = URLConnection.guessContentTypeFromName(attachmentFile.getAbsolutePath());
 
-                String attachType = "";
+                String attachType = KFSConstants.EMPTY_STRING;
 
                 Attachment noteAttachment = attachmentService.createAttachment(document.getDocumentHeader(), attachment, mimeTypeCode, fileSize, fileInputStream, attachType);
 
                 note.addAttachment(noteAttachment);
                 document.addNote(note);
-            }
-            catch (FileNotFoundException e) {
-//                errorMap.putError(KFSConstants.GLOBAL_ERRORS, KFSKeyConstants.ERROR_BATCH_FEED_ATTACHMENT, new String[] { attachment, attachmentsPath });
+            } catch (FileNotFoundException e) {
                 continue;
-            }
-            catch (IOException e1) {
+            } catch (IOException e1) {
                 throw new RuntimeException("Unable to create attachment for File: " + fileName, e1);
             }
         }
     }
 
+    /*
+     * populate insurance tracking from batch input data to vendor detail extension
+     */
     private void setupInsuranceTracking(VendorDetailExtension vendorDetailExtension, VendorBatchDetail vendorBatch) {
-       if (StringUtils.isNotBlank(vendorBatch.getInsuranceTracking())) {
-    	   VendorBatchInsuranceTracking insuranceTracking = vendorBatch.getVendorInsuranceTracking();
-    	   vendorDetailExtension.setInsuranceRequiredIndicator(insuranceTracking.isInsuranceRequiredIndicator());
-    	   vendorDetailExtension.setInsuranceRequirementsCompleteIndicator(insuranceTracking.getInsuranceRequirementsCompleteIndicator());
-    	   vendorDetailExtension.setCornellAdditionalInsuredIndicator(insuranceTracking.getCornellAdditionalInsuredIndicator());
-    	   vendorDetailExtension.setGeneralLiabilityCoverageAmount(insuranceTracking.getGeneralLiabilityCoverageAmount());
-    	   vendorDetailExtension.setGeneralLiabilityExpiration(insuranceTracking.getGeneralLiabilityExpiration());
-    	   vendorDetailExtension.setAutomobileLiabilityCoverageAmount(insuranceTracking.getAutomobileLiabilityCoverageAmount());
-    	   vendorDetailExtension.setAutomobileLiabilityExpiration(insuranceTracking.getAutomobileLiabilityExpiration());
-    	   vendorDetailExtension.setWorkmansCompCoverageAmount(insuranceTracking.getWorkmansCompCoverageAmount());
-    	   vendorDetailExtension.setWorkmansCompExpiration(insuranceTracking.getWorkmansCompExpiration());
-    	   vendorDetailExtension.setExcessLiabilityUmbExpiration(insuranceTracking.getExcessLiabilityUmbExpiration());
-    	   vendorDetailExtension.setExcessLiabilityUmbrellaAmount(insuranceTracking.getExcessLiabilityUmbrellaAmount());
-    	   vendorDetailExtension.setHealthOffSiteCateringLicenseReq(insuranceTracking.getHealthOffSiteCateringLicenseReq());
-    	   vendorDetailExtension.setHealthOffSiteLicenseExpirationDate(insuranceTracking.getHealthOffSiteLicenseExpirationDate());
-    	   vendorDetailExtension.setInsuranceNotes(insuranceTracking.getInsuranceNotes());
-       }
+        if (StringUtils.isNotBlank(vendorBatch.getInsuranceTracking())) {
+            VendorBatchInsuranceTracking insuranceTracking = vendorBatch.getVendorInsuranceTracking();
+            vendorDetailExtension.setInsuranceRequiredIndicator(insuranceTracking.isInsuranceRequiredIndicator());
+            vendorDetailExtension.setInsuranceRequirementsCompleteIndicator(insuranceTracking.getInsuranceRequirementsCompleteIndicator());
+            vendorDetailExtension.setCornellAdditionalInsuredIndicator(insuranceTracking.getCornellAdditionalInsuredIndicator());
+            vendorDetailExtension.setGeneralLiabilityCoverageAmount(insuranceTracking.getGeneralLiabilityCoverageAmount());
+            vendorDetailExtension.setGeneralLiabilityExpiration(insuranceTracking.getGeneralLiabilityExpiration());
+            vendorDetailExtension.setAutomobileLiabilityCoverageAmount(insuranceTracking.getAutomobileLiabilityCoverageAmount());
+            vendorDetailExtension.setAutomobileLiabilityExpiration(insuranceTracking.getAutomobileLiabilityExpiration());
+            vendorDetailExtension.setWorkmansCompCoverageAmount(insuranceTracking.getWorkmansCompCoverageAmount());
+            vendorDetailExtension.setWorkmansCompExpiration(insuranceTracking.getWorkmansCompExpiration());
+            vendorDetailExtension.setExcessLiabilityUmbExpiration(insuranceTracking.getExcessLiabilityUmbExpiration());
+            vendorDetailExtension.setExcessLiabilityUmbrellaAmount(insuranceTracking.getExcessLiabilityUmbrellaAmount());
+            vendorDetailExtension.setHealthOffSiteCateringLicenseReq(insuranceTracking.getHealthOffSiteCateringLicenseReq());
+            vendorDetailExtension.setHealthOffSiteLicenseExpirationDate(insuranceTracking.getHealthOffSiteLicenseExpirationDate());
+            vendorDetailExtension.setInsuranceNotes(insuranceTracking.getInsuranceNotes());
+        }
     }
     
+    /*
+     * Add 'initiator', 'DV Reason', and 'Doing Business As' as note.
+     */
     private void addNotes(Document document, VendorBatchDetail vendorBatch) {
         if (StringUtils.isNotBlank(vendorBatch.getNotes())) {
         	VendorBatchAdditionalNote additionalNote = vendorBatch.getVendorAdditionalNote();
@@ -573,6 +594,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         }
     }
 
+    /*
+     * create a note and add it to vendor document
+     */
     private void addNote (Document document, String noteText) {
         Note note = new Note();
 
@@ -588,11 +612,14 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         return personService.getPersonByPrincipalName(KFSConstants.SYSTEM_USER);
     }
 
+    /*
+     * update existing vendor address or create a new one if it does not exist.
+     */
 	private void updateVendorAddresses(List<VendorBatchAddress> addresses, VendorDetail vendor, VendorDetail vDetail) {
     	if (CollectionUtils.isNotEmpty(addresses)) {
 			for (VendorBatchAddress address : addresses) {
 				VendorAddress vendorAddr = new VendorAddress();
-				LOG.info("updateVendor ADDRESS " + address +  "~"  + address.getVendorAddressTypeCode() + "~" + address.getVendorAddressGeneratedIdentifier());
+				LOG.info("updateVendor ADDRESS " + address +  TILDA_DELIMITER  + address.getVendorAddressTypeCode() + TILDA_DELIMITER + address.getVendorAddressGeneratedIdentifier());
 				if (StringUtils.isNotBlank(address.getVendorAddressGeneratedIdentifier())) {
 					vendorAddr = getVendorAddress(vDetail, Integer.valueOf(address.getVendorAddressGeneratedIdentifier()));
 				}
@@ -607,6 +634,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
     	}
 	}
 
+	/*
+	 * check if vendor address exist.  if it exists then return the exist one, otherwise return empty one.
+	 */
 	private VendorAddress getVendorAddress(VendorDetail vDetail, Integer vendorAddressGeneratedIdentifier) {
 		for (VendorAddress vAddress : vDetail.getVendorAddresses()) {
 			if (vendorAddressGeneratedIdentifier.equals(vAddress.getVendorAddressGeneratedIdentifier())) {
@@ -616,30 +646,13 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 		return new VendorAddress();
 	}
 
-	/**
-	 * 
-	 * @param vendorId
-	 * @param vendorIdType
-	 * @return
-	 * @throws Exception
-	 */
-	private VendorDetail retrieveVendor(String vendorId, String vendorIdType) throws Exception {
-		VendorDetail vendor = null;
-		CUVendorService vendorService = SpringContext.getBean(CUVendorService.class);
-		if (StringUtils.equalsIgnoreCase(vendorIdType, "DUNS")) {
-			vendor = vendorService.getVendorByDunsNumber(vendorId);
-		} else if (StringUtils.equalsIgnoreCase(vendorIdType, "VENDORID")) {
-			vendor = vendorService.getByVendorNumber(vendorId);
-		} else if (StringUtils.equalsIgnoreCase(vendorIdType, "VENDORNAME")) {
-			vendor = vendorService.getVendorByVendorName(vendorId);
-		}
-		return vendor;
-	}
-
+    /*
+     * update existing vendor contact or create a new one if it does not exist.
+     */
 	private void updateVendorContacts(List<VendorBatchContact> contacts, VendorDetail oldVendorDetail, VendorDetail vDetail) {
     	if (CollectionUtils.isNotEmpty(contacts)) {
 	    	for (VendorBatchContact contact : contacts) {
-				LOG.info("updateVendor contact " + contact +  "~" + contact.getVendorContactGeneratedIdentifier() + "~" + contact.getVendorContactName());
+				LOG.info("updateVendor contact " + contact +  TILDA_DELIMITER + contact.getVendorContactGeneratedIdentifier() + TILDA_DELIMITER + contact.getVendorContactName());
 	        	VendorContact vContact = new VendorContact();
 	        	if (StringUtils.isNotBlank(contact.getVendorContactGeneratedIdentifier())) {
 	        		vContact = getVendorContact(vDetail, Integer.valueOf(contact.getVendorContactGeneratedIdentifier()));
@@ -655,6 +668,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
     	}
 	}
 
+    /*
+     * check if vendor contact exist.  if it exists then return the exist one, otherwise return empty one.
+     */
 	private VendorContact getVendorContact(VendorDetail vDetail, Integer vendorContactGeneratedIdentifier) {
     	if (CollectionUtils.isNotEmpty(vDetail.getVendorContacts())) {
 			for (VendorContact vContact : vDetail.getVendorContacts()) {
@@ -666,6 +682,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 		return new VendorContact();
 	}
 	
+    /*
+     * populate vendor batch contact data to vendor contact
+     */
 	private void setVendorContact(VendorBatchContact contact,VendorContact vContact) {
     	vContact.setVendorContactTypeCode(contact.getVendorContactTypeCode());
     	vContact.setVendorContactName(contact.getVendorContactName());
@@ -679,10 +698,13 @@ public class VendorBatchServiceImpl implements VendorBatchService{
     	vContact.setVendorZipCode(contact.getVendorZipCode());
     	vContact.setVendorAttentionName(contact.getVendorAttentionName());
     	vContact.setVendorAddressInternationalProvinceName(contact.getVendorAddressInternationalProvinceName());    	
-    	vContact.setActive(StringUtils.equalsIgnoreCase("Y", contact.getActive()));
+    	vContact.setActive(StringUtils.equalsIgnoreCase(YES, contact.getActive()));
 
 	}
 	
+	/*
+	 * convert list of vendor batch contacts to vendor contacts
+	 */
 	private List<VendorContact> getVendorContacts(List<VendorBatchContact> contacts) {
     	ArrayList<VendorContact> vendorContacts = new ArrayList<VendorContact>();
     	if (CollectionUtils.isNotEmpty(contacts)) {
@@ -696,10 +718,13 @@ public class VendorBatchServiceImpl implements VendorBatchService{
     	return vendorContacts;
 	}
 	
+    /*
+     * update existing vendor phone number or create a new one if it does not exist.
+     */
 	private void updateVendorPhoneNumbers(List<VendorBatchPhoneNumber> phoneNumbers, VendorDetail vendor, VendorDetail vDetail) {
     	if (CollectionUtils.isNotEmpty(phoneNumbers)) {
 	    	for (VendorBatchPhoneNumber phoneNumber : phoneNumbers) {
-				LOG.info("updateVendor phoneNumber " + phoneNumber + "~" + phoneNumber.getVendorPhoneGeneratedIdentifier() + "~" 
+				LOG.info("updateVendor phoneNumber " + phoneNumber + TILDA_DELIMITER + phoneNumber.getVendorPhoneGeneratedIdentifier() + TILDA_DELIMITER 
 						+ phoneNumber.getVendorPhoneTypeCode());
 	    		VendorPhoneNumber vPhoneNumber = new VendorPhoneNumber();
 	        	if (StringUtils.isNotBlank(phoneNumber.getVendorPhoneGeneratedIdentifier())) {
@@ -717,6 +742,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
     	}
 	}
 
+    /*
+     * update existing vendor supplier diversity or create a new one if it does not exist.
+     */
 	private void updateVendorSupplierDiversitys(List<VendorBatchSupplierDiversity> supplierDiversitys, VendorDetail vendor, VendorDetail vDetail) {
     	ArrayList<VendorSupplierDiversity> vendorSupplierDiversitys = new ArrayList<VendorSupplierDiversity>();
     	if (CollectionUtils.isNotEmpty(supplierDiversitys)) {
@@ -727,7 +755,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 	            vDiversity.setVendorSupplierDiversityCode(diversity.getVendorSupplierDiversityCode());
 
 	            ((CuVendorSupplierDiversityExtension)vDiversity.getExtension()).setVendorSupplierDiversityExpirationDate(new java.sql.Date(getFormatDate(diversity.getVendorSupplierDiversityExpirationDate()).getTime()));
-	            vDiversity.setActive(StringUtils.equalsIgnoreCase("Y", diversity.getActive()));
+	            vDiversity.setActive(StringUtils.equalsIgnoreCase(YES, diversity.getActive()));
 	            if (!isExist) {
 	            	vDetail.getVendorHeader().getVendorSupplierDiversities().add(vDiversity);
 	            	vendor.getVendorHeader().getVendorSupplierDiversities().add(new VendorSupplierDiversity());
@@ -737,6 +765,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
     	}
 	}
 
+    /*
+     * check if vendor phone number exist.  if it exists then return the exist one, otherwise return empty one.
+     */
 	private VendorPhoneNumber getVendorPhoneNumber(VendorDetail vDetail, Integer vendorPhoneNumberGeneratedIdentifier) {
     	if (CollectionUtils.isNotEmpty(vDetail.getVendorPhoneNumbers())) {
 		for (VendorPhoneNumber vPhoneNumber : vDetail.getVendorPhoneNumbers()) {
@@ -748,6 +779,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 		return new VendorPhoneNumber();
 	}
 	
+    /*
+     * check if vendor supplier diversity exist.  if it exists then return the exist one, otherwise return empty one.
+     */
 	private VendorSupplierDiversity getVendorSupplierDiversity(VendorHeader vHeader, String supplierDiversityCode) {
     	if (CollectionUtils.isNotEmpty(vHeader.getVendorSupplierDiversities())) {
 			for (VendorSupplierDiversity vSupplierDiversity : vHeader.getVendorSupplierDiversities()) {
@@ -759,13 +793,19 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 		return new VendorSupplierDiversity();
 	}
 
+    /*
+     * populate vendor batch phone numbers to vendor phone number
+     */
 	private void setVendorPhoneNumber(VendorBatchPhoneNumber phoneNumber,VendorPhoneNumber vPhoneNumber) {
     	vPhoneNumber.setVendorPhoneTypeCode(phoneNumber.getVendorPhoneTypeCode());
     	vPhoneNumber.setVendorPhoneNumber(phoneNumber.getVendorPhoneNumber());
     	vPhoneNumber.setVendorPhoneExtensionNumber(phoneNumber.getVendorPhoneExtensionNumber());
-    	vPhoneNumber.setActive(StringUtils.equalsIgnoreCase("Y", phoneNumber.getActive()));
+    	vPhoneNumber.setActive(StringUtils.equalsIgnoreCase(YES, phoneNumber.getActive()));
 	}
 	
+	/*
+	 * convert string date to java.uitl.Date.  currently support mm.dd.yyyy & mm/dd/yyyy format
+	 */
 	private Date getFormatDate(String stringDate) {
         SimpleDateFormat format = new SimpleDateFormat("MM.dd.yyyy");
         if (stringDate.contains("/")) {
@@ -780,6 +820,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
         return date;
 	}
 
+	/*
+	 * populate list of vendor batch phone numbers to vendor phone numbers
+	 */
 	private List<VendorPhoneNumber> getVendorPhoneNumbers(List<VendorBatchPhoneNumber> phoneNumbers) {
     	List<VendorPhoneNumber> vendorPhoneNumbers = new ArrayList<VendorPhoneNumber>();
     	if (CollectionUtils.isNotEmpty(phoneNumbers)) {
@@ -794,6 +837,9 @@ public class VendorBatchServiceImpl implements VendorBatchService{
     	return vendorPhoneNumbers;
 	}
 	
+    /*
+     * populate list of vendor batch supplier diversities to vendor supplier diversities
+     */
 	private List<VendorSupplierDiversity> getVendorSupplierDiversities(List<VendorBatchSupplierDiversity> supplierDiversitys) {
     	List<VendorSupplierDiversity> vendorSupplierDiversitys = new ArrayList<VendorSupplierDiversity>();
     	if (CollectionUtils.isNotEmpty(supplierDiversitys)) {
@@ -803,7 +849,7 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 	
 	            vDiversity.setVendorSupplierDiversityCode(diversity.getVendorSupplierDiversityCode());
 	            ((CuVendorSupplierDiversityExtension)vDiversity.getExtension()).setVendorSupplierDiversityExpirationDate(new java.sql.Date(getFormatDate(diversity.getVendorSupplierDiversityExpirationDate()).getTime()));
-	            vDiversity.setActive(StringUtils.equalsIgnoreCase("Y", diversity.getActive()));
+	            vDiversity.setActive(StringUtils.equalsIgnoreCase(YES, diversity.getActive()));
 	            vendorSupplierDiversitys.add(vDiversity);
 	   		
 	    	}
@@ -831,9 +877,12 @@ public class VendorBatchServiceImpl implements VendorBatchService{
 		this.documentService = documentService;
 	}
 
-	public void setMaintenanceDocumentService(
-			MaintenanceDocumentService maintenanceDocumentService) {
-		this.maintenanceDocumentService = maintenanceDocumentService;
+	public void setReportsDirectoryPath(String reportsDirectoryPath) {
+		this.reportsDirectoryPath = reportsDirectoryPath;
 	}
+
+    public void setCuVendorService(CUVendorService cuVendorService) {
+        this.cuVendorService = cuVendorService;
+    }
 
 }

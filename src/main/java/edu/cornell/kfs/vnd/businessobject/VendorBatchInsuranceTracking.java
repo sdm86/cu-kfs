@@ -6,6 +6,9 @@ import java.text.SimpleDateFormat;
 import org.apache.commons.lang.StringUtils;
 import org.kuali.rice.core.api.util.type.KualiDecimal;
 
+/**
+ *  non-persistable to hold vendor insurance tracking converted from input data file
+ **/
 public class VendorBatchInsuranceTracking {
     private boolean insuranceRequiredIndicator;
     private Boolean insuranceRequirementsCompleteIndicator;

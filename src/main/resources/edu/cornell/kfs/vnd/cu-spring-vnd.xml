@@ -186,16 +186,19 @@
 		<property name="configurationService">
 			<ref bean="kualiConfigurationService" />
 		</property>
-		<property name="documentService">
-			<ref bean="documentService" />
-		</property>
-		<property name="maintenanceDocumentService">
-			<ref bean="maintenanceDocumentService" />
-		</property>
+        <property name="documentService">
+            <ref bean="documentService" />
+        </property>
+        <property name="cuVendorService">
+            <ref bean="cuVendorService" />
+        </property>
 		<property name="batchInputFileTypes">
 			<list>
 				<ref bean="vendorBatchCsvInputFileType" />
 			</list>
+		</property>
+		<property name="reportsDirectoryPath">
+			<value>${reports.directory}/vnd/</value>
 		</property>
 	</bean>
 

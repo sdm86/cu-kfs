@@ -1,6 +1,9 @@
 package edu.cornell.kfs.vnd.businessobject;
 
 
+/**
+ *  non-persistable to hold vendor supplier diversity converted from input data file
+ **/
 public class VendorBatchSupplierDiversity {
 	private String vendorSupplierDiversityCode;
     private String active;

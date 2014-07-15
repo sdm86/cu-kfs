@@ -1,5 +1,8 @@
 package edu.cornell.kfs.vnd.businessobject;
 
+/**
+ *  non-persistable to hold vendor contact converted from input data file
+ **/
 public class VendorBatchContact {
 
     private String vendorContactGeneratedIdentifier;
