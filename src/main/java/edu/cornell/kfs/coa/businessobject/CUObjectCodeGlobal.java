@@ -53,6 +53,7 @@ public class CUObjectCodeGlobal extends ObjectCodeGlobal implements GlobalBusine
     private String financialObjectCodeDescr;
     
     private String cgReportingCode;
+    private String cgReportingCodeDescr;
     private String code;
     private ContractGrantReportingCode contractGrantReportingCode;
     
@@ -119,6 +120,17 @@ public class CUObjectCodeGlobal extends ObjectCodeGlobal implements GlobalBusine
 		//lookup table has class attribute defined as "code"
 	    keys.put("code", this.cgReportingCode);
 		contractGrantReportingCode = (ContractGrantReportingCode) bos.findByPrimaryKey(ContractGrantReportingCode.class, keys );
+	}
+	
+	public String getCgReportingCodeDescr() {
+		return cgReportingCodeDescr;
+	}
+
+	/**
+	 * @param cgReportingCodeDescr the cgReportingCodeDescr to set
+	 */
+	public void setCgReportingCodeDescr(String cgReportingCodeDescr) {
+		this.cgReportingCodeDescr = cgReportingCodeDescr;
 	}
 	
 	/**

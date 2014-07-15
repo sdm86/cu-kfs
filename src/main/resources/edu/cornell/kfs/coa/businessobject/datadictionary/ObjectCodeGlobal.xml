@@ -24,6 +24,7 @@
         <ref bean="ObjectCodeGlobal-financialObjectCodeDescr"/>
         <ref bean="ObjectCodeGlobal-code"/> 
         <ref bean="ObjectCodeGlobal-cgReportingCode"/>  
+        <ref bean="ObjectCodeGlobal-cgReportingCodeDescr"/>
       </list>
     </property>    
     
@@ -54,5 +55,7 @@
    <property name="name" value="cgReportingCode"/>
   </bean>  
 
+  <bean id="ObjectCodeGlobal-cgReportingCodeDescr" parent="ObjectCodeGlobal-cgReportingCodeDescr-parentBean"/>
+  <bean id="ObjectCodeGlobal-cgReportingCodeDescr-parentBean" abstract="true" parent="ObjectCodeExtendedAttribute-cgReportingCodeDescr" />
   
 </beans>

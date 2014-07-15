@@ -14,6 +14,7 @@
         <ref bean="ObjectCodeExtendedAttribute-financialObjectCode"/>        
         <ref bean="ObjectCodeExtendedAttribute-sunyObjectCode"/>
         <ref bean="ObjectCodeExtendedAttribute-cgReportingCode"/>
+        <ref bean="ObjectCodeExtendedAttribute-cgReportingCodeDescr"/>
         <ref bean="ObjectCodeExtendedAttribute-financialObjectCodeDescr"/>
       </list>
     </property>        
@@ -72,6 +73,23 @@
   <bean id="ObjectCodeExtendedAttribute-cgReportingCode-parentBean" abstract="true" parent="ContractGrantReportingCode-code" >
     <property name="name" value="cgReportingCode"/>    
   </bean>   
+     
+  <bean id="ObjectCodeExtendedAttribute-cgReportingCodeDescr" parent="ObjectCodeExtendedAttribute-cgReportingCodeDescr-parentBean"/>
+  <bean id="ObjectCodeExtendedAttribute-cgReportingCodeDescr-parentBean" abstract="true" parent="GenericAttributes-genericBigText">
+    <property name="name" value="cgReportingCodeDescr"/>
+    <property name="label" value="CG Reporting Object Code Description"/>
+    <property name="shortLabel" value="Description"/>
+    <property name="required" value="false"/>
+    <property name="maxLength" value="600"/>
+    <property name="validationPattern">
+      <bean parent="AnyCharacterWithWhitespaceValidation" />
+    </property>
+    
+    <property name="control">
+      <bean parent="TextareaControlDefinition" p:rows="3" p:cols="60"/>
+    </property>
+    
+  </bean>
      
 </beans>
   

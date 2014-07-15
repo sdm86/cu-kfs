@@ -26,6 +26,7 @@ public class ObjectCodeExtendedAttribute extends YearEndPersistableBusinessObjec
     private String financialObjectCode;
     private String sunyObjectCode;
     private String cgReportingCode;
+    private String cgReportingCodeDescr;
     private String financialObjectCodeDescr;
     
     private ContractGrantReportingCode contractGrantReportingCode;
@@ -115,6 +116,18 @@ public class ObjectCodeExtendedAttribute extends YearEndPersistableBusinessObjec
 		//lookup table has class attribute defined as "code"
 	    keys.put("code", this.cgReportingCode);
 		contractGrantReportingCode = (ContractGrantReportingCode) bos.findByPrimaryKey(ContractGrantReportingCode.class, keys );
+	}
+	/**
+	 * @return the cgReportingCodeDescr
+	 */
+	public String getCgReportingCodeDescr() {
+		return cgReportingCodeDescr;
+	}
+	/**
+	 * @param cgReportingCodeDescr the cgReportingCodeDescr to set
+	 */
+	public void setCgReportingCodeDescr(String cgReportingCodeDescr) {
+		this.cgReportingCodeDescr = cgReportingCodeDescr;
 	}
 	
 	protected LinkedHashMap toStringMapper() {

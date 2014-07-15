@@ -600,6 +600,8 @@
 			column="FIN_OBJ_CD_DESCR" jdbc-type="VARCHAR" />
 		<field-descriptor name="cgReportingCode" column="CG_RPT_CD"
 			jdbc-type="VARCHAR" index="true" />
+    <field-descriptor name="cgReportingCodeDescr"
+      column="CG_RPT_CD_DESCR" jdbc-type="VARCHAR" />
 		<field-descriptor name="objectId" column="OBJ_ID"
 			jdbc-type="VARCHAR" index="true" />
 		<field-descriptor name="versionNumber" column="VER_NBR"

@@ -35,6 +35,7 @@
                           <bean parent="MaintainableFieldDefinition" p:name="extension.sunyObjectCode" />
                           <bean parent="MaintainableFieldDefinition" p:name="extension.financialObjectCodeDescr" />
                           <bean parent="MaintainableFieldDefinition" p:name="extension.cgReportingCode" p:required="true"/>
+                          <bean parent="MaintainableFieldDefinition" p:name="extension.cgReportingCodeDescr" />
                        </list>
                    </property>
                </bean>
