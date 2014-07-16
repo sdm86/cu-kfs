@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 The Kuali Foundation
+ * Copyright 2014 The Kuali Foundation
  * 
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,7 @@ public class CUObjectCodeGlobal extends ObjectCodeGlobal implements GlobalBusine
         cuObjectCodeExtendedData.setChartOfAccountsCode(detail.getChartOfAccountsCode());
         cuObjectCodeExtendedData.setFinancialObjectCode(financialObjectCode);
         cuObjectCodeExtendedData.setCgReportingCode(update(cgReportingCode, cuObjectCodeExtendedData.getCgReportingCode()));
+        cuObjectCodeExtendedData.setCgReportingCodeDescr(update(cgReportingCodeDescr, cuObjectCodeExtendedData.getCgReportingCodeDescr()));
         cuObjectCodeExtendedData.setSunyObjectCode(update(sunyObjectCode, cuObjectCodeExtendedData.getSunyObjectCode()));
         cuObjectCodeExtendedData.setFinancialObjectCodeDescr(update(financialObjectCodeDescr, cuObjectCodeExtendedData.getFinancialObjectCodeDescr()));
 
