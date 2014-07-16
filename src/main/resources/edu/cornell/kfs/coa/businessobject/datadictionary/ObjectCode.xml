@@ -212,7 +212,7 @@
   </bean>   
   
   <bean id="ObjectCode-extension-contractGrantReportingCode-cgReportingCodeDescr" parent="ObjectCode-extension-contractGrantReportingCode-cgReportingCodeDescr-parentBean"/>
-  <bean id="ObjectCode-extension-contractGrantReportingCode-cgReportingCodeDescr-parentBean" abstract="true" parent="ObjectCode-extension-contractGrantReportingCode-cgReportingCodeDescr">
+  <bean id="ObjectCode-extension-contractGrantReportingCode-cgReportingCodeDescr-parentBean" abstract="true" parent="ObjectCodeExtendedAttribute-cgReportingCodeDescr">
     <property name="name" value="extension.cgReportingCodeDescr"/>
   </bean>
   
