@@ -48,6 +48,7 @@
         <ref bean="ObjectCode-extension-sunyObjectCode"/>
         <ref bean="ObjectCode-extension-financialObjectCodeDescr"/> 
         <ref bean="ObjectCode-extension-contractGrantReportingCode-cgReportingCode"/>
+        <ref bean="ObjectCode-extension-contractGrantReportingCode-cgReportingCodeDescr"/> 
       </list>
     </property>
       
@@ -199,7 +200,7 @@
     <property name="name" value="extension.sunyObjectCode"/>
   </bean>
   
-<bean id="ObjectCode-extension-financialObjectCodeDescr" parent="ObjectCode-extension-financialObjectCodeDescr-parentBean"/>
+  <bean id="ObjectCode-extension-financialObjectCodeDescr" parent="ObjectCode-extension-financialObjectCodeDescr-parentBean"/>
   <bean id="ObjectCode-extension-financialObjectCodeDescr-parentBean" abstract="true" parent="ObjectCodeExtendedAttribute-financialObjectCodeDescr">
     <property name="name" value="extension.financialObjectCodeDescr"/>
   </bean>
@@ -209,6 +210,11 @@
   <bean id="ObjectCode-extension-contractGrantReportingCode-cgReportingCode-parentBean" abstract="true" parent="ObjectCodeExtendedAttribute-cgReportingCode" >
     <property name="name" value="extension.cgReportingCode"/>    
   </bean>   
+  
+  <bean id="ObjectCode-extension-contractGrantReportingCode-cgReportingCodeDescr" parent="ObjectCode-extension-contractGrantReportingCode-cgReportingCodeDescr-parentBean"/>
+  <bean id="ObjectCode-extension-contractGrantReportingCode-cgReportingCodeDescr-parentBean" abstract="true" parent="ObjectCode-extension-contractGrantReportingCode-cgReportingCodeDescr">
+    <property name="name" value="extension.cgReportingCodeDescr"/>
+  </bean>
   
 <!-- Business Object Inquiry Definition -->
 
@@ -234,6 +240,7 @@
               <bean parent="FieldDefinition" p:attributeName="financialObjectTypeCode"/>
               <bean parent="FieldDefinition" p:attributeName="financialObjectLevelCode"/>
               <bean parent="FieldDefinition" p:attributeName="extension.cgReportingCode"/>
+              <bean parent="FieldDefinition" p:attributeName="extension.cgReportingCodeDescr"/> 
               <bean parent="FieldDefinition" p:attributeName="financialObjectSubTypeCode"/>
               <bean parent="FieldDefinition" p:attributeName="extension.sunyObjectCode"/>
               <bean parent="FieldDefinition" p:attributeName="extension.financialObjectCodeDescr"/> 
@@ -276,6 +283,7 @@
         <bean parent="FieldDefinition" p:attributeName="financialObjectCodeShortName"/>
         <bean parent="FieldDefinition" p:attributeName="financialObjectLevelCode"/>
         <bean parent="FieldDefinition" p:attributeName="extension.cgReportingCode"/>
+        <bean parent="FieldDefinition" p:attributeName="extension.cgReportingCodeDescr"/> 
         <bean parent="FieldDefinition" p:attributeName="financialObjectTypeCode"/>
         <bean parent="FieldDefinition" p:attributeName="financialObjectSubTypeCode"/>
         <bean parent="FieldDefinition" p:attributeName="extension.sunyObjectCode"/>
@@ -293,6 +301,7 @@
         <bean parent="FieldDefinition" p:attributeName="financialObjectCodeName"/>
         <bean parent="FieldDefinition" p:attributeName="financialObjectLevelCode"/>
         <bean parent="FieldDefinition" p:attributeName="extension.cgReportingCode"/>
+        <bean parent="FieldDefinition" p:attributeName="extension.cgReportingCodeDescr"/> 
         <bean parent="FieldDefinition" p:attributeName="financialObjectTypeCode"/>
         <bean parent="FieldDefinition" p:attributeName="extension.sunyObjectCode"/>
         <bean parent="FieldDefinition" p:attributeName="extension.financialObjectCodeDescr"/> 
